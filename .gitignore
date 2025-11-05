@@ -1,5 +1,7 @@
 .env
-node_mudules/
+node_modules/
+package-lock.json
+package.json
 __pycache__/
 *.log
 .DS_Store
