@@ -8,12 +8,192 @@ File: form.html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form</title>
-    <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Career Interest Form</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    
+    <form id="careerForm">
+        
+        <!-- Name -->
+        <div class="section">
+        <div class="section-title">
+            <div class="icon">👤</div>
+            What's your name?
+        </div>
+        <input class="input" type="text" placeholder="Enter your full name">
+        </div>
+
+        <!-- Major -->
+        <div class="section">
+        <div class="section-title">
+            <div class="icon">🎓</div>
+            What's your major?
+        </div>
+        <input class="input" type="text" placeholder="e.g., Computer Science, Business, Design">
+        </div>
+
+        <!-- Role -->
+        <div class="section">
+        <div class="section-title">
+            <div class="icon">🎁</div>
+            What type of role suits you best?
+        </div>
+
+        <div class="role-grid">
+            <label class="choice"><input type="radio" name="role">Frontend Developer</label>
+            <label class="choice"><input type="radio" name="role">Backend Developer</label>
+            <label class="choice"><input type="radio" name="role">Full Stack Developer</label>
+            <label class="choice"><input type="radio" name="role">UI/UX Designer</label>
+            <label class="choice"><input type="radio" name="role">Product Manager</label>
+            <label class="choice"><input type="radio" name="role">Data Scientist</label>
+            <label class="choice"><input type="radio" name="role">DevOps Engineer</label>
+            <label class="choice"><input type="radio" name="role">Mobile Developer</label>
+        </div>
+        </div>
+
+        <!-- Interests -->
+        <div class="section">
+        <div class="section-title">
+            <div class="icon">✨</div>
+            What are your interests?
+        </div>
+        <textarea placeholder="Tell us about your passions, hobbies, and what excites you..."></textarea>
+
+        <button class="btn">Submit</button>
+        </div>
+
+    </form>
 </body>
 </html>
+
+<style>
+    :root {
+      --page-bg:#eef0f3;
+      --section-bg:#e7e9ee;
+      --field-bg:#ffffff;
+      --border:#d4d7de;
+      --text:#111827;
+      --muted:#6b7280;
+      --accent:#111827;
+      --accent-hover:#0b1220;
+      --radius:12px;
+      --radius-sm:10px;
+    }
+
+    * { box-sizing:border-box; }
+    body {
+      margin:0;
+      background:var(--page-bg);
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      padding:30px;
+      font-family: system-ui, sans-serif;
+    }
+
+    form {
+      width:100%;
+      max-width:900px;
+      display:flex;
+      flex-direction:column;
+      gap:24px;
+    }
+
+    .section {
+      background:var(--section-bg);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:20px;
+    }
+
+    .section-title {
+      display:flex;
+      align-items:center;
+      font-size:14px;
+      gap:10px;
+      margin-bottom:12px;
+      font-weight:600;
+      color:#374151;
+    }
+
+    .section-title .icon {
+      width:28px;
+      height:28px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:#f3f4f6;
+      border:1px solid var(--border);
+      border-radius:50%;
+    }
+
+    .input, textarea {
+      width:100%;
+      padding:12px 14px;
+      border-radius:var(--radius-sm);
+      border:1px solid var(--border);
+      background:var(--field-bg);
+      font-size:14px;
+    }
+
+    textarea {
+      min-height:120px;
+      resize:vertical;
+    }
+
+    .input:focus, textarea:focus {
+      border-color:#b9c1d1;
+      box-shadow:0 0 0 3px rgba(59,130,246,0.15);
+      outline:none;
+    }
+
+    /* ROLE GRID */
+    .role-grid {
+      display:grid;
+      gap:12px;
+      grid-template-columns:1fr;
+    }
+
+    @media (min-width:700px) {
+      .role-grid {
+        grid-template-columns:1fr 1fr;
+      }
+    }
+
+    .choice {
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:var(--radius-sm);
+      padding:12px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      cursor:pointer;
+    }
+
+    .choice input[type=radio] {
+      accent-color:#111827;
+      height:18px;
+      width:18px;
+      flex-shrink:0;
+    }
+
+    /* BUTTON */
+    .btn {
+      width:100%;
+      background:var(--accent);
+      color:white;
+      font-size:14px;
+      font-weight:600;
+      border:none;
+      border-radius:var(--radius-sm);
+      padding:12px 16px;
+      cursor:pointer;
+    }
+
+    .btn:hover {
+      background:var(--accent-hover);
+    }
+</style>

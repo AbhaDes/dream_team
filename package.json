@@ -1,0 +1,25 @@
+{
+  "name": "group-project-autuvmn",
+  "version": "1.0.0",
+  "description": "**Milestones 2–4**",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CSC317-F25/group-project-autuvmn.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/CSC317-F25/group-project-autuvmn/issues"
+  },
+  "homepage": "https://github.com/CSC317-F25/group-project-autuvmn#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
