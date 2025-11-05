@@ -1,4 +1,3 @@
-/* Global Styles */
 body {
     background-color: #dcdcdc;
     margin: 0;
@@ -6,7 +5,6 @@ body {
     font-family: Arial, sans-serif;
 }
 
-/* Landing Page Header */
 .main-header {
     position: fixed;
     top: 0;
@@ -35,7 +33,6 @@ body {
     border: 2px solid #555555;
 }
 
-/* Hero Section */
 .hero-section {
     padding: 100px 60px 80px;
     max-width: 1400px;
@@ -92,7 +89,6 @@ body {
     background-color: #444;
 }
 
-/* Matching Card */
 .matching-card {
     background-color: #e8e8e8;
     border-radius: 12px;
@@ -151,7 +147,6 @@ body {
     background-color: #d0d0d0;
 }
 
-/* Content Sections */
 .content-section {
     padding: 80px 60px;
     max-width: 1400px;
@@ -181,194 +176,20 @@ body {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* Index Page Styles (Legacy - for backward compatibility) */
-.signup-button {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background-color: #555555;
-    color: white;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: bold;
-}
-
-.login-button {
-    position: fixed;
-    top: 20px;
-    right: 150px;
-    background-color: transparent;
-    color: #555555;
-    padding: 10px 20px;
-    text-decoration: none;
-    border: 3px solid #555555;
-    border-radius: 8px;
-    font-weight: bold;
-}
-
-/* Common Form Styles */
-.box {
-    position: relative;
-    top: 100px;
-    left: 50%;
-    transform: translate(-50%, 0%);
-    width: 600px;
-    height: 600px;
-    padding: 40px;
-    border: 2px solid #aaa;
-    border-radius: 15px;
+.main-footer {
     background-color: #c3c3c3;
-    color: black;
-    font-size: 20px;
+    padding: 40px 60px;
     text-align: center;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin-top: 80px;
 }
 
-.text-input {
-    position: absolute;
-    transform: translate(-50%, 0%);
-    width: 75%;
-    height: 4%;
-    padding: 10px;
-    margin-top: 20px;
-    border: 2px solid #aaa;
-    border-radius: 8px;
-    background-color: #aaa;
-    color: #555555;
-    font-size: 16px;
-    text-align: left;
+.footer-content {
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
-.arrow-button {
-    position: absolute;
-    left: 75px;
-    top: 15%;
-    color: black;
-    text-decoration: none;
-    font-size: 40px;
+.footer-content p {
+    color: #555;
+    font-size: 14px;
+    margin: 0;
 }
-
-/* Login Page Styles */
-.signup-prompt {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-}
-
-.toggle-password-button {
-    position: fixed;
-    top: 64%;
-    right: 85px;
-    background-color: transparent;
-    color: #555555;
-    text-decoration: none;
-    border-radius: 8px;
-    border: none;
-    font-weight: bold;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.login-button-form {
-    position: absolute;
-    transform: translate(-50%, 0%);
-    width: 275px;
-    padding: 15px 0;
-    background-color: #555555;
-    color: #aaa;
-    font-size: 18px;
-    font-weight: bold;
-    border: none;
-    border-radius: 50px;
-    text-align: center;
-    cursor: pointer;
-}
-
-/* Signup Page Styles */
-.login-prompt {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-}
-
-.next-button {
-    position: absolute;
-    transform: translate(-50%, 0%);
-    width: 275px;
-    padding: 15px 0;
-    background-color: #555555;
-    color: #aaa;
-    font-size: 18px;
-    font-weight: bold;
-    border: none;
-    border-radius: 50px;
-    text-align: center;
-    cursor: pointer;
-}
-
-/* Form-specific positioning styles */
-.page-title {
-    position: absolute;
-    left: 75px;
-    top: 150px;
-}
-
-.label-email {
-    position: absolute;
-    left: 75px;
-    top: 270px;
-    font-size: 18px;
-}
-
-.input-email {
-    top: 300px;
-    left: 50%;
-}
-
-.label-password {
-    position: absolute;
-    left: 75px;
-    top: 370px;
-    font-size: 18px;
-}
-
-.input-password {
-    top: 400px;
-    left: 50%;
-}
-
-.prompt-bottom {
-    bottom: 20px;
-}
-
-.button-bottom {
-    bottom: 120px;
-    left: 50%;
-}
-
-.button-next {
-    top: 400px;
-    left: 50%;
-}
-
-/* Utility classes */
-.text-center {
-    text-align: center;
-}
-
-.link-black {
-    color: black;
-    text-decoration: none;
-}
-
