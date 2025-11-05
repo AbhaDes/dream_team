@@ -11,39 +11,68 @@ File: index.html
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Page</title>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
-<body style="background-color: #dcdcdc;">
-    
-   <h1>Home</h1>
-   <a href="signup.html" class="signup-button">Sign Up</a>
-   <a href="login.html" class="login-button">Log In</a>
+<body>
+    <!-- Header Navigation -->
+    <header class="main-header">
+        <a href="login.html" class="header-login">Log In</a>
+        <a href="signup.html" class="header-signup">Sign Up</a>
+    </header>
 
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <div class="hero-left">
+                <h1 class="hero-heading">Tell us the dream, we create the team</h1>
+                <p class="hero-description">For students and early-career builders who want to find portfolio work.</p>
+                <div class="hero-buttons">
+                    <button class="btn-primary">Start matching</button>
+                    <button class="btn-primary">Browse Projects</button>
+                </div>
+            </div>
+            <div class="hero-right">
+                <div class="matching-card">
+                    <p class="card-title">Find me a</p>
+                    <div class="dropdown-field">
+                        <select class="custom-select">
+                            <option>Designer</option>
+                        </select>
+                    </div>
+                    <div class="dropdown-field">
+                        <select class="custom-select">
+                            <option>who knows how to code</option>
+                        </select>
+                    </div>
+                    <div class="dropdown-field">
+                        <select class="custom-select">
+                            <option>and loves video games</option>
+                        </select>
+                    </div>
+                    <button class="btn-match">Match me</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How does it work Section -->
+    <section class="content-section">
+        <h2 class="section-heading">How does it work?</h2>
+        <div class="content-boxes">
+            <div class="content-box"></div>
+            <div class="content-box"></div>
+            <div class="content-box"></div>
+        </div>
+    </section>
+
+    <!-- Just enjoy creating Section -->
+    <section class="content-section">
+        <h2 class="section-heading">Just enjoy creating</h2>
+        <div class="content-boxes">
+            <div class="content-box"></div>
+            <div class="content-box"></div>
+            <div class="content-box"></div>
+        </div>
+    </section>
 </body>
-<style>
-    .signup-button {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background-color: #555555;
-        color: white;
-        padding: 10px 20px;
-        text-decoration: none;
-        border-radius: 8px;
-        font-weight: bold;
-    }
-
-    .login-button {
-      position: fixed;
-      top: 20px;
-      right: 150px;
-      background-color: transparent;
-      color: #555555;
-      padding: 10px 20px;
-      text-decoration: none;
-      border: 3px solid #555555;
-      border-radius: 8px;
-      font-weight: bold;
-    }
-
-</style>
 </html>

@@ -1,0 +1,374 @@
+/* Global Styles */
+body {
+    background-color: #dcdcdc;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* Landing Page Header */
+.main-header {
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 20px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    z-index: 1000;
+}
+
+.header-login {
+    color: #555555;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.header-signup {
+    background-color: #dcdcdc;
+    color: #555555;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    border: 2px solid #555555;
+}
+
+/* Hero Section */
+.hero-section {
+    padding: 100px 60px 80px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.hero-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.hero-left {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.hero-heading {
+    font-size: 48px;
+    font-weight: bold;
+    color: #333;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.hero-description {
+    font-size: 18px;
+    color: #555;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-primary {
+    background-color: #555555;
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #444;
+}
+
+/* Matching Card */
+.matching-card {
+    background-color: #e8e8e8;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.card-title {
+    color: #333;
+    font-size: 18px;
+    margin: 0;
+    font-weight: normal;
+}
+
+.dropdown-field {
+    width: 100%;
+}
+
+.custom-select {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    background-color: #dcdcdc;
+    color: #555;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23555' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    cursor: pointer;
+}
+
+.custom-select:focus {
+    outline: none;
+    background-color: #d0d0d0;
+}
+
+.btn-match {
+    background-color: #dcdcdc;
+    color: #555;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.btn-match:hover {
+    background-color: #d0d0d0;
+}
+
+/* Content Sections */
+.content-section {
+    padding: 80px 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.section-heading {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
+    margin: 0 0 50px 0;
+}
+
+.content-boxes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.content-box {
+    background-color: white;
+    border-radius: 12px;
+    height: 250px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Index Page Styles (Legacy - for backward compatibility) */
+.signup-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #555555;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.login-button {
+    position: fixed;
+    top: 20px;
+    right: 150px;
+    background-color: transparent;
+    color: #555555;
+    padding: 10px 20px;
+    text-decoration: none;
+    border: 3px solid #555555;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+/* Common Form Styles */
+.box {
+    position: relative;
+    top: 100px;
+    left: 50%;
+    transform: translate(-50%, 0%);
+    width: 600px;
+    height: 600px;
+    padding: 40px;
+    border: 2px solid #aaa;
+    border-radius: 15px;
+    background-color: #c3c3c3;
+    color: black;
+    font-size: 20px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.text-input {
+    position: absolute;
+    transform: translate(-50%, 0%);
+    width: 75%;
+    height: 4%;
+    padding: 10px;
+    margin-top: 20px;
+    border: 2px solid #aaa;
+    border-radius: 8px;
+    background-color: #aaa;
+    color: #555555;
+    font-size: 16px;
+    text-align: left;
+}
+
+.arrow-button {
+    position: absolute;
+    left: 75px;
+    top: 15%;
+    color: black;
+    text-decoration: none;
+    font-size: 40px;
+}
+
+/* Login Page Styles */
+.signup-prompt {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.toggle-password-button {
+    position: fixed;
+    top: 64%;
+    right: 85px;
+    background-color: transparent;
+    color: #555555;
+    text-decoration: none;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.login-button-form {
+    position: absolute;
+    transform: translate(-50%, 0%);
+    width: 275px;
+    padding: 15px 0;
+    background-color: #555555;
+    color: #aaa;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 50px;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* Signup Page Styles */
+.login-prompt {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.next-button {
+    position: absolute;
+    transform: translate(-50%, 0%);
+    width: 275px;
+    padding: 15px 0;
+    background-color: #555555;
+    color: #aaa;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 50px;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* Form-specific positioning styles */
+.page-title {
+    position: absolute;
+    left: 75px;
+    top: 150px;
+}
+
+.label-email {
+    position: absolute;
+    left: 75px;
+    top: 270px;
+    font-size: 18px;
+}
+
+.input-email {
+    top: 300px;
+    left: 50%;
+}
+
+.label-password {
+    position: absolute;
+    left: 75px;
+    top: 370px;
+    font-size: 18px;
+}
+
+.input-password {
+    top: 400px;
+    left: 50%;
+}
+
+.prompt-bottom {
+    bottom: 20px;
+}
+
+.button-bottom {
+    bottom: 120px;
+    left: 50%;
+}
+
+.button-next {
+    top: 400px;
+    left: 50%;
+}
+
+/* Utility classes */
+.text-center {
+    text-align: center;
+}
+
+.link-black {
+    color: black;
+    text-decoration: none;
+}
+
