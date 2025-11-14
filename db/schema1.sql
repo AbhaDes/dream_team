@@ -2,7 +2,7 @@ CREATE TABLE event (
     event_id INTEGER PRIMARY KEY,
     event_name VARCHAR,
     start_date TIMESTAMP,
-    status VACHAR,
+    status VARCHAR,
     end_date TIMESTAMP,
     max_participants INTEGER,
     location VARCHAR,
