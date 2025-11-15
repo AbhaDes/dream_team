@@ -1,5 +1,4 @@
 //import the user pool from database.js
-const { isValidElement } = require('react');
 const pool = require('../config/database');
 //import bcrypt for use
 const bcrypt = require ('bcrypt');
