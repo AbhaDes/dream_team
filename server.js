@@ -4,23 +4,24 @@ var message = 'CSC-317 node/express app \n'
          + 'to \"serve\" the files in the ./public/ dir!\n';
 
 const express = require('express');
+const pool = require('./config/database');  
+const authRoutes = require('./routes/auth'); 
+
 const app = express();
-app.use(express.json());
-app.get('/api/test', async(req, res)=>{ //req - what comes in from the browser, res - what the browser sends back
-    res.send('Server is running!');
+
+// Middleware
+app.use(express.json());  
+
+// Routes
+app.use('/api/auth', authRoutes);  
+
+
+app.get('/api/test', (req, res) => {
+    res.json({ message: 'Server is running!' });
 });
 
-const port = 3001;
-// Add this line
-const pool = require('./config/database');
-console.log('Pool imported:', pool); // Should show Pool object
-
-const path = require('path');
-const StaticDirectory = path.join(__dirname, 'public');
-app.use(express.static(StaticDirectory));
-
-app.listen(port, () => {
-    console.log(`Listening on http://127.0.0.1:${port}/`);
+// Start server
+const PORT = 3001;
+app.listen(PORT, () => {
+    console.log(`Server listening on http://localhost:${PORT}`);
 });
-
-console.log(message);
