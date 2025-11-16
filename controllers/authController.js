@@ -71,4 +71,50 @@ const register = async (req, res) => {
     }
 };
 
-module.exports = {register};
+//login logic
+const login = async (req, res)=>{
+
+    try{
+        //1. Get data from req block 
+        const {email, password } = req.body;
+        //2. Check if any feilds are missing 
+        if(!email || !password){
+            return res.status(400).json({
+                error: 'Email and password are required'
+            });
+        }
+        //4.First check if the user exists in the database
+        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email])
+        if(result.rows.length === 0){
+            return res.status(401).json({
+                error: 'Invalid email or password'
+            });
+        }
+        //5. If exists, then give it a variable
+        const user = result.rows[0];
+        //6. Check if the password matches
+        const isMatch = await bcrypt.compare(password, user.password);
+        if(!isMatch){
+            return res.status(401).json({
+                error: 'Invalid email or password'
+            })
+        }
+        return res.status(200).json({
+            user:{
+                user_id : user.user_id,
+                email: user.email,
+                username : user.username
+            },
+            message: 'Logged into user account successfully!'     
+        });
+        
+    }catch(error){
+        console.error('login error: ',error );
+        res.status(500).json({
+            error: 'Failed to login to user account. Please try again later.'
+        });
+    }
+}
+
+module.exports = {register,login};
+
