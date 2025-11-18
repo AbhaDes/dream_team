@@ -13,6 +13,17 @@ const app = express();
 // Middleware
 app.use(express.json());  
 
+//session 
+app.use(session({
+    secret: "I am the best in existence", 
+    saveUninitialized : false,
+    resave: false, 
+    cookie: {
+        maxAge: 36000
+    }
+})
+)
+
 // Routes
 app.use('/api/auth', authRoutes);  
 
