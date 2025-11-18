@@ -6,6 +6,7 @@ var message = 'CSC-317 node/express app \n'
 const express = require('express');
 const pool = require('./config/database');  
 const authRoutes = require('./routes/auth'); 
+var session = require('express-session');
 
 const app = express();
 
