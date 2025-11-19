@@ -4,23 +4,33 @@
 
 // File: script.js
 
-// login.js
-function togglePassword() {
-    var passwordField = document.getElementById("password");
-    if (passwordField.type === "password") {
-        passwordField.type = "text";
-    } else {
-        passwordField.type = "password";
-    }
+document.getElementById('loginForm').addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('emailForm').value;
+    const password = document.getElementById('passwordForm').value;
 
-    var passwordToggle = document.getElementById("toggle-password");
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+            credentials: 'include'
+        });
 
-    if (passwordField.type === "password") {
-        passwordToggle.innerText = "Show";
-    } else {
-        passwordToggle.innerText = "Hide";
+        const data = await response.json();
+
+        if (!response.ok) {
+            alert(data.error);
+            return;
+        }
+
+        alert('Logged in successfully!');
+        window.location.href = '/dashboard.html'; // or wherever you want
+    } catch (err) {
+        console.error('Login error:', err);
+        alert('An error occurred while logging in.');
     }
-}
+});
 
 // form.js
 document.getElementById("careerForm").addEventListener("submit", function(e){

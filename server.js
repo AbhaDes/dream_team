@@ -9,7 +9,6 @@ var port = 3001;
 
 const pool = require('./config/database');  
 const authRoutes = require('./routes/auth'); 
-
 var session = require('express-session');
 
 var path = require('path');
@@ -28,7 +27,6 @@ app.use(session({
 )
 
 app.use(express.static('public'));
-
 app.use('/api/auth', authRoutes);  
 
 app.get('/api/test', (req, res) => {

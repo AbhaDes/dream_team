@@ -14,7 +14,7 @@ File: login.html
 </head>
 <body style="background-color: #dcdcdc; text-align: center;">
 
-    <div class="box">
+    <form if="loginForm" class="box">
         <a href="index.html" class="arrow-button">←</a>
 
         <h2 style="position: absolute; left: 75px; top: 150px;">Log in</h2>
@@ -32,10 +32,8 @@ File: login.html
             <a href="signup.html" style="color: black;">Sign Up</a>
         </div>
         
-        <button class="login-button" style="bottom: 120px; left: 50%;">Log In</button>
-    </div>
-    
-    
+        <button id="loginBtn" class="login-button" style="bottom: 120px; left: 50%;">Log In</button>
+    </form>
 </body>
 <style>
     .signup-prompt {

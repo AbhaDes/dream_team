@@ -14,7 +14,7 @@ File: signup.html
 </head>
 <body style="background-color: #dcdcdc; text-align: center;">
 
-    <div class="box">
+    <form id="signupForm" class="box">
         <a href="index.html" class="arrow-button">←</a>
 
         <h2 style="position: absolute; left: 75px; top: 150px;">Sign up</h2>
@@ -22,13 +22,13 @@ File: signup.html
         <p style="position: absolute; left: 75px; top: 270px; font-size: 18px;">Email address</p>
         <input type="email" class="text-input" placeholder="student@university.edu" style="top: 300px; left: 50%;">
 
-        <a href="form.html" class="next-button" style="top: 400px; left: 50%; text-decoration: none;">Next</a>
+        <a id="signupBtn" href="form.html" class="next-button" style="top: 400px; left: 50%; text-decoration: none;">Next</a>
 
         <div class="login-prompt" style="bottom: 20px;">
             <p>Already have an account?</p>
             <a href="login.html" style="color: black;">Log in</a>
         </div>
-    </div>
+    </form>
 </body>
 <style>
     .login-prompt {
