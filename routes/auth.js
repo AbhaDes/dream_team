@@ -3,6 +3,8 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const authMiddleware = require('../middleware/auth');
 
+
+//USER REGISTRATION ENPOINTS
 //Define route '/register'
 router.post('/register', authController.register);
 
@@ -11,5 +13,8 @@ router.post('/login', authController.login);
 
 //Define route "me"
 router.get('/me', authMiddleware, authController.me);
+
+//EVENT HANDLING ENPOINTS 
+
 
 module.exports = router;

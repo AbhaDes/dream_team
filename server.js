@@ -20,8 +20,7 @@ app.use(session({
     resave: false, 
     cookie: {
         maxAge: 36000
-    }
-})
+    }})
 )
 
 // Routes

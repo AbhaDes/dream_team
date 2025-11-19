@@ -8,7 +8,7 @@ const authMiddleware = async (req, res, next)=>{
     try{
         //check if req.session.user_exists
         //if not return 401 error
-        const id = req.session.user_id;
+        const id = req.session.userId;
         if(!id){
             return res.status(401).json({
                 error: 'Unauthorized login'

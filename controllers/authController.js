@@ -1,7 +1,9 @@
 //import the user pool from database.js
+const { CURRENT_EVENT_ID } = require('../config/constants');
 const pool = require('../config/database');
 //import bcrypt for use
 const bcrypt = require ('bcrypt');
+const eventid = CURRENT_EVENT_ID;
 
 //establishing registration logic 
 const register = async (req, res) => {
@@ -100,7 +102,7 @@ const login = async (req, res)=>{
                 error: 'Invalid email or password'
             })
         }
-        req.session.user_id = user.user_id;
+        req.session.userId = user.user_id;
         return res.status(200).json({
             user:{
                 user_id : user.user_id,
@@ -138,5 +140,8 @@ const me = async(req, res, next)=>{
 
 }
 
-module.exports = {register,login};
+//EVENT HANDLING ENDPOINTS
+
+
+module.exports = {register,login, me};
 
