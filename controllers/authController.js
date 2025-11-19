@@ -100,7 +100,7 @@ const login = async (req, res)=>{
                 error: 'Invalid email or password'
             })
         }
-        req.session.user_id = user.password;
+        req.session.user_id = user.user_id;
         return res.status(200).json({
             user:{
                 user_id : user.user_id,
@@ -116,6 +116,26 @@ const login = async (req, res)=>{
             error: 'Failed to login to user account. Please try again later.'
         });
     }
+}
+
+//Getting my own profile on the website 
+const me = async(req, res, next)=>{
+    try{
+        return res.status(200).json({
+            user: {
+                user_id : req.user.user_id,
+                email: req.user.email,
+                name : req.user.username
+            }
+        });
+
+    }catch(error){
+        console.log('Get user error: ', error);
+        res.status(500).json({
+            error: 'Failed to get user. Please try again later.'
+        });
+    }
+
 }
 
 module.exports = {register,login};
