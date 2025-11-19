@@ -6,6 +6,7 @@ var message = 'CSC-317 node/express app \n'
 const express = require('express');
 const pool = require('./config/database');  
 const authRoutes = require('./routes/auth'); 
+
 var session = require('express-session');
 
 const app = express();
@@ -22,6 +23,8 @@ app.use(session({
         maxAge: 36000
     }})
 )
+
+app.use(express.static('public'));
 
 // Routes
 app.use('/api/auth', authRoutes);  
