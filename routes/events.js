@@ -6,6 +6,6 @@ const eventController = require('../controllers/eventController');
 
 //EVENT HANDLING ROUTES
 //1. Joining an event
-router.post('/:eventId/join');
+router.post('/:eventId/join', authMiddleware, eventController.joinEvent);
 
 module.exports = router;

@@ -13,6 +13,15 @@ const eventRoutes = require('./routes/events');
 var session = require('express-session');
 
 var path = require('path');
+// Add these BEFORE everything else
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Unhandled Promise Rejection at:', promise);
+    console.error('❌ Reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+    console.error('❌ Uncaught Exception:', error);
+});
 var StaticDirectory = path.join(__dirname, 'public');
 app.use(express.static(StaticDirectory));
 app.use(express.json());
@@ -22,14 +31,14 @@ app.use(session({
         saveUninitialized : false,
         resave: false, 
         cookie: {
-            maxAge: 36000
+            maxAge: 3600000
         }
     })
 )
 
 app.use(express.static('public'));
 app.use('/api/auth', authRoutes);
-app.use('api/events', eventRoutes);  
+app.use('/api/events', eventRoutes);  
 
 app.get('/api/test', (req, res) => {
     res.json({ message: 'Server is running!' });
