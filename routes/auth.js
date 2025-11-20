@@ -14,7 +14,4 @@ router.post('/login', authController.login);
 //Define route "me"
 router.get('/me', authMiddleware, authController.me);
 
-//EVENT HANDLING ENPOINTS 
-
-
 module.exports = router;
