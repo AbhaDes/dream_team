@@ -5,7 +5,43 @@ const pool = require('../config/database');
 const event_id = CURRENT_EVENT_ID;
 
 //EVENT HANDLING LOGIC
+
+
 //1. Joining an Event
+/**
+ * Join an event as a participant.
+ *
+ * This handler:
+ *  1. Extracts the event ID from the URL params and user ID from the authenticated user.
+ *  2. Validates that the event exists.
+ *  3. Validates required participant fields in the request body.
+ *  4. Checks if the user has already joined this event.
+ *  5. Inserts a new event_participants row if valid, and returns the created participant profile.
+ *
+ * Expected request:
+ *  - URL params:
+ *      - eventId (string | number): ID of the event to join
+ *  - Auth context:
+ *      - req.user.user_id (string | number): ID of the currently authenticated user
+ *  - Body (JSON):
+ *      - role (string, required)
+ *      - experience (string, required)
+ *      - availability (string, required)
+ *      - skills (string, required)
+ *      - bio (string, required for now)
+ *
+ * Responses:
+ *  - 200 OK:Gives the user information
+ *  - 400 Bad Request: Missing required fields
+ *  - 404 Not Found: Event does not exist
+ *  - 409 Conflict: User already joined this event
+ *  - 500 Internal Server Error: Unexpected server/database error
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {import('express').NextFunction} next - Express next middleware function
+ * @returns {Promise<void>}
+ */
 const joinEvent = async(req, res, next) => {
     try{
         //1.Get eventId from the parameter 
