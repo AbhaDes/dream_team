@@ -17,7 +17,7 @@ document.getElementById('loginForm').addEventListener("submit", async (e) => {
             credentials: 'include'
         });
 
-        const data = await response.json();
+        const data = await response.json();s
 
         if (!response.ok) {
             alert(data.error);
