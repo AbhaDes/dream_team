@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Dashboard - Dream Team</title>
+  <meta name="description" content="Manage your event and participants">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-background">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" style="color: var(--lime);">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+      </svg>
+      <span class="text-foreground font-bold text-lg">Dream Team</span>
+    </a>
+    <nav class="sidebar-nav">
+      <a href="matches.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        Matches
+      </a>
+      <a href="connections.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+        Connections
+      </a>
+      <a href="settings.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        Settings
+      </a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="sidebar-user-avatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </div>
+      <div class="sidebar-user-info">
+        <p class="text-foreground">You</p>
+        <span>Full-Stack Dev</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-with-sidebar">
+    <div class="max-w-4xl mx-auto">
+      <!-- Header -->
+      <div class="flex items-center gap-3" style="margin-bottom: 0.5rem;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" style="color: var(--lime);">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+        <h1 class="text-4xl font-extrabold">
+          <span class="text-lime">Event</span>
+          <span class="gradient-text-violet-blue italic">Dashboard</span>
+        </h1>
+      </div>
+
+      <!-- Event Name -->
+      <p class="text-foreground text-lg" style="margin-bottom: 1rem;">Demo Hosted Event</p>
+
+      <!-- Event Code Badge -->
+      <div class="badge" style="margin-bottom: 2rem;">
+        <span class="text-muted-foreground">Event Code:</span>
+        <span class="text-lime font-bold tracking-wider">HOST-DEMO</span>
+      </div>
+
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Participants</span>
+          </div>
+          <p class="stat-value text-foreground">3</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span>Status</span>
+          </div>
+          <p class="text-foreground text-lg font-semibold">Waiting to Begin</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <span>Matched</span>
+          </div>
+          <p class="stat-value text-foreground">0</p>
+        </div>
+      </div>
+
+      <!-- Info Banner -->
+      <div class="info-banner">
+        <div class="info-banner-content">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span>Participants can already complete profiles and see draft matches</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-3" style="margin-bottom: 1rem;">
+        <button class="btn btn-gradient flex-1" style="padding: 1rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          Begin Matching
+        </button>
+        <button class="btn btn-card" style="padding: 1rem 1.5rem; line-height: 1.2;">
+          Start<br>Event
+        </button>
+      </div>
+
+      <!-- Helper Text -->
+      <p class="text-center text-muted-foreground text-sm" style="margin-bottom: 2.5rem;">
+        You can only start the event after completing the matching phase.
+      </p>
+
+      <!-- Participants Section -->
+      <h2 class="text-foreground text-xl font-bold" style="margin-bottom: 1rem;">Participants</h2>
+
+      <div class="participant-list">
+        <div class="participant-item">
+          <div class="participant-info">
+            <div class="participant-avatar">DP</div>
+            <div class="participant-details">
+              <h4 class="text-foreground">Demo Participant 1</h4>
+              <p>Joined 3:07:33 PM</p>
+            </div>
+          </div>
+          <span class="participant-status">Waiting</span>
+        </div>
+        <div class="participant-item">
+          <div class="participant-info">
+            <div class="participant-avatar">DP</div>
+            <div class="participant-details">
+              <h4 class="text-foreground">Demo Participant 2</h4>
+              <p>Joined 3:07:33 PM</p>
+            </div>
+          </div>
+          <span class="participant-status">Waiting</span>
+        </div>
+        <div class="participant-item">
+          <div class="participant-info">
+            <div class="participant-avatar">DP</div>
+            <div class="participant-details">
+              <h4 class="text-foreground">Demo Participant 3</h4>
+              <p>Joined 3:07:33 PM</p>
+            </div>
+          </div>
+          <span class="participant-status">Waiting</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

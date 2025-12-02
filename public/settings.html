@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - Dream Team</title>
+  <meta name="description" content="Update your profile settings">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-background">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" style="color: var(--lime);">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+      </svg>
+      <span class="text-foreground font-bold text-lg">Dream Team</span>
+    </a>
+    <nav class="sidebar-nav">
+      <a href="matches.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        Matches
+      </a>
+      <a href="connections.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+        Connections
+      </a>
+      <a href="settings.html" class="sidebar-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        Settings
+      </a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="sidebar-user-avatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </div>
+      <div class="sidebar-user-info">
+        <p class="text-foreground">You</p>
+        <span>Full-Stack Dev</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-with-sidebar">
+    <div class="max-w-3xl mx-auto">
+      <!-- Header -->
+      <h1 class="text-4xl font-extrabold italic gradient-text-violet-blue" style="margin-bottom: 0.5rem;">Profile Settings</h1>
+      <p class="text-muted-foreground" style="margin-bottom: 2rem;">Update your information and preferences</p>
+
+      <!-- Profile Card -->
+      <div class="profile-card">
+        <div class="profile-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <div class="profile-info">
+          <p class="text-foreground">Full-Stack Developer</p>
+          <span>user@example.com</span>
+        </div>
+      </div>
+
+      <!-- Basic Information -->
+      <div class="section">
+        <div class="section-header">
+          <svg style="color: var(--orange);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <h2 class="text-orange font-semibold">Basic Information</h2>
+        </div>
+        <div class="form-grid">
+          <div>
+            <label class="form-label">Name</label>
+            <input type="text" class="form-input" placeholder="Your name">
+          </div>
+          <div>
+            <label class="form-label">Major / Field</label>
+            <input type="text" class="form-input" value="Computer Science">
+          </div>
+          <div>
+            <label class="form-label">Year</label>
+            <select class="form-select">
+              <option>Freshman</option>
+              <option>Sophomore</option>
+              <option selected>Junior</option>
+              <option>Senior</option>
+              <option>Graduate</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Role</label>
+            <input type="text" class="form-input" value="Full-Stack Developer">
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills I Have -->
+      <div class="section">
+        <div class="section-header">
+          <svg style="color: var(--orange);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+          <h2 class="text-orange font-semibold">Skills I Have</h2>
+        </div>
+        <div class="skill-buttons">
+          <button class="skill-btn selected-have">React</button>
+          <button class="skill-btn">Python</button>
+          <button class="skill-btn">UI/UX Design</button>
+          <button class="skill-btn">Machine Learning</button>
+          <button class="skill-btn">Backend</button>
+          <button class="skill-btn">Frontend</button>
+          <button class="skill-btn">Data Science</button>
+          <button class="skill-btn">Mobile Dev</button>
+          <button class="skill-btn">DevOps</button>
+          <button class="skill-btn">Product Management</button>
+          <button class="skill-btn">Figma</button>
+          <button class="skill-btn">Node.js</button>
+          <button class="skill-btn">Database Design</button>
+          <button class="skill-btn">APIs</button>
+          <button class="skill-btn selected-have">TypeScript</button>
+          <button class="skill-btn">Research</button>
+          <button class="skill-btn">Testing</button>
+        </div>
+      </div>
+
+      <!-- Skills I Need -->
+      <div class="section">
+        <div class="section-header">
+          <svg style="color: var(--orange);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <h2 class="text-orange font-semibold">Skills I Need</h2>
+        </div>
+        <div class="skill-buttons">
+          <button class="skill-btn">React</button>
+          <button class="skill-btn">Python</button>
+          <button class="skill-btn selected-need">UI/UX Design</button>
+          <button class="skill-btn selected-need">Machine Learning</button>
+          <button class="skill-btn selected-need">Backend</button>
+          <button class="skill-btn selected-need">Frontend</button>
+          <button class="skill-btn">Data Science</button>
+          <button class="skill-btn">Mobile Dev</button>
+          <button class="skill-btn">DevOps</button>
+          <button class="skill-btn">Product Management</button>
+          <button class="skill-btn">Figma</button>
+          <button class="skill-btn">Node.js</button>
+          <button class="skill-btn">Database Design</button>
+          <button class="skill-btn">APIs</button>
+          <button class="skill-btn">TypeScript</button>
+          <button class="skill-btn">Research</button>
+          <button class="skill-btn">Testing</button>
+        </div>
+      </div>
+
+      <!-- Bio -->
+      <div class="section">
+        <div class="section-header">
+          <svg style="color: var(--muted-foreground);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <h2 class="text-muted-foreground font-semibold">Bio</h2>
+        </div>
+        <textarea class="form-textarea" placeholder="Tell us a bit about yourself..." rows="4"></textarea>
+      </div>
+    </div>
+  </main>
+
+  <!-- Fixed Save Button -->
+  <div class="fixed-save">
+    <button class="btn btn-gradient">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+        <polyline points="7 3 7 8 15 8"></polyline>
+      </svg>
+      Save Changes
+    </button>
+  </div>
+</body>
+</html>

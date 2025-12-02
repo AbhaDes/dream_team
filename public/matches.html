@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matches - Dream Team</title>
+  <meta name="description" content="Find your perfect teammates">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-background">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <a href="index.html" class="sidebar-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" style="color: var(--lime);">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+      </svg>
+      <span class="text-foreground font-bold text-lg">Dream Team</span>
+    </a>
+    <nav class="sidebar-nav">
+      <a href="matches.html" class="sidebar-link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        Matches
+      </a>
+      <a href="connections.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+        Connections
+      </a>
+      <a href="settings.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        Settings
+      </a>
+    </nav>
+    <div class="sidebar-user">
+      <div class="sidebar-user-avatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </div>
+      <div class="sidebar-user-info">
+        <p class="text-foreground">You</p>
+        <span>Full-Stack Dev</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-with-sidebar">
+    <div class="max-w-5xl mx-auto">
+      <!-- Event Badge -->
+      <div class="badge" style="margin-bottom: 1.5rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <span class="text-foreground">Demo Match Event</span>
+      </div>
+
+      <!-- Title -->
+      <h1 class="text-4xl font-extrabold" style="margin-bottom: 0.5rem;">
+        <span class="text-foreground">People </span>
+        <span class="gradient-text-violet-blue italic">You Might Click With</span>
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="text-muted-foreground" style="margin-bottom: 1.5rem;">4 potential teammates waiting for you</p>
+
+      <!-- Filter Tabs -->
+      <div class="filter-tabs">
+        <button class="filter-tab active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          Explore All
+        </button>
+        <button class="filter-tab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3l1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3z"></path>
+          </svg>
+          Strong Complement
+        </button>
+        <button class="filter-tab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="9" y1="18" x2="15" y2="18"></line>
+            <line x1="10" y1="22" x2="14" y2="22"></line>
+            <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+          </svg>
+          Shared Interests
+        </button>
+      </div>
+
+      <!-- Match Cards Grid -->
+      <div class="match-grid">
+        <!-- Match Card 1 -->
+        <div class="match-card">
+          <div class="match-header">
+            <div class="match-avatar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div class="match-info">
+              <h3 class="text-foreground">Alex Chen</h3>
+              <p>Full-Stack Developer</p>
+              <span>Computer Science • Junior</span>
+            </div>
+          </div>
+
+          <div class="why-click">
+            <div class="why-click-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="9" y1="18" x2="15" y2="18"></line>
+                <line x1="10" y1="22" x2="14" y2="22"></line>
+                <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+              </svg>
+              WHY YOU MIGHT CLICK
+            </div>
+            <span class="why-click-badge shared">You both know React</span>
+          </div>
+
+          <p class="match-bio">"Passionate about building scalable web apps. Looking for designers and mobile devs to team up for the hackathon!"</p>
+
+          <div class="skills-section">
+            <div class="skills-label text-lime">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 3l1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3z"></path>
+              </svg>
+              SKILLS THEY HAVE
+            </div>
+            <div class="skills-list">
+              <span class="skill-tag">React</span>
+              <span class="skill-tag">Node.js</span>
+              <span class="skill-tag">TypeScript</span>
+              <span class="skill-tag">MongoDB</span>
+            </div>
+          </div>
+
+          <div class="skills-section">
+            <p class="skills-label text-orange">LOOKING FOR</p>
+            <div class="skills-list">
+              <span class="skill-tag orange">UI/UX Design</span>
+              <span class="skill-tag orange">Mobile Dev</span>
+            </div>
+          </div>
+
+          <div style="flex: 1;"></div>
+
+          <div class="match-actions">
+            <button class="btn btn-card flex-1">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              Pass
+            </button>
+            <button class="btn btn-gradient flex-1">Explore Collaboration</button>
+          </div>
+        </div>
+
+        <!-- Match Card 2 -->
+        <div class="match-card">
+          <div class="match-header">
+            <div class="match-avatar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div class="match-info">
+              <h3 class="text-foreground">Sarah Martinez</h3>
+              <p>UI/UX Designer</p>
+              <span>Design • Senior</span>
+            </div>
+          </div>
+
+          <div class="why-click">
+            <div class="why-click-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="9" y1="18" x2="15" y2="18"></line>
+                <line x1="10" y1="22" x2="14" y2="22"></line>
+                <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+              </svg>
+              WHY YOU MIGHT CLICK
+            </div>
+            <span class="why-click-badge complement">Complementary roles: Developer + UI/UX Designer</span>
+          </div>
+
+          <p class="match-bio">"Award-winning designer with 3 years of experience. Love creating intuitive user experiences."</p>
+
+          <div class="skills-section">
+            <div class="skills-label text-lime">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 3l1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3z"></path>
+              </svg>
+              SKILLS THEY HAVE
+            </div>
+            <div class="skills-list">
+              <span class="skill-tag">Figma</span>
+              <span class="skill-tag">UI/UX Design</span>
+              <span class="skill-tag">Branding</span>
+              <span class="skill-tag">Research</span>
+            </div>
+          </div>
+
+          <div class="skills-section">
+            <p class="skills-label text-orange">LOOKING FOR</p>
+            <div class="skills-list">
+              <span class="skill-tag orange">Frontend</span>
+              <span class="skill-tag orange">Backend</span>
+            </div>
+          </div>
+
+          <div style="flex: 1;"></div>
+
+          <div class="match-actions">
+            <button class="btn btn-card flex-1">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              Pass
+            </button>
+            <button class="btn btn-gradient flex-1">Explore Collaboration</button>
+          </div>
+        </div>
+
+        <!-- Match Card 3 -->
+        <div class="match-card">
+          <div class="match-header">
+            <div class="match-avatar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div class="match-info">
+              <h3 class="text-foreground">Jordan Kim</h3>
+              <p>ML Engineer</p>
+              <span>Data Science • Graduate</span>
+            </div>
+          </div>
+
+          <div class="why-click">
+            <div class="why-click-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="9" y1="18" x2="15" y2="18"></line>
+                <line x1="10" y1="22" x2="14" y2="22"></line>
+                <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+              </svg>
+              WHY YOU MIGHT CLICK
+            </div>
+            <span class="why-click-badge complement">Complementary roles: Developer + ML Engineer</span>
+          </div>
+
+          <p class="match-bio">"ML enthusiast working on NLP projects. Looking to build AI-powered solutions."</p>
+
+          <div class="skills-section">
+            <div class="skills-label text-lime">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 3l1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3z"></path>
+              </svg>
+              SKILLS THEY HAVE
+            </div>
+            <div class="skills-list">
+              <span class="skill-tag">Python</span>
+              <span class="skill-tag">Machine Learning</span>
+              <span class="skill-tag">Data Science</span>
+              <span class="skill-tag">APIs</span>
+            </div>
+          </div>
+
+          <div class="skills-section">
+            <p class="skills-label text-orange">LOOKING FOR</p>
+            <div class="skills-list">
+              <span class="skill-tag orange">Frontend</span>
+              <span class="skill-tag orange">Product Mgmt</span>
+            </div>
+          </div>
+
+          <div style="flex: 1;"></div>
+
+          <div class="match-actions">
+            <button class="btn btn-card flex-1">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              Pass
+            </button>
+            <button class="btn btn-gradient flex-1">Explore Collaboration</button>
+          </div>
+        </div>
+
+        <!-- Match Card 4 -->
+        <div class="match-card">
+          <div class="match-header">
+            <div class="match-avatar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div class="match-info">
+              <h3 class="text-foreground">Taylor Brooks</h3>
+              <p>Product Manager</p>
+              <span>Business • Senior</span>
+            </div>
+          </div>
+
+          <div class="why-click">
+            <div class="why-click-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="9" y1="18" x2="15" y2="18"></line>
+                <line x1="10" y1="22" x2="14" y2="22"></line>
+                <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path>
+              </svg>
+              WHY YOU MIGHT CLICK
+            </div>
+            <span class="why-click-badge complement">Complementary roles: Developer + Product Manager</span>
+          </div>
+
+          <p class="match-bio">"PM at a startup. Love turning ideas into products that users love."</p>
+
+          <div class="skills-section">
+            <div class="skills-label text-lime">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 3l1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3z"></path>
+              </svg>
+              SKILLS THEY HAVE
+            </div>
+            <div class="skills-list">
+              <span class="skill-tag">Product Mgmt</span>
+              <span class="skill-tag">Research</span>
+              <span class="skill-tag">Testing</span>
+            </div>
+          </div>
+
+          <div class="skills-section">
+            <p class="skills-label text-orange">LOOKING FOR</p>
+            <div class="skills-list">
+              <span class="skill-tag orange">Frontend</span>
+              <span class="skill-tag orange">Backend</span>
+              <span class="skill-tag orange">UI/UX Design</span>
+            </div>
+          </div>
+
+          <div style="flex: 1;"></div>
+
+          <div class="match-actions">
+            <button class="btn btn-card flex-1">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              Pass
+            </button>
+            <button class="btn btn-gradient flex-1">Explore Collaboration</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
