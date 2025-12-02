@@ -49,7 +49,7 @@ const joinEvent = async(req, res, next) => {
         const userId = req.user.user_id;
         //2. Get all the other info from the request body
         const {role, experience, availability, skills, bio} = req.body;
-        //2. check if the event exists 
+        //3. check if the event exists 
         const result = await pool.query('SELECT * FROM events WHERE event_id = $1', [eventId]);
         if(result.rows.length === 0){
             return res.status(404).json({
@@ -98,4 +98,63 @@ const joinEvent = async(req, res, next) => {
 
 }
 
-module.exports = {joinEvent};
+//2. Get Participants profile in the event
+const getParticipant = async(req, res, next) =>{
+    try{
+        //1. Get the eventId and the participantId from the parameter
+        const {eventId, participantId} = req.params;
+
+        //2. Check if the event exists
+        const res = await pool.query('SELECT * FROM events WHERE event_id = $1', [eventId]);
+        if(res.rows.length === 0){
+            return res.status(404).json({
+                error: 'This event does not exist'
+            });
+        }
+        //3. SQL query with INNER JOIN
+        const result = await pool.query(`
+            SELECT 
+                ep.participant_id,
+                ep.role,
+                ep.experience,
+                ep.skills,
+                ep.availability,
+                ep.bio,
+                u.name
+            FROM event_participants ep
+            INNER JOIN users u ON ep.user_id = u.user_id
+            WHERE ep.participant_id = $1 AND ep.event_id = $2
+            `, [participantId, eventId]);
+                                     
+        //4. Participant not found
+        if(result.rows.length === 0){
+            return res.status(404).json({
+                error: "Participant not found for this event"
+
+            });
+        } 
+        //5. Participant found
+        const participant = result.rows[0];
+        return res.status(200).json({
+            participant: {
+            participant_id: participant.participant_id,
+            name : participant.name,
+            role : participant.role, 
+            experience: participant.experience,
+            availability: participant.availability,
+            skills: participant.skills, 
+            bio : participant.bio
+            },
+
+            });    
+
+    }catch(error){
+        console.error('Get participant error: ' , error);
+        res.status(500).json({
+            error: "Internal Server Error. Please try again later"
+        });
+    }
+}
+
+
+module.exports = {joinEvent, getParticipant};

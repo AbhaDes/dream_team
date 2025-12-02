@@ -109,11 +109,6 @@ const login = async (req, res)=>{
        });
    }
 }
-
-
-
-
-
 //Getting my own profile on the website 
 const me = async(req, res, next)=>{
     try{
