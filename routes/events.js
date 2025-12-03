@@ -9,6 +9,6 @@ const eventController = require('../controllers/eventController');
 router.post('/:eventId/join', authMiddleware, eventController.joinEvent);
 
 //2. Getting Participant Profile 
-router.get('/:eventId/participants/:participant-id', authMiddleware, eventController.getParticipant);
+router.get('/:eventId/participants/:participantId', authMiddleware, eventController.getParticipant);
 
 module.exports = router;

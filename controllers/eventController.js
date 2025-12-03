@@ -17,26 +17,6 @@ const event_id = CURRENT_EVENT_ID;
  *  3. Validates required participant fields in the request body.
  *  4. Checks if the user has already joined this event.
  *  5. Inserts a new event_participants row if valid, and returns the created participant profile.
- *
- * Expected request:
- *  - URL params:
- *      - eventId (string | number): ID of the event to join
- *  - Auth context:
- *      - req.user.user_id (string | number): ID of the currently authenticated user
- *  - Body (JSON):
- *      - role (string, required)
- *      - experience (string, required)
- *      - availability (string, required)
- *      - skills (string, required)
- *      - bio (string, required for now)
- *
- * Responses:
- *  - 200 OK:Gives the user information
- *  - 400 Bad Request: Missing required fields
- *  - 404 Not Found: Event does not exist
- *  - 409 Conflict: User already joined this event
- *  - 500 Internal Server Error: Unexpected server/database error
- *
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
  * @param {import('express').NextFunction} next - Express next middleware function
@@ -105,8 +85,8 @@ const getParticipant = async(req, res, next) =>{
         const {eventId, participantId} = req.params;
 
         //2. Check if the event exists
-        const res = await pool.query('SELECT * FROM events WHERE event_id = $1', [eventId]);
-        if(res.rows.length === 0){
+        const eventCheck = await pool.query('SELECT * FROM events WHERE event_id = $1', [eventId]);
+        if(eventCheck.rows.length === 0){
             return res.status(404).json({
                 error: 'This event does not exist'
             });
@@ -120,7 +100,7 @@ const getParticipant = async(req, res, next) =>{
                 ep.skills,
                 ep.availability,
                 ep.bio,
-                u.name
+                u.username
             FROM event_participants ep
             INNER JOIN users u ON ep.user_id = u.user_id
             WHERE ep.participant_id = $1 AND ep.event_id = $2
@@ -138,7 +118,7 @@ const getParticipant = async(req, res, next) =>{
         return res.status(200).json({
             participant: {
             participant_id: participant.participant_id,
-            name : participant.name,
+            name : participant.username,
             role : participant.role, 
             experience: participant.experience,
             availability: participant.availability,
