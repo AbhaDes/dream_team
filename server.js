@@ -10,6 +10,7 @@ var port = 3001;
 const pool = require('./config/database');  
 const authRoutes = require('./routes/auth');
 const eventRoutes = require('./routes/events');
+const matchRoutes = require('./routes/matches');
 var session = require('express-session');
 
 var path = require('path');
@@ -38,7 +39,9 @@ app.use(session({
 
 app.use(express.static('public'));
 app.use('/api/auth', authRoutes);
-app.use('/api/events', eventRoutes);  
+app.use('/api/events', eventRoutes); 
+app.use('/api/events', matchRoutes);
+
 
 app.get('/api/test', (req, res) => {
     res.json({ message: 'Server is running!' });
