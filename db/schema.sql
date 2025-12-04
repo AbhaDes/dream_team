@@ -48,3 +48,23 @@ CREATE TABLE event_participants(
     skills TEXT[], 
     bio VARCHAR(300)    
 );
+
+CREATE TYPE match_type AS ENUM (
+    'liked', 
+    'pending'
+);
+
+CREATE TABLE matches (
+  match_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user1_id UUID REFERENCES users(user_id),
+  user2_id UUID REFERENCES users(user_id),
+  event_id UUID REFERENCES events(event_id),
+  initiated_by UUID REFERENCES users(user_id),
+  user1_status match_type NOT NULL,
+  user2_status match_type NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  matched_at TIMESTAMP, 
+  
+  -- Constraint:
+  UNIQUE(user1_id, user2_id, event_id)
+);
