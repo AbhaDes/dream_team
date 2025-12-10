@@ -31,30 +31,27 @@ File: login.html
 
     <!-- Form Card -->
     <div class="card" style="width: 100%; max-width: 28rem;">
-      <form>
+      <form id="loginForm">
         <!-- Email Input -->
         <div class="input-with-icon" style="margin-bottom: 1.25rem;">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
             <polyline points="22,6 12,13 2,6"></polyline>
           </svg>
-          <input type="email" class="input" placeholder="Email Address" required style="height: 3.5rem;">
+          <input type="email" id="emailForm" class="input" placeholder="Email Address" required style="height: 3.5rem;">
         </div>
-
         <!-- Password Input -->
         <div class="input-with-icon" style="margin-bottom: 1.25rem;">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
-          <input type="password" class="input" placeholder="Password" required style="height: 3.5rem;">
+          <input type="password" id="passwordForm" class="input" placeholder="Password" required style="height: 3.5rem;">
         </div>
-
         <!-- Forgot Password -->
         <div class="text-right" style="margin-bottom: 1.25rem;">
           <a href="#" class="text-violet text-sm font-medium">Forgot Password?</a>
         </div>
-
         <!-- Sign In Button -->
         <button type="submit" class="btn btn-gradient w-full" style="height: 3.5rem; font-size: 1.125rem;">
           Sign In
@@ -65,11 +62,39 @@ File: login.html
         </button>
       </form>
     </div>
-
     <!-- Sign Up Link -->
     <p class="text-muted-foreground text-sm" style="margin-top: 2rem;">
       Don't have an account? <a href="signup.html" class="text-lime font-medium">Sign Up</a>
     </p>
   </div>
+  <script>
+    document.getElementById('loginForm').addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('emailForm').value;
+      const password = document.getElementById('passwordForm').value;
+      
+      try {
+          const response = await fetch('/api/auth/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email, password }),
+              credentials: 'include'
+          });
+          
+          const data = await response.json();
+          
+          if (!response.ok) {
+              alert(data.error || 'Login failed');
+              return;
+          }
+          
+          alert('Logged in successfully!');
+          window.location.href = '/index.html';
+      } catch (err) {
+          console.error('Login error:', err);
+          alert('An error occurred while logging in.');
+      }
+    });
+  </script>
 </body>
 </html>

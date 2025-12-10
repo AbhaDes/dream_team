@@ -105,20 +105,22 @@ File: index.html
 
         <!-- Event Form -->
         <div class="event-form">
-          <div style="margin-bottom: 0.75rem;">
-            <input type="text" class="input" placeholder="Enter Event Code">
-          </div>
-          <p class="helper-text">Testing mode: any code proceeds to the event lobby</p>
-          <button class="btn btn-gradient w-full" style="padding: 1rem; font-size: 1rem;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 3l1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3z"></path>
-            </svg>
-            <span>Join Event</span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </button>
+          <form id="joinEventForm">
+            <div style="margin-bottom: 0.75rem;">
+              <input type="text" id="eventCodeInput" class="input" placeholder="Enter Event Code" required>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-gradient w-full" style="padding: 1rem; font-size: 1rem;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 3l1.912 5.813a2 2 0 0 0 1.275 1.275L21 12l-5.813 1.912a2 2 0 0 0-1.275 1.275L12 21l-1.912-5.813a2 2 0 0 0-1.275-1.275L3 12l5.813-1.912a2 2 0 0 0 1.275-1.275L12 3z"></path>
+              </svg>
+              <span>Join Event</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </form>
           <p class="text-center text-foreground text-sm" style="margin-top: 1.5rem;">
             or <a href="create-event.html" class="font-medium" style="color: var(--lime);">Create Your Own Event</a>
           </p>
@@ -146,5 +148,25 @@ File: index.html
       </div>
     </footer>
   </div>
+  <script>
+    document.getElementById('joinEventForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const eventCode = document.getElementById('eventCodeInput').value.trim();
+        
+        if (!eventCode) {
+            alert('Please enter an event code');
+            return;
+        }
+        
+        console.log('Event code entered:', eventCode);
+        
+        // Store for later use
+        sessionStorage.setItem('eventCode', eventCode);
+        
+        // Redirect to participant form or dashboard
+        window.location.href = 'event-profile.html?eventId=${eventCode}';
+    });
+  </script>
 </body>
 </html>
