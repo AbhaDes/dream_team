@@ -33,175 +33,173 @@
       <span class="badge badge-yellow">This profile is unique to Demo Hackathon Event</span>
     </div>
 
-    <!-- Main Form Card -->
-    <div class="card">
-      <!-- Role Selection -->
-      <div style="margin-bottom: 2rem;">
-        <h2 class="text-foreground font-semibold" style="margin-bottom: 0.25rem;">
-          Role for this Event <span class="text-muted-foreground font-normal text-sm">(Required)</span>
-        </h2>
-        <div class="role-grid" style="margin-top: 1rem;">
-          <button class="role-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="16 18 22 12 16 6"></polyline>
-              <polyline points="8 6 2 12 8 18"></polyline>
-            </svg>
-            <span>Frontend Developer</span>
-          </button>
-          <button class="role-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="13.5" cy="6.5" r=".5"></circle>
-              <circle cx="17.5" cy="10.5" r=".5"></circle>
-              <circle cx="8.5" cy="7.5" r=".5"></circle>
-              <circle cx="6.5" cy="12.5" r=".5"></circle>
-              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z"></path>
-            </svg>
-            <span>Backend Developer</span>
-          </button>
-          <button class="role-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-            </svg>
-            <span></span>
-          </button>
-          <button class="role-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
-              <polyline points="16 7 22 7 22 13"></polyline>
-            </svg>
-            <span>Full Stack Developer</span>
-          </button>
-          <button class="role-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
-              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
-            </svg>
-            <span>UI/UX Designer</span>
-          </button>
-          <button class="role-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            <span>Product Manager</span>
-          </button>
+    <!-- Main Form -->
+    <form id="eventProfileForm">
+      <!-- Main Form Card -->
+      <div class="card">
+        <!-- Role Selection -->
+        <div style="margin-bottom: 2rem;">
+          <h2 class="text-foreground font-semibold" style="margin-bottom: 0.25rem;">
+            Role for this Event <span class="text-muted-foreground font-normal text-sm">(Required)</span>
+          </h2>
+          <div class="role-grid" style="margin-top: 1rem;" id="roleButtons">
+            <button type="button" class="role-btn" data-role="Frontend Developer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+              <span>Frontend Developer</span>
+            </button>
+            <button type="button" class="role-btn" data-role="Backend Developer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="13.5" cy="6.5" r=".5"></circle>
+                <circle cx="17.5" cy="10.5" r=".5"></circle>
+                <circle cx="8.5" cy="7.5" r=".5"></circle>
+                <circle cx="6.5" cy="12.5" r=".5"></circle>
+                <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z"></path>
+              </svg>
+              <span>Backend Developer</span>
+            </button>
+            <button type="button" class="role-btn" data-role="Designer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+              <span>Designer</span>
+            </button>
+            <button type="button" class="role-btn" data-role="Full Stack Developer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                <polyline points="16 7 22 7 22 13"></polyline>
+              </svg>
+              <span>Full Stack Developer</span>
+            </button>
+            <button type="button" class="role-btn" data-role="UI/UX Designer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+              </svg>
+              <span>UI/UX Designer</span>
+            </button>
+            <button type="button" class="role-btn" data-role="Product Manager">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span>Product Manager</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Skills You Have -->
+        <div style="margin-bottom: 2rem;">
+          <h2 class="text-foreground font-semibold" style="margin-bottom: 1rem;">
+            Skills You Have <span class="text-muted-foreground font-normal text-sm">(Select at least 1)</span>
+          </h2>
+          
+          <div style="margin-bottom: 1rem;">
+            <p class="text-orange text-xs font-semibold uppercase tracking-wider" style="margin-bottom: 0.5rem;">DESIGN</p>
+            <div class="skill-buttons">
+              <button type="button" class="skill-btn" data-skill="UI/UX">UI/UX</button>
+              <button type="button" class="skill-btn" data-skill="Figma">Figma</button>
+              <button type="button" class="skill-btn" data-skill="Graphic Design">Graphic Design</button>
+              <button type="button" class="skill-btn" data-skill="Branding">Branding</button>
+              <button type="button" class="skill-btn" data-skill="Prototyping">Prototyping</button>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <p class="text-orange text-xs font-semibold uppercase tracking-wider" style="margin-bottom: 0.5rem;">FRONTEND</p>
+            <div class="skill-buttons">
+              <button type="button" class="skill-btn" data-skill="React">React</button>
+              <button type="button" class="skill-btn" data-skill="Vue">Vue</button>
+              <button type="button" class="skill-btn" data-skill="TypeScript">TypeScript</button>
+              <button type="button" class="skill-btn" data-skill="CSS/Tailwind">CSS/Tailwind</button>
+              <button type="button" class="skill-btn" data-skill="Next.js">Next.js</button>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <p class="text-orange text-xs font-semibold uppercase tracking-wider" style="margin-bottom: 0.5rem;">BACKEND</p>
+            <div class="skill-buttons">
+              <button type="button" class="skill-btn" data-skill="Node.js">Node.js</button>
+              <button type="button" class="skill-btn" data-skill="Python">Python</button>
+              <button type="button" class="skill-btn" data-skill="Django">Django</button>
+              <button type="button" class="skill-btn" data-skill="APIs">APIs</button>
+              <button type="button" class="skill-btn" data-skill="PostgreSQL">PostgreSQL</button>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <p class="text-orange text-xs font-semibold uppercase tracking-wider" style="margin-bottom: 0.5rem;">DATA</p>
+            <div class="skill-buttons">
+              <button type="button" class="skill-btn" data-skill="ML/AI">ML/AI</button>
+              <button type="button" class="skill-btn" data-skill="Data Science">Data Science</button>
+              <button type="button" class="skill-btn" data-skill="Analytics">Analytics</button>
+              <button type="button" class="skill-btn" data-skill="TensorFlow">TensorFlow</button>
+              <button type="button" class="skill-btn" data-skill="SQL">SQL</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Availability -->
+        <div style="margin-bottom: 2rem;">
+          <h2 class="text-foreground font-semibold" style="margin-bottom: 0.25rem;">
+            Availability <span class="text-muted-foreground font-normal text-sm">(Required)</span>
+          </h2>
+          <input type="text" id="availabilityInput" class="input" placeholder="e.g., Weekends, Evenings, 10-15 hours/week" required style="margin-top: 1rem; height: 3.5rem;">
+        </div>
+
+        <!-- Experience Level -->
+        <div style="margin-bottom: 2rem;">
+          <h2 class="text-foreground font-semibold" style="margin-bottom: 1rem;">Experience Level <span class="text-muted-foreground font-normal text-sm">(Required)</span></h2>
+          <div class="experience-grid" id="experienceButtons">
+            <button type="button" class="experience-btn" data-experience="beginner">Beginner</button>
+            <button type="button" class="experience-btn" data-experience="intermediate">Intermediate</button>
+            <button type="button" class="experience-btn" data-experience="advanced">Advanced</button>
+          </div>
+        </div>
+
+        <!-- Short Bio -->
+        <div>
+          <h2 class="text-foreground font-semibold" style="margin-bottom: 0.25rem;">
+            Short Bio <span class="text-muted-foreground font-normal text-sm">(Optional, for this event)</span>
+          </h2>
+          <textarea id="bioInput" class="form-textarea" placeholder="Tell your teammates a bit about yourself..." rows="4" style="margin-top: 1rem;"></textarea>
         </div>
       </div>
 
-      <!-- Skills You Have -->
-      <div style="margin-bottom: 2rem;">
-        <h2 class="text-foreground font-semibold" style="margin-bottom: 1rem;">
-          Skills You Have <span class="text-muted-foreground font-normal text-sm">(Select at least 1)</span>
-        </h2>
-        
-        <div style="margin-bottom: 1rem;">
-          <p class="text-orange text-xs font-semibold uppercase tracking-wider" style="margin-bottom: 0.5rem;">DESIGN</p>
-          <div class="skill-buttons">
-            <button class="skill-btn">UI/UX</button>
-            <button class="skill-btn">Figma</button>
-            <button class="skill-btn">Graphic Design</button>
-            <button class="skill-btn">Branding</button>
-            <button class="skill-btn">Prototyping</button>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 1rem;">
-          <p class="text-orange text-xs font-semibold uppercase tracking-wider" style="margin-bottom: 0.5rem;">FRONTEND</p>
-          <div class="skill-buttons">
-            <button class="skill-btn">React</button>
-            <button class="skill-btn">Vue</button>
-            <button class="skill-btn">TypeScript</button>
-            <button class="skill-btn">CSS/Tailwind</button>
-            <button class="skill-btn">Next.js</button>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 1rem;">
-          <p class="text-orange text-xs font-semibold uppercase tracking-wider" style="margin-bottom: 0.5rem;">BACKEND</p>
-          <div class="skill-buttons">
-            <button class="skill-btn">Node.js</button>
-            <button class="skill-btn">Python</button>
-            <button class="skill-btn">Django</button>
-            <button class="skill-btn">APIs</button>
-            <button class="skill-btn">PostgreSQL</button>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 1rem;">
-          <p class="text-orange text-xs font-semibold uppercase tracking-wider" style="margin-bottom: 0.5rem;">DATA</p>
-          <div class="skill-buttons">
-            <button class="skill-btn">ML/AI</button>
-            <button class="skill-btn">Data Science</button>
-            <button class="skill-btn">Analytics</button>
-            <button class="skill-btn">TensorFlow</button>
-            <button class="skill-btn">SQL</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Skills You Need -->
-      <div style="margin-bottom: 2rem;">
-        <h2 class="text-foreground font-semibold" style="margin-bottom: 1rem;">
-          Skills You Need <span class="text-muted-foreground font-normal text-sm">(Optional)</span>
-        </h2>
-        
-        <div style="margin-bottom: 1rem;">
-          <p class="text-orange text-xs font-semibold uppercase tracking-wider" style="margin-bottom: 0.5rem;">DESIGN</p>
-          <div class="skill-buttons">
-            <button class="skill-btn">UI/UX</button>
-            <button class="skill-btn">Figma</button>
-            <button class="skill-btn">Graphic Design</button>
-            <button class="skill-btn">Branding</button>
-            <button class="skill-btn">Prototyping</button>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 1rem;">
-          <p class="text-orange text-xs font-semibold uppercase tracking-wider" style="margin-bottom: 0.5rem;">FRONTEND</p>
-          <div class="skill-buttons">
-            <button class="skill-btn">React</button>
-            <button class="skill-btn">Vue</button>
-            <button class="skill-btn">TypeScript</button>
-            <button class="skill-btn">CSS/Tailwind</button>
-            <button class="skill-btn">Next.js</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Experience Level -->
-      <div style="margin-bottom: 2rem;">
-        <h2 class="text-foreground font-semibold" style="margin-bottom: 1rem;">Experience Level</h2>
-        <div class="experience-grid">
-          <button class="experience-btn selected">Beginner</button>
-          <button class="experience-btn">Intermediate</button>
-          <button class="experience-btn">Advanced</button>
-        </div>
-      </div>
-
-      <!-- Short Bio -->
-      <div>
-        <h2 class="text-foreground font-semibold" style="margin-bottom: 0.25rem;">
-          Short Bio <span class="text-muted-foreground font-normal text-sm">(Optional, for this event)</span>
-        </h2>
-        <textarea class="form-textarea" placeholder="Tell your teammates a bit about yourself..." rows="4" style="margin-top: 1rem;"></textarea>
-      </div>
-    </div>
-
-    <!-- Submit Button -->
-    <button class="btn btn-gradient w-full" style="margin-top: 1.5rem; padding: 1rem; font-size: 1rem;">
-      Save & See Matches
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="5" y1="12" x2="19" y2="12"></line>
-        <polyline points="12 5 19 12 12 19"></polyline>
-      </svg>
-    </button>
+      <!-- Submit Button -->
+      <button type="submit" id="eventProfileSubmitButton" class="btn btn-gradient w-full" style="margin-top: 1.5rem; padding: 1rem; font-size: 1rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
+        <span>Save & See Matches</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+    </form>
 
     <!-- Skip Link -->
-    <p class="text-center text-muted-foreground text-sm" style="margin-top: 1rem; cursor: pointer;">
+    <a href="event-dashboard.html" class="text-center text-muted-foreground text-sm" style="margin-top: 1rem; cursor: pointer;">
       Skip for now (reduced match quality)
     </p>
   </div>
+  <script>
+    // Event Profile Submit Button Handler with Event ID
+    // UNFINISHED, only redirects, but does not send a request yet
+    document.getElementById('eventProfileSubmitButton')?.addEventListener('click', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('eventId') || sessionStorage.getItem('eventCode');
+        
+        console.log('Navigating to event dashboard...');
+        
+        if (eventId) {
+            window.location.href = 'event-dashboard.html?eventId=${eventId}';
+        } else {
+            window.location.href = 'event-dashboard.html';
+        }
+    });
+  </script>
 </body>
 </html>

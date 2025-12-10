@@ -46,18 +46,17 @@
       </div>
 
       <!-- Form -->
-      <form>
+      <form id="createEventForm">
         <!-- Event Name -->
         <div class="form-group">
           <label class="form-label">Event Name</label>
-          <input type="text" class="form-input" placeholder="e.g., HackMIT 2025, CS101 Final Project" required style="height: 3.5rem;">
+          <input type="text" id="eventNameInput" class="form-input" placeholder="e.g., HackMIT 2025, CS101 Final Project" required style="height: 3.5rem;">
         </div>
-
         <!-- Event Date -->
         <div class="form-group">
           <label class="form-label">Event Date</label>
           <div style="position: relative;">
-            <input type="date" class="form-input" required style="height: 3.5rem;">
+            <input type="date" id="eventDateInput" class="form-input" required style="height: 3.5rem;">
             <svg style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--muted-foreground);" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
               <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -66,13 +65,11 @@
             </svg>
           </div>
         </div>
-
         <!-- Description -->
         <div class="form-group">
           <label class="form-label">Description (Optional)</label>
-          <textarea class="form-textarea" placeholder="Tell participants what to expect..." rows="4"></textarea>
+          <textarea id="eventDescriptionInput" class="form-textarea" placeholder="Tell participants what to expect..." rows="4"></textarea>
         </div>
-
         <!-- Submit Button -->
         <button type="submit" class="btn btn-gradient w-full" style="height: 3.5rem; font-size: 1.125rem; margin-top: 1rem;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -83,5 +80,57 @@
       </form>
     </main>
   </div>
+  <script>
+    // Create Event Form Handler
+    document.getElementById('createEventForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const eventName = document.getElementById('eventNameInput').value.trim();
+        const eventDate = document.getElementById('eventDateInput').value;
+        const eventDescription = document.getElementById('eventDescriptionInput').value.trim() || '';
+        
+        if (!eventName || !eventDate) {
+            alert('Please fill in all required fields');
+            return;
+        }
+        
+        console.log('Creating event:', { eventName, eventDate, eventDescription });
+        
+        try {
+            // UNFINISHED: route does not exist at the moment (/events/create)
+            const response = await fetch('/api/events/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    event_name: eventName,
+                    event_date: eventDate,
+                    description: eventDescription
+                }),
+                credentials: 'include'
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                alert(data.error || 'Failed to create event');
+                return;
+            }
+            
+            // Show success message with event code
+            alert('Event created successfully! Your event code is: ${data.event_code || data.event_id}');
+            
+            // Redirect to event dashboard or show event code
+            if (data.event_id) {
+                window.location.href = 'event-dashboard.html?eventId=${data.event_id}';
+            } else {
+                window.location.href = 'index.html';
+            }
+            
+        } catch (err) {
+            console.error('Create event error:', err);
+            alert('An error occurred while creating the event.');
+        }
+    });
+  </script>
 </body>
 </html>
