@@ -2,6 +2,7 @@
 const {CURRENT_EVENT_ID} = require('../config/constants');
 //import database pool 
 const pool = require('../config/database');
+
 const event_id = CURRENT_EVENT_ID;
 
 //EVENT HANDLING LOGIC

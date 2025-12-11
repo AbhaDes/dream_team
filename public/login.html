@@ -88,8 +88,12 @@ File: login.html
               return;
           }
           
-          alert('Logged in successfully!');
-          window.location.href = '/index.html';
+          //Check what the user had already done before logging in. 
+          //1. Check if the event-profile is already made 
+          //2. Check if matches are selected
+          //3. Check if the user has already teamed up to decide where they go after this
+          //4. For now, its event-profile.html
+          window.location.href = '/event-profile.html';
       } catch (err) {
           console.error('Login error:', err);
           alert('An error occurred while logging in.');

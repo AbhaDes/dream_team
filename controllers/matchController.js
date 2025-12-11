@@ -74,6 +74,7 @@ const findMatch = async(req, res, next) => {
 }
 
 
+//2. FUNCTION THAT CREATES THE MATCH
 const createMatch = async(req, res, next) => {
     try{
         //1. Get user_ids
