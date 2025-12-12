@@ -137,5 +137,34 @@ const getParticipant = async(req, res, next) =>{
     }
 }
 
+const getMe = async(req, res, next) => {
+    try{
+        //get the user id from the authMiddleware, and get the eventId from the parameters
+        const userId = req.user.user_id;
+        const eventId = req.params.eventId; 
+        //check if any participant exists with that id for that event
+        const check = await pool.query('SELECT * FROM event_participants WHERE event_id = $1 AND user_id = $2', [eventId, userId]);
+        //if not, tell them to join the event
+        if(check.rows.length === 0){
+            return res.status(404).json({
+                error: "Participant not found for this event. Please join this event"
+            });
 
-module.exports = {joinEvent, getParticipant};
+
+        }
+        res.status(200).json({
+            profile:result.rows[0]
+        })
+
+    }catch(error){
+        console.error('Get participant error: ' , error);
+        res.status(500).json({
+            error: "Internal Server Error. Please try again later"
+        });
+
+    }
+
+}
+
+
+module.exports = {joinEvent, getParticipant, getMe};
