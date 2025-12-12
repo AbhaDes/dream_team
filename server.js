@@ -7,6 +7,12 @@ var express = require('express');
 var app = express();
 var port = 3001;
 
+const cors = require('cors');
+app.use(cors({
+    origin: true, 
+    credentials: true
+}));
+
 const pool = require('./config/database');  
 const authRoutes = require('./routes/auth');
 const eventRoutes = require('./routes/events');

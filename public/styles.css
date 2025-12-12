@@ -1526,3 +1526,12 @@ svg {
     grid-template-columns: 1fr;
   }
 }
+/* Active state for role buttons */
+.role-btn.active, 
+.skill-btn.active, 
+.experience-btn.active {
+  background: linear-gradient(135deg, var(--violet) 0%, var(--blue) 100%);
+  color: white;
+  border-color: var(--violet);
+  transform: scale(1.05);
+}

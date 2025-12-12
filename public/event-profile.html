@@ -99,7 +99,7 @@
           </h2>
           
           <div style="margin-bottom: 1rem;">
-            <p class="text-orange text-xs font-semibold uppercase tracking-wider" style="margin-bottom: 0.5rem;">DESIGN</p>
+            <p class="text-orange text-xs font-semibold uppercase tracking-wider" style="margin-bottom: 0.5rem;"> UI/UX DESIGNER</p>
             <div class="skill-buttons">
               <button type="button" class="skill-btn" data-skill="UI/UX">UI/UX</button>
               <button type="button" class="skill-btn" data-skill="Figma">Figma</button>
@@ -132,13 +132,13 @@
           </div>
 
           <div style="margin-bottom: 1rem;">
-            <p class="text-orange text-xs font-semibold uppercase tracking-wider" style="margin-bottom: 0.5rem;">DATA</p>
+            <p class="text-orange text-xs font-semibold uppercase tracking-wider" style="margin-bottom: 0.5rem;">PRODUCT MANAGER</p>
             <div class="skill-buttons">
-              <button type="button" class="skill-btn" data-skill="ML/AI">ML/AI</button>
-              <button type="button" class="skill-btn" data-skill="Data Science">Data Science</button>
-              <button type="button" class="skill-btn" data-skill="Analytics">Analytics</button>
-              <button type="button" class="skill-btn" data-skill="TensorFlow">TensorFlow</button>
-              <button type="button" class="skill-btn" data-skill="SQL">SQL</button>
+              <button type="button" class="skill-btn" data-skill="Product Strategy">Product Strategy</button>
+              <button type="button" class="skill-btn" data-skill="Roadmapping">Roadmapping</button>
+              <button type="button" class="skill-btn" data-skill="User Research">User Research</button>
+              <button type="button" class="skill-btn" data-skill="Feature Prioritization">Feature Prioritization</button>
+              <button type="button" class="skill-btn" data-skill="SQL">A/B Testing</button>
             </div>
           </div>
         </div>
@@ -148,7 +148,14 @@
           <h2 class="text-foreground font-semibold" style="margin-bottom: 0.25rem;">
             Availability <span class="text-muted-foreground font-normal text-sm">(Required)</span>
           </h2>
-          <input type="text" id="availabilityInput" class="input" placeholder="e.g., Weekends, Evenings, 10-15 hours/week" required style="margin-top: 1rem; height: 3.5rem;">
+          <select id="availabilityInput" class="input" required style="margin-top: 1rem; height: 3.5rem;">
+            <option value="">Select your availability...</option>
+            <option value="Full Time (30+ hours)">Full Time (30+ hours)</option>
+            <option value="Most of the Time (20-30 hours)">Most of the Time (20-30 hours)</option>
+            <option value="Part Time (10-20 hours)">Part Time (10-20 hours)</option>
+            <option value="Limited (Less than 10 hours)">Limited (Less than 10 hours)</option>
+            <option value="Flexible Schedule">Flexible Schedule</option>
+          </select>
         </div>
 
         <!-- Experience Level -->
@@ -186,6 +193,7 @@
     </p>
   </div>
   <script>
+    console.log("Script is running!")
     // Event Profile Submit Button Handler with Event ID
     // UNFINISHED, only redirects, but does not send a request yet
     document.getElementById('eventProfileSubmitButton')?.addEventListener('click', () => {
@@ -200,6 +208,133 @@
             window.location.href = 'event-dashboard.html';
         }
     });
-  </script>
+    // Track selected values
+    let selectedRole = null;
+    let selectedSkills = [];
+    let selectedExperience = null;
+
+    // Role Selection
+    document.querySelectorAll('.role-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            // Remove active class from all
+            document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+            
+            // Add active to clicked button
+            btn.classList.add('active');
+            
+            // Store the role
+            selectedRole = btn.getAttribute('data-role');
+        });
+    });
+
+    // Skills Selection (multiple)
+    document.querySelectorAll('.skill-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const skill = btn.getAttribute('data-skill');
+            
+            // Toggle active class
+            btn.classList.toggle('active');
+            
+            // Add or remove from array
+            if (selectedSkills.includes(skill)) {
+                selectedSkills = selectedSkills.filter(s => s !== skill);
+            } else {
+                selectedSkills.push(skill);
+            }
+        });
+    });
+
+    // Experience Selection
+    document.querySelectorAll('.experience-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            // Remove active from all
+            document.querySelectorAll('.experience-btn').forEach(b => b.classList.remove('active'));
+            
+            // Add active to clicked
+            btn.classList.add('active');
+            
+            // Store experience
+            selectedExperience = btn.getAttribute('data-experience');
+        });
+    });
+
+    // Form Submit
+    document.getElementById('eventProfileForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        // Get other values
+        const availability = document.getElementById('availabilityInput').value;
+        const bio = document.getElementById('bioInput').value;
+        
+        // Validate required fields
+        if (!selectedRole) {
+            alert('Please select a role');
+            return;
+        }
+        
+        if (selectedSkills.length === 0) {
+            alert('Please select at least one skill');
+            return;
+        }
+        
+        if (!selectedExperience) {
+            alert('Please select your experience level');
+            return;
+        }
+        
+        if (!availability) {
+            alert('Please enter your availability');
+            return;
+        }
+        
+        // Get event ID (you need to pass this somehow!)
+        const eventId = 'b2e50473-9793-4d45-87a1-23835f1e3bb8'; // Replace with actual event ID!
+        // Right before the fetch call
+        console.log('=== DATA BEING SENT ===');
+        console.log('Role:', selectedRole);
+        console.log('Experience:', selectedExperience);
+        console.log('Availability:', availability);
+        console.log('Skills:', skills);
+        console.log('Bio:', bio);
+        console.log('Event ID:', eventId);
+        console.log('Full body:', JSON.stringify({
+            role: selectedRole,
+            experience: selectedExperience,
+            availability: availability,
+            skills: skills,
+            bio: bio
+        }));
+        
+        // Send to backend
+        try {
+            const response = await fetch(`/api/events/${eventId}/join`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // Important for session!
+                body: JSON.stringify({
+                    role: selectedRole,
+                    experience: selectedExperience,
+                    availability: availability,
+                    skills: selectedSkills,
+                    bio: bio
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                alert(data.error || 'Failed to join event');
+                return;
+            }
+            
+            alert('Profile created! Finding your matches...');
+            window.location.href = `/matches.html?eventId=${eventId}`;
+            
+        } catch (err) {
+            console.error('Error:', err);
+            alert('An error occurred');
+        }
+    });
+</script>
 </body>
 </html>

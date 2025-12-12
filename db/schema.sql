@@ -20,9 +20,6 @@ CREATE TYPE role_type AS ENUM (
     'Full-stack Developer', 
     'UI/UX Designer', 
     'Product Manager', 
-    'Data Scientist', 
-    'DevOps Engineer', 
-    'Mobile Developer'
 );
 CREATE TYPE availability_type AS ENUM (
     'Full Time (30+ hours)',
