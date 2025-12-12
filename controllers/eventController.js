@@ -157,14 +157,70 @@ const getMe = async(req, res, next) => {
         })
 
     }catch(error){
-        console.error('Get participant error: ' , error);
+        console.error('Get my profile error: ' , error);
+        res.status(500).json({
+            error: "Internal Server Error. Please try again later"
+        });
+
+    
+    }
+}
+const updateProfile = async(req, res, next) => {
+    try{
+        //function to update the profile
+        //get all the things you need to update their profile
+        const {role, experience, availability, skills, bio} = req.body;
+        const eventId = req.params.eventId;
+        const userId = req.user.user_id;
+        //check if they have joined the event
+        const check = await pool.query('SELECT * FROM event_participants WHERE event_id = $1 AND user_id = $2', [eventId, userId]);
+        if(check.rows.length === 0){
+            return res.status(404).json({
+                error: "No participant found for this user. Please join the event first"
+            });
+        } 
+        //check if they have send everything 
+        if(!experience || ! role || !availability){
+            return res.status(400).json({
+                error: "Please fill out all required feilds"
+            });
+        }
+        //if they have sent everything then update
+        const update = await pool.query(`
+            UPDATE event_participants
+                SET role = $1, 
+                    experience = $2, 
+                    availability = $3, 
+                    skills = $4, 
+                    bio = $5
+                WHERE user_id = $6 
+                AND event_id = $7
+                RETURNING *`, 
+            [role, experience, availability, skills, bio, userId, eventId]
+        );
+        const updated = update.rows[0];
+        res.status(200).json({
+            updated_participant:{
+                role : updated.role, 
+                experience: updated.experience, 
+                availability: updated.availability,
+                skills: updated.skills,
+                bio: updated.bio
+
+            },
+            message: "User information successfully updated"
+                
+        });
+    }catch(error){
+        console.log("Update profile error: ", error);
         res.status(500).json({
             error: "Internal Server Error. Please try again later"
         });
 
     }
-
 }
 
 
-module.exports = {joinEvent, getParticipant, getMe};
+
+
+module.exports = {joinEvent, getParticipant, getMe, updateProfile};
