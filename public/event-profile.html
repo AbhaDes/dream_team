@@ -162,9 +162,9 @@
         <div style="margin-bottom: 2rem;">
           <h2 class="text-foreground font-semibold" style="margin-bottom: 1rem;">Experience Level <span class="text-muted-foreground font-normal text-sm">(Required)</span></h2>
           <div class="experience-grid" id="experienceButtons">
-            <button type="button" class="experience-btn" data-experience="beginner">Beginner</button>
-            <button type="button" class="experience-btn" data-experience="intermediate">Intermediate</button>
-            <button type="button" class="experience-btn" data-experience="advanced">Advanced</button>
+            <button type="button" class="experience-btn" data-experience="Beginner">Beginner</button>
+            <button type="button" class="experience-btn" data-experience="Intermediate">Intermediate</button>
+            <button type="button" class="experience-btn" data-experience="Advanced">Advanced</button>
           </div>
         </div>
 
@@ -179,7 +179,7 @@
 
       <!-- Submit Button -->
       <button type="submit" id="eventProfileSubmitButton" class="btn btn-gradient w-full" style="margin-top: 1.5rem; padding: 1rem; font-size: 1rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
-        <span>Save & See Matches</span>
+        <span>Submit Profile</span>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="5" y1="12" x2="19" y2="12"></line>
           <polyline points="12 5 19 12 12 19"></polyline>
@@ -193,7 +193,6 @@
     </p>
   </div>
   <script>
-    console.log("Script is running!")
     // Event Profile Submit Button Handler with Event ID
     // UNFINISHED, only redirects, but does not send a request yet
     document.getElementById('eventProfileSubmitButton')?.addEventListener('click', () => {
@@ -208,7 +207,7 @@
             window.location.href = 'event-dashboard.html';
         }
     });
-    // Track selected values
+    //Track selected values
     let selectedRole = null;
     let selectedSkills = [];
     let selectedExperience = null;
@@ -262,9 +261,18 @@
     document.getElementById('eventProfileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
+
+        // Get event ID 
+        const eventId = 'b2e50473-9793-4d45-87a1-23835f1e3bb8'; 
         // Get other values
         const availability = document.getElementById('availabilityInput').value;
         const bio = document.getElementById('bioInput').value;
+
+        console.log('Availability:', availability);
+        console.log('Bio:', bio);
+        console.log('Selected Role:', selectedRole);
+        console.log('Selected Skills:', selectedSkills);
+        console.log('Selected Experience:', selectedExperience);
         
         // Validate required fields
         if (!selectedRole) {
@@ -287,24 +295,6 @@
             return;
         }
         
-        // Get event ID (you need to pass this somehow!)
-        const eventId = 'b2e50473-9793-4d45-87a1-23835f1e3bb8'; // Replace with actual event ID!
-        // Right before the fetch call
-        console.log('=== DATA BEING SENT ===');
-        console.log('Role:', selectedRole);
-        console.log('Experience:', selectedExperience);
-        console.log('Availability:', availability);
-        console.log('Skills:', skills);
-        console.log('Bio:', bio);
-        console.log('Event ID:', eventId);
-        console.log('Full body:', JSON.stringify({
-            role: selectedRole,
-            experience: selectedExperience,
-            availability: availability,
-            skills: skills,
-            bio: bio
-        }));
-        
         // Send to backend
         try {
             const response = await fetch(`/api/events/${eventId}/join`, {
@@ -321,6 +311,7 @@
             });
             
             const data = await response.json();
+            console.log('Response data:', data);
             
             if (!response.ok) {
                 alert(data.error || 'Failed to join event');

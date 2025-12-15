@@ -67,13 +67,14 @@ File: login.html
       Don't have an account? <a href="signup.html" class="text-lime font-medium">Sign Up</a>
     </p>
   </div>
-  <script>
-    document.getElementById('loginForm').addEventListener("submit", async (e) => {
+<script>
+  document.getElementById('loginForm').addEventListener("submit", async (e) => {
       e.preventDefault();
       const email = document.getElementById('emailForm').value;
       const password = document.getElementById('passwordForm').value;
       
       try {
+          // Step 1: Login
           const response = await fetch('/api/auth/login', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -88,17 +89,26 @@ File: login.html
               return;
           }
           
-          //Check what the user had already done before logging in. 
-          //1. Check if the event-profile is already made 
-          //2. Check if matches are selected
-          //3. Check if the user has already teamed up to decide where they go after this
-          //4. For now, its event-profile.html
-          window.location.href = '/event-profile.html';
+          // Step 2: Check if user has already joined the event
+          const eventId = 'b2e50473-9793-4d45-87a1-23835f1e3bb8'; // Your event UUID
+          
+          const profileCheck = await fetch(`/api/events/${eventId}/participants/me`, {
+              credentials: 'include'
+          });
+          
+          if (profileCheck.ok) {
+              // User HAS joined the event → Go to matches
+              window.location.href = '/matches.html';
+          } else {
+              // User has NOT joined the event → Go to profile form
+              window.location.href = '/event-profile.html';
+          }
+          
       } catch (err) {
           console.error('Login error:', err);
           alert('An error occurred while logging in.');
       }
-    });
-  </script>
+  });
+</script>
 </body>
 </html>
