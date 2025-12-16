@@ -16,10 +16,10 @@ CREATE TABLE events (
 
 CREATE TYPE role_type AS ENUM (
     'Frontend Developer', 
-    'Backend Developer', 
+    'Backend Developer',
     'Full-stack Developer', 
     'UI/UX Designer', 
-    'Product Manager', 
+    'Product Manager' 
 );
 CREATE TYPE availability_type AS ENUM (
     'Full Time (30+ hours)',
