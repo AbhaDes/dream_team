@@ -47,10 +47,6 @@
           <circle cx="12" cy="7" r="4"></circle>
         </svg>
       </div>
-      <div class="sidebar-user-info">
-        <p class="text-foreground">You</p>
-        <span>Full-Stack Dev</span>
-      </div>
     </div>
   </aside>
 
@@ -65,7 +61,6 @@
           <line x1="8" y1="2" x2="8" y2="6"></line>
           <line x1="3" y1="10" x2="21" y2="10"></line>
         </svg>
-        <span class="text-foreground">Demo Connections Event</span>
       </div>
 
       <!-- Title -->
@@ -112,6 +107,47 @@ function toggleContactInfo(index) {
     } else {
         contactInfo.style.display = 'none';
         buttonText.textContent = 'View Contact Info';
+    }
+}
+// Add likeBack function outside DOMContentLoaded
+async function likeBack(participantId) {
+    console.log('🔍 Participant ID received:', participantId);
+    console.log('🔍 Type:', typeof participantId);
+    const eventId = 'b2e50473-9793-4d45-87a1-23835f1e3bb8';
+    
+    try {
+        const response = await fetch(`/api/events/${eventId}/like`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                participant_id: participantId
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+            alert(data.error || 'Failed to like back');
+            return;
+        }
+        
+        // Check if it's now a mutual match
+        if (data.message && data.message.includes('matched')) {
+            alert('🎉 It\'s a Match! You can now see them in your Connections!');
+        } else {
+            alert('👍 Like sent successfully!');
+        }
+        
+        // Reload the pending list to show updated status
+        await loadPending();
+        
+        // Also reload matches in case it's now mutual
+        await loadMatches();
+        
+    } catch (error) {
+        console.error('Error liking back:', error);
+        alert('Failed to like back. Please try again.');
     }
 }
 window.addEventListener('DOMContentLoaded', async () => {
@@ -192,44 +228,44 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     }
     
-    function displayMatches(matches) {
-    const container = document.querySelector('.max-w-4xl > div:last-child');
-    container.innerHTML = '';
+function displayMatches(matches) {
+  const container = document.querySelector('.max-w-4xl > div:last-child');
+  container.innerHTML = '';
     
-    if (matches.length === 0) {
-        container.innerHTML = `
-            <div style="text-align: center; padding: 3rem;">
-                <p class="text-muted-foreground">No mutual matches yet. Keep liking people!</p>
-            </div>
+  if (matches.length === 0) {
+      container.innerHTML = `
+          <div style="text-align: center; padding: 3rem;">
+              <p class="text-muted-foreground">No mutual matches yet. Keep liking people!</p>
+          ]</div>
         `;
-        return;
-    }
+      return;
+  }
     
-    matches.forEach((match, index) => {
-        const skillsHTML = match.other_skills && match.other_skills.length > 0
-            ? match.other_skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')
-            : '<span class="text-muted-foreground">No skills listed</span>';
+  matches.forEach((match, index) => {
+      const skillsHTML = match.other_skills && match.other_skills.length > 0
+          ? match.other_skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')
+          : '<span class="text-muted-foreground">No skills listed</span>';
         
-        const card = document.createElement('div');
-        card.className = 'connection-card';
-        card.innerHTML = `
-            <div class="connection-content">
-                <div class="connection-avatar">
-                    <div class="connection-avatar-inner">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        </svg>
-                    </div>
-                    <div class="connection-checkmark">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
-                    </div>
-                </div>
+      const card = document.createElement('div');
+      card.className = 'connection-card';
+      card.innerHTML = `
+          <div class="connection-content">
+              <div class="connection-avatar">
+                  <div class="connection-avatar-inner">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="9" cy="7" r="4"></circle>
+                          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                      </svg>
+                  </div>
+                  <div class="connection-checkmark">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                      </svg>
+                  </div>
+              </div>
                 
                 <div class="connection-info">
                     <h3 class="text-foreground text-xl font-semibold">${match.other_username || 'Anonymous'}</h3>
@@ -275,15 +311,16 @@ window.addEventListener('DOMContentLoaded', async () => {
                         </svg>
                         <span class="match-percent">Match!</span>
                     </div>
-                </div>
-            </div>
-        `;
+              </div>
+        </div>
+      `;
         
-        container.appendChild(card);
-    });
+      container.appendChild(card);
+  });
 }
     
-    function displayPending(pending) {
+function displayPending(pending) {
+  console.log('🔍 Full pending data:', JSON.stringify(pending, null, 2));
     const container = document.getElementById('connections-container');
     container.innerHTML = '';
     
@@ -396,7 +433,7 @@ function createPendingCard(match, index, needsResponse) {
                 
                 <div class="connection-actions">
                     ${needsResponse ? `
-                        <button class="btn btn-gradient flex-1" onclick="likeBack('${match.other_user_id}')">
+                        <button class="btn btn-gradient flex-1" onclick="likeBack('${match.other_participant_id}')">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                             </svg>
@@ -416,49 +453,19 @@ function createPendingCard(match, index, needsResponse) {
                     `}
                 </div>
             </div>
-            
-            <div class="connection-match">
-                <div class="match-circle">
-                    <svg viewBox="0 0 36 36">
-                        <circle class="match-circle-bg" cx="18" cy="18" r="15.5"></circle>
-                        <circle class="match-circle-progress" cx="18" cy="18" r="15.5" stroke-dasharray="50 50"></circle>
-                    </svg>
-                    <span class="match-percent" style="font-size: 0.75rem;">Pending</span>
-                </div>
-            </div>
         </div>
     `;
     
     return card;
 }
-
-// Add likeBack function outside DOMContentLoaded
-async function likeBack(otherUserId) {
-    const eventId = 'b2e50473-9793-4d45-87a1-23835f1e3bb8';
     
-    try {
-        // Find the participant_id for this user_id
-        // Note: You'll need to pass participant_id instead of user_id!
-        // For now, we'll need to modify this
-        alert('Like back feature - need to get participant_id first! Check implementation.');
-        
-        // TODO: Call your /like endpoint with the participant_id
-        // Then reload the pending matches
-        
-    } catch (error) {
-        console.error('Error liking back:', error);
-        alert('Failed to like back. Please try again.');
-    }
-}
-    
-    function showError(message) {
-        const container = document.querySelector('.max-w-4xl > div:last-child');
-        container.innerHTML = `
-            <div style="text-align: center; padding: 3rem;">
-                <p class="text-muted-foreground">${message}</p>
-            </div>
-        `;
-    }
+  function showError(message) {
+      const container = document.querySelector('.max-w-4xl > div:last-child');
+      container.innerHTML = `
+          <div style="text-align: center; padding: 3rem;">
+              <p class="text-muted-foreground">${message}</p>
+          </div>`;
+  }
 });
 </script>
 </body>

@@ -289,6 +289,10 @@ const getPendingMatches = async (req, res) => {
                     ELSE ep1.experience 
                 END as other_experience,
                 CASE 
+                    WHEN m.user1_id = $1 THEN ep2.participant_id 
+                    ELSE ep1.participant_id 
+                END as other_participant_id, 
+                CASE 
                     WHEN m.user1_id = $1 THEN ep2.availability 
                     ELSE ep1.availability 
                 END as other_availability,

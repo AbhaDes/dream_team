@@ -117,9 +117,7 @@ File: signup.html
                 alert(data.error || 'Registration failed');
                 return;
             }
-            
-            alert('Registered successfully!');
-            window.location.href = '/event-profile.html';
+            window.location.href = '/login.html';
         } catch (err) {
             console.error('Registration error:', err);
             alert('An error occurred while registering.');
