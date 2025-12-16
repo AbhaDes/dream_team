@@ -322,7 +322,7 @@ const getPendingMatches = async (req, res) => {
         //if no pending matches are fond 
         if(matches.rows.length === 0){
             return res.status(404).json({
-                error: "You or any other participants have no initiated any matches"
+                error: "You or any other participants have not initiated any matches"
             });
         }
         
