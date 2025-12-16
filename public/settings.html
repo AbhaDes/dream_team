@@ -40,14 +40,6 @@
         Settings
       </a>
     </nav>
-    <div class="sidebar-user">
-      <div class="sidebar-user-avatar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-      </div>
-    </div>
   </aside>
 
   <!-- Main Content -->
@@ -208,32 +200,32 @@
     });
 
     async function loadProfile() {
-        try {
-            const response = await fetch(`/api/events/${eventId}/participants/me`, {
-                credentials: 'include'
-            });
-            
-            if (!response.ok) {
-                alert('Please join the event first!');
-                window.location.href = '/event-profile.html';
-                return;
-            }
-            
-            const data = await response.json();
-            currentProfile = data.profile;
-            
-            populateForm(currentProfile);
-            
-        } catch (error) {
-            console.error('Error loading profile:', error);
-            alert('Failed to load profile. Please try again.');
+    try {
+        
+        const response = await fetch(`/api/events/${eventId}/participants/me`, {
+            credentials: 'include'
+        });
+        
+        
+        if (!response.ok) {
+            alert('Please join the event first!');
+            window.location.href = '/event-profile.html';
+            return;
         }
+        
+        const data = await response.json();
+        
+        currentProfile = data.profile;
+      
+        populateForm(currentProfile);
+        
+    } catch (error) {
+        console.error(' Error loading profile:', error);
+        alert('Failed to load profile. Please try again.');
     }
+}
 
     function populateForm(profile) {
-        // Update sidebar
-        document.querySelector('.sidebar-user-info p').textContent = profile.username || 'You';
-        document.querySelector('.sidebar-user-info span').textContent = profile.role || 'Participant';
         
         // Update profile card
         document.querySelector('.profile-info p').textContent = profile.role || 'Role not set';
