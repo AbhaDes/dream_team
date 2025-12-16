@@ -162,5 +162,207 @@
       </div>
     </div>
   </main>
+<script>
+// Add toggle function
+function toggleContactInfo(index) {
+    const contactInfo = document.getElementById(`contact-info-${index}`);
+    const buttonText = document.getElementById(`contact-btn-text-${index}`);
+    
+    if (contactInfo.style.display === 'none') {
+        contactInfo.style.display = 'block';
+        buttonText.textContent = 'Hide Contact Info';
+    } else {
+        contactInfo.style.display = 'none';
+        buttonText.textContent = 'View Contact Info';
+    }
+}
+window.addEventListener('DOMContentLoaded', async () => {
+    const eventId = 'b2e50473-9793-4d45-87a1-23835f1e3bb8';
+    
+    // Track current tab
+    let currentTab = 'matches'; // 'matches' or 'pending'
+    
+    // Load initial data
+    await loadMatches();
+    
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', async () => {
+            // Remove active from all tabs
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            // Add active to clicked tab
+            tab.classList.add('active');
+            
+            // Determine which tab was clicked
+            if (tab.textContent.includes('Matches')) {
+                currentTab = 'matches';
+                await loadMatches();
+            } else {
+                currentTab = 'pending';
+                await loadPending();
+            }
+        });
+    });
+    
+    async function loadMatches() {
+        try {
+            const response = await fetch(`/api/events/${eventId}/matches/mutual`, {
+                credentials: 'include'
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch mutual matches');
+            }
+            
+            const data = await response.json();
+            const matches = data.mutual;
+            
+            // Update count in tab
+            document.querySelectorAll('.tab')[0].querySelector('span').textContent = matches.length;
+            
+            // Display matches
+            displayMatches(matches);
+            
+        } catch (error) {
+            console.error('Error loading matches:', error);
+            showError('Failed to load mutual matches');
+        }
+    }
+    
+    async function loadPending() {
+        try {
+            const response = await fetch(`/api/events/${eventId}/matches/pending`, {
+                credentials: 'include'
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch pending matches');
+            }
+            
+            const data = await response.json();
+            const pending = data.pending;
+            
+            // Update count in tab
+            document.querySelectorAll('.tab')[1].querySelector('span').textContent = pending.length;
+            
+            // Display pending
+            displayPending(pending);
+            
+        } catch (error) {
+            console.error('Error loading pending:', error);
+            showError('Failed to load pending matches');
+        }
+    }
+    
+    function displayMatches(matches) {
+    const container = document.querySelector('.max-w-4xl > div:last-child');
+    container.innerHTML = '';
+    
+    if (matches.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 3rem;">
+                <p class="text-muted-foreground">No mutual matches yet. Keep liking people!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    matches.forEach((match, index) => {
+        const skillsHTML = match.other_skills && match.other_skills.length > 0
+            ? match.other_skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')
+            : '<span class="text-muted-foreground">No skills listed</span>';
+        
+        const card = document.createElement('div');
+        card.className = 'connection-card';
+        card.innerHTML = `
+            <div class="connection-content">
+                <div class="connection-avatar">
+                    <div class="connection-avatar-inner">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <div class="connection-checkmark">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="connection-info">
+                    <h3 class="text-foreground text-xl font-semibold">${match.other_username || 'Anonymous'}</h3>
+                    <p>${match.other_role || 'Role not specified'} • ${match.other_experience || 'Experience not specified'}</p>
+                    
+                    <!-- Hidden email section -->
+                    <div id="contact-info-${index}" style="display: none; margin: 0.75rem 0; padding: 0.75rem; background: rgba(139, 92, 246, 0.1); border-radius: 0.375rem; border: 1px solid rgba(139, 92, 246, 0.3);">
+                        <p class="text-foreground text-sm" style="margin-bottom: 0.25rem;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: middle; margin-right: 0.25rem;">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            <strong>Email:</strong> ${match.other_email || 'Not available'}
+                        </p>
+                    </div>
+                    
+                    <div class="skills-list" style="margin-bottom: 1.25rem;">
+                        ${skillsHTML}
+                    </div>
+                    
+                    <div class="connection-actions">
+                        <button class="btn btn-gradient flex-1" onclick="toggleContactInfo(${index})">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            <span id="contact-btn-text-${index}">View Contact Info</span>
+                        </button>
+                        <button class="btn" style="padding: 0.75rem 1.5rem; border: 2px solid hsla(68, 89%, 63%, 0.5); color: var(--lime);" onclick="alert('Messaging feature coming soon!')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            Message
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="connection-match">
+                    <div class="match-circle">
+                        <svg viewBox="0 0 36 36">
+                            <circle class="match-circle-bg" cx="18" cy="18" r="15.5"></circle>
+                            <circle class="match-circle-progress" cx="18" cy="18" r="15.5" stroke-dasharray="100 0"></circle>
+                        </svg>
+                        <span class="match-percent">Match!</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(card);
+    });
+}
+    
+    function displayPending(pending) {
+        const container = document.querySelector('.max-w-4xl > div:last-child');
+        container.innerHTML = `
+            <div style="text-align: center; padding: 3rem;">
+                <p class="text-muted-foreground">Pending matches will appear here once you build the endpoint!</p>
+            </div>
+        `;
+    }
+    
+    function showError(message) {
+        const container = document.querySelector('.max-w-4xl > div:last-child');
+        container.innerHTML = `
+            <div style="text-align: center; padding: 3rem;">
+                <p class="text-muted-foreground">${message}</p>
+            </div>
+        `;
+    }
+});
+</script>
 </body>
 </html>

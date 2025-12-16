@@ -89,16 +89,18 @@ File: login.html
               return;
           }
           
+          alert('Login successful!');
+          
           // Step 2: Check if user has already joined the event
-          const eventId = 'b2e50473-9793-4d45-87a1-23835f1e3bb8'; // Your event UUID
+          const eventId = 'b2e50473-9793-4d45-87a1-23835f1e3bb8';
           
           const profileCheck = await fetch(`/api/events/${eventId}/participants/me`, {
               credentials: 'include'
           });
           
           if (profileCheck.ok) {
-              // User HAS joined the event → Go to matches
-              window.location.href = '/matches.html';
+              // User HAS joined the event → Go to dashboard
+              window.location.href = '/event-dashboard.html';
           } else {
               // User has NOT joined the event → Go to profile form
               window.location.href = '/event-profile.html';
@@ -110,5 +112,3 @@ File: login.html
       }
   });
 </script>
-</body>
-</html>

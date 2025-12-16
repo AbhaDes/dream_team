@@ -36,7 +36,7 @@ const findMatch = async(req, res, next) => {
         //In the case where there are no participants
         if(result.rows.length === 0){
             return res.status(404).json({
-                error: "There are no participants for this event."
+                error: "There are no participants in this event."
             });
         }
         
@@ -88,9 +88,11 @@ const createMatch = async(req, res, next) => {
                 error: "Participant not found. Please select another candidate."
             });
         }
+        //4. If exists, get the user_id of the participant 
+        const target_user_id = exists.rows[0].user_id;
         
         //3. Normalize IDs
-        const {user1, user2} = normalizeIds(user_who_initiated, user_who_got_liked);
+        const {user1, user2} = normalizeIds(user_who_initiated, target_user_id);
         
         //4. Check for 3 matches limit
         const successful_matches = await pool.query(
@@ -199,6 +201,144 @@ const createMatch = async(req, res, next) => {
     }
 }
 
+//3. GET MUTUAL MATCHES
+const getMutualMatches = async(req, res) => {
+    try {
+        // 1. Get current user ID from where?
+        const userId = req.user.user_id;
+        // 2. Get eventId from where?
+        const eventId = req.params.eventId;
+        // 3. Query matches
+        const matches = await pool.query(`
+            SELECT 
+                m.*,
+                CASE 
+                    WHEN m.user1_id = $1 THEN u2.username 
+                    ELSE u1.username 
+                END as other_username,
+                CASE 
+                    WHEN m.user1_id = $1 THEN u2.email
+                    ELSE u1.email 
+                END as other_email,
+                CASE 
+                    WHEN m.user1_id = $1 THEN ep2.role 
+                    ELSE ep1.role 
+                END as other_role,
+                CASE 
+                    WHEN m.user1_id = $1 THEN ep2.skills 
+                    ELSE ep1.skills 
+                END as other_skills,
+                CASE 
+                    WHEN m.user1_id = $1 THEN ep2.experience 
+                    ELSE ep1.experience 
+                END as other_experience,
+                CASE 
+                    WHEN m.user1_id = $1 THEN ep2.availability 
+                    ELSE ep1.availability 
+                END as other_availability,
+                CASE 
+                    WHEN m.user1_id = $1 THEN ep2.bio 
+                    ELSE ep1.bio 
+                END as other_bio
+            FROM matches m
+            LEFT JOIN users u1 ON m.user1_id = u1.user_id
+            LEFT JOIN users u2 ON m.user2_id = u2.user_id
+            LEFT JOIN event_participants ep1 ON m.user1_id = ep1.user_id
+            LEFT JOIN event_participants ep2 ON m.user2_id = ep2.user_id
+            WHERE (m.user1_id = $1 OR m.user2_id = $1)
+            AND m.user1_status = $2
+            AND m.user2_status = $3`
+        , [userId, 'liked', 'liked']);
+        // 4. Return results
+        return res.status(200).json({
+            mutual: matches.rows
+        });    
+    } catch (error) {
+        // Handle error
+        console.error('Get mutual matches error: ', error);
+        return res.status(500).json({
+            error: "Internal Server Error. Please try again later"
+        });
+    }
+};
+
+//4. GET PENDING MATCHES 
+const getPendingMatches = async (req, res) => {
+    try {
+        const userId = req.user.user_id;
+        const eventId = req.params.eventId;
+        
+        // Get all matches where at least one status is pending
+        const matches = await pool.query(`
+            SELECT 
+                m.*,
+                CASE 
+                    WHEN m.user1_id = $1 THEN u2.username 
+                    ELSE u1.username 
+                END as other_username,
+                CASE 
+                    WHEN m.user1_id = $1 THEN u2.user_id 
+                    ELSE u1.user_id 
+                END as other_user_id,
+                CASE 
+                    WHEN m.user1_id = $1 THEN ep2.role 
+                    ELSE ep1.role 
+                END as other_role,
+                CASE 
+                    WHEN m.user1_id = $1 THEN ep2.experience 
+                    ELSE ep1.experience 
+                END as other_experience,
+                CASE 
+                    WHEN m.user1_id = $1 THEN ep2.availability 
+                    ELSE ep1.availability 
+                END as other_availability,
+                CASE 
+                    WHEN m.user1_id = $1 THEN ep2.skills 
+                    ELSE ep1.skills 
+                END as other_skills,
+                CASE 
+                    WHEN m.user1_id = $1 THEN ep2.bio 
+                    ELSE ep1.bio 
+                END as other_bio,
+                CASE
+                    WHEN m.user1_id = $1 THEN 
+                        CASE WHEN m.user2_status = 'liked' AND m.user1_status = 'pending' THEN true ELSE false END
+                    ELSE
+                        CASE WHEN m.user1_status = 'liked' AND m.user2_status = 'pending' THEN true ELSE false END
+                END as needs_my_response
+            FROM matches m
+            LEFT JOIN users u1 ON m.user1_id = u1.user_id
+            LEFT JOIN users u2 ON m.user2_id = u2.user_id
+            LEFT JOIN event_participants ep1 ON m.user1_id = ep1.user_id AND ep1.event_id = $2
+            LEFT JOIN event_participants ep2 ON m.user2_id = ep2.user_id AND ep2.event_id = $2
+            WHERE (m.user1_id = $1 OR m.user2_id = $1)
+            AND m.event_id = $2
+            AND (m.user1_status = 'pending' OR m.user2_status = 'pending')
+            AND NOT (m.user1_status = 'liked' AND m.user2_status = 'liked')
+            ORDER BY m.created_at DESC`,
+            [userId, eventId]
+        );
+
+        //if no pending matches are fond 
+        if(matches.rows.length === 0){
+            return res.status(404).json({
+                error: "You or any other participants have no initiated any matches"
+            });
+        }
+        
+        return res.status(200).json({
+            pending: matches.rows
+        });
+        
+    } catch (error) {
+        console.error('Get pending matches error:', error);
+        return res.status(500).json({
+            error: 'Failed to get pending matches'
+        });
+    }
+};
+
+
 //FUNCTION TO NORMALIZE IDS
 
 function normalizeIds(val1, val2){
@@ -208,4 +348,4 @@ function normalizeIds(val1, val2){
     return {user1: first, user2: second};
 }
 
-module.exports = {findMatch, createMatch}
+module.exports = {findMatch, createMatch, getMutualMatches, getPendingMatches};

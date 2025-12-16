@@ -26,6 +26,12 @@
         </svg>
         Matches
       </a>
+      <a href="connections.html" class="sidebar-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+        Connections
+      </a>
       <a href="settings.html" class="sidebar-link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="3"></circle>
@@ -34,8 +40,19 @@
         Settings
       </a>
     </nav>
+    <div class="sidebar-user">
+      <div class="sidebar-user-avatar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </div>
+      <div class="sidebar-user-info">
+        <p class="text-foreground">You</p>
+        <span>Full-Stack Dev</span>
+      </div>
+    </div>
   </aside>
-
   <!-- Main Content -->
   <main class="main-with-sidebar">
     <div class="max-w-5xl mx-auto">
@@ -189,7 +206,7 @@
     const eventId = 'b2e50473-9793-4d45-87a1-23835f1e3bb8';
     
     try {
-        const response = await fetch(`/api/events/${eventId}/matches`, {
+        const response = await fetch(`/api/events/${eventId}/like`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',

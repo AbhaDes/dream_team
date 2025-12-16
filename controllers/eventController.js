@@ -153,8 +153,8 @@ const getMe = async(req, res, next) => {
 
         }
         res.status(200).json({
-            profile:result.rows[0]
-        })
+            profile:check.rows[0]
+        });
 
     }catch(error){
         console.error('Get my profile error: ' , error);
