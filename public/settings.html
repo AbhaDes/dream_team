@@ -87,15 +87,15 @@
         <div class="form-grid">
           <div>
             <label class="form-label">Name</label>
-            <input type="text" class="form-input" placeholder="Your name">
+            <input type="text" class="form-input" placeholder="Your name" id="nameInput">
           </div>
           <div>
             <label class="form-label">Major / Field</label>
-            <input type="text" class="form-input" value="Computer Science">
+            <input type="text" class="form-input" value="Computer Science" id="majorInput">
           </div>
           <div>
             <label class="form-label">Year</label>
-            <select class="form-select">
+            <select class="form-select" id="yearInput">
               <option>Freshman</option>
               <option>Sophomore</option>
               <option selected>Junior</option>
@@ -104,8 +104,34 @@
             </select>
           </div>
           <div>
-            <label class="form-label">Role</label>
-            <input type="text" class="form-input" value="Full-Stack Developer">
+            <label class="form-label">Experience Level</label>
+            <select class="form-select" id="experienceInput">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+            </select>
+        </div>
+        <div>
+            <label class="form-label">Availability</label>
+            <select class="form-select" id="availabilityInput">
+                <option value="Full Time (30+ hours)">Full Time (30+ hours)</option>
+                <option value="Most of the Time (20-30 hours)">Most of the Time (20-30 hours)</option>
+                <option value="Part Time (10-20 hours)">Part Time (10-20 hours)</option>
+                <option value="Limited (Less than 10 hours)">Limited (Less than 10 hours)</option>
+                <option value="Flexible Schedule">Flexible Schedule</option>
+            </select>
+        </div>
+          <div>
+              <label class="form-label">Role</label>
+              <select class="form-select" id="roleInput">
+                  <option value="">Select your role...</option>
+                  <option value="Frontend Developer">Frontend Developer</option>
+                  <option value="Backend Developer">Backend Developer</option>
+                  <option value="Designer">Designer</option>
+                  <option value="Full Stack Developer">Full Stack Developer</option>
+                  <option value="UI/UX Designer">UI/UX Designer</option>
+                  <option value="Product Manager">Product Manager</option>
+              </select>
           </div>
         </div>
       </div>
@@ -140,36 +166,6 @@
         </div>
       </div>
 
-      <!-- Skills I Need -->
-      <div class="section">
-        <div class="section-header">
-          <svg style="color: var(--orange);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          <h2 class="text-orange font-semibold">Skills I Need</h2>
-        </div>
-        <div class="skill-buttons">
-          <button class="skill-btn">React</button>
-          <button class="skill-btn">Python</button>
-          <button class="skill-btn selected-need">UI/UX Design</button>
-          <button class="skill-btn selected-need">Machine Learning</button>
-          <button class="skill-btn selected-need">Backend</button>
-          <button class="skill-btn selected-need">Frontend</button>
-          <button class="skill-btn">Data Science</button>
-          <button class="skill-btn">Mobile Dev</button>
-          <button class="skill-btn">DevOps</button>
-          <button class="skill-btn">Product Management</button>
-          <button class="skill-btn">Figma</button>
-          <button class="skill-btn">Node.js</button>
-          <button class="skill-btn">Database Design</button>
-          <button class="skill-btn">APIs</button>
-          <button class="skill-btn">TypeScript</button>
-          <button class="skill-btn">Research</button>
-          <button class="skill-btn">Testing</button>
-        </div>
-      </div>
-
       <!-- Bio -->
       <div class="section">
         <div class="section-header">
@@ -195,8 +191,132 @@
       Save Changes
     </button>
   </div>
-  <script>
-    
-  </script>
+<script>
+    const eventId = 'b2e50473-9793-4d45-87a1-23835f1e3bb8';
+    let selectedSkills = [];
+    let currentProfile = null;
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        await loadProfile();
+        
+        // Skill button handlers
+        document.querySelectorAll('.skill-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('selected-have');
+                updateSelectedSkills();
+            });
+        });
+        
+        // Save button handler
+        document.querySelector('.fixed-save .btn').addEventListener('click', saveProfile);
+    });
+
+    async function loadProfile() {
+        try {
+            const response = await fetch(`/api/events/${eventId}/participants/me`, {
+                credentials: 'include'
+            });
+            
+            if (!response.ok) {
+                alert('Please join the event first!');
+                window.location.href = '/event-profile.html';
+                return;
+            }
+            
+            const data = await response.json();
+            currentProfile = data.profile;
+            
+            populateForm(currentProfile);
+            
+        } catch (error) {
+            console.error('Error loading profile:', error);
+            alert('Failed to load profile. Please try again.');
+        }
+    }
+
+    function populateForm(profile) {
+        // Update sidebar
+        document.querySelector('.sidebar-user-info p').textContent = profile.username || 'You';
+        document.querySelector('.sidebar-user-info span').textContent = profile.role || 'Participant';
+        
+        // Update profile card
+        document.querySelector('.profile-info p').textContent = profile.role || 'Role not set';
+        document.querySelector('.profile-info span').textContent = profile.email || 'Email not available';
+        
+        // Basic Information
+        document.getElementById('nameInput').value = profile.username || '';
+        document.getElementById('roleInput').value = profile.role || '';
+        document.getElementById('experienceInput').value = profile.experience || 'beginner';
+        document.getElementById('availabilityInput').value = profile.availability || '';
+        
+        // Bio
+        document.querySelector('.form-textarea').value = profile.bio || '';
+        
+        // Skills
+        if (profile.skills && profile.skills.length > 0) {
+            selectedSkills = [...profile.skills];
+            
+            document.querySelectorAll('.skill-btn').forEach(btn => {
+                if (profile.skills.includes(btn.textContent)) {
+                    btn.classList.add('selected-have');
+                }
+            });
+        }
+    }
+
+    function updateSelectedSkills() {
+        selectedSkills = Array.from(document.querySelectorAll('.skill-btn.selected-have'))
+            .map(btn => btn.textContent);
+    }
+
+    async function saveProfile() {
+        try {
+            // Get form values
+            const role = document.getElementById('roleInput').value;
+            const experience = document.getElementById('experienceInput').value;
+            const availability = document.getElementById('availabilityInput').value;
+            const bio = document.querySelector('.form-textarea').value;
+            
+            // Validate
+            if (!role || !experience || !availability) {
+                alert('Please fill in all required fields (Role, Experience, Availability)');
+                return;
+            }
+            
+            if (selectedSkills.length === 0) {
+                alert('Please select at least one skill');
+                return;
+            }
+            
+            // Update profile
+            const response = await fetch(`/api/events/${eventId}/participants/me`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    role,
+                    experience,
+                    availability,
+                    skills: selectedSkills,
+                    bio
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (!response.ok) {
+                alert(data.error || 'Failed to update profile');
+                return;
+            }
+            
+            alert('✅ Profile updated successfully!');
+            await loadProfile();
+            
+        } catch (error) {
+            console.error('Error saving profile:', error);
+            alert('Failed to save profile. Please try again.');
+        }
+    }
+</script>
 </body>
 </html>
