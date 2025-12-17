@@ -213,7 +213,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             
         } catch (error) {
             console.error('Error loading pending:', error);
-            showError('No pending matches yet. Continue likingC!');
+            showError('No pending matches yet. Continue liking!');
         }
     }
     
@@ -225,7 +225,7 @@ function displayMatches(matches) {
       container.innerHTML = `
           <div style="text-align: center; padding: 3rem;">
               <p class="text-muted-foreground">No mutual matches yet. Keep liking people!</p>
-          ]</div>
+          </div>
         `;
       return;
   }

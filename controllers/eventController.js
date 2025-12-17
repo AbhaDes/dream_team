@@ -143,7 +143,16 @@ const getMe = async(req, res, next) => {
         const userId = req.user.user_id;
         const eventId = req.params.eventId; 
         //check if any participant exists with that id for that event
-        const check = await pool.query('SELECT * FROM event_participants WHERE event_id = $1 AND user_id = $2', [eventId, userId]);
+        const check = await pool.query(`
+            SELECT 
+                ep.*,
+                u.email,
+                u.username
+            FROM event_participants ep
+            JOIN users u ON ep.user_id = u.user_id
+            WHERE ep.event_id = $1 
+            AND ep.user_id = $2
+        `, [eventId, userId]);
         //if not, tell them to join the event
         if(check.rows.length === 0){
             return res.status(404).json({
