@@ -22,12 +22,12 @@ var session = require('express-session');
 var path = require('path');
 // Add these BEFORE everything else
 process.on('unhandledRejection', (reason, promise) => {
-    console.error('❌ Unhandled Promise Rejection at:', promise);
-    console.error('❌ Reason:', reason);
+    console.error('Unhandled Promise Rejection at:', promise);
+    console.error('Reason:', reason);
 });
 
 process.on('uncaughtException', (error) => {
-    console.error('❌ Uncaught Exception:', error);
+    console.error('Uncaught Exception:', error);
 });
 var StaticDirectory = path.join(__dirname, 'public');
 app.use(express.static(StaticDirectory));
