@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports: 
+      - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+
+  #The PostgreSQL container
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: abhadeshpande
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: dream_team
+    ports:
+      - "5432:5432"
+    volumes:
+      - my_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U abhadeshpande -d dream_team"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+volumes:
+  my_data:
+
+  

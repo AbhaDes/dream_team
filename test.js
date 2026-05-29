@@ -1,10 +1,8 @@
+
+
 const { Pool } = require('pg');
 const pool = new Pool({
-  user: "student",
-  host: "localhost",
-  database: "dream_team",
-  password: "password",
-  port: 5432,
+  connectionString: process.env.DATABASE_URL
 });
 
 pool.connect();
