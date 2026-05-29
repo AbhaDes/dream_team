@@ -23,13 +23,12 @@ docker-compose up -d
 App runs at `http://localhost:3001`
 
 ## Architecture
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│  Node.js    │────▶│    Flask    │     │ PostgreSQL  │
-│  Express    │     │  /match     │     │     DB      │
-│  API + Auth │◀────│  ML service │     │             │
-└─────────────┘     └─────────────┘     └─────────────┘
-│                                      │
-└──────────────────────────────────────┘
+
+Three services running via docker-compose:
+
+- **Node.js / Express** — handles API, auth, and database queries
+- **Flask** — ML microservice exposing a `/match` endpoint
+- **PostgreSQL** — persistent database with a Docker volume
 
 ## Status
 
