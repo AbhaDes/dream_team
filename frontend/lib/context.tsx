@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, ReactNode, useEffect } from "react"
+const API_URL = process.env.NEXT_PUBLIC_API_URL 
 
 export type Role = "developer" | "designer" | "pm" | "other"
 
@@ -45,6 +46,7 @@ interface AppContextType extends AppState {
   updateProfile: (updates: Partial<User>) => void
   acceptMatch: (matchId: string) => void
   declineMatch: (matchId: string) => void
+  isLoading: boolean
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -64,6 +66,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     connections: [],
     isAuthenticated: false,
   })
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const saved = localStorage.getItem("dreamteam-state")
@@ -75,6 +78,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         // ignore
       }
     }
+    setIsLoading(false);
   }, [])
 
   useEffect(() => {
@@ -82,6 +86,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("dreamteam-state", JSON.stringify(state))
     }
   }, [state])
+
+  
 
   const generateMatches = (currentUser: User): Match[] => {
     return mockUsers.map((user, index) => ({
@@ -93,43 +99,75 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }))
   }
 
-  const login = async (email: string, _password: string): Promise<boolean> => {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    const user: User = {
-      id: "1",
-      email,
-      name: email.split("@")[0],
-      skills: [],
-      availability: "flexible",
-      profileComplete: false,
-    }
-    const matches = generateMatches(user)
-    setState({
-      user,
-      matches,
-      connections: [],
-      isAuthenticated: true,
-    })
+  //change this function to call the login request
+
+  const login = async (email: string, password: string): Promise<boolean> => {
+    const url = `${API_URL}/api/auth/login`;
+    
+    try {
+      const response = await fetch(url, {
+        method: 'POST', // 1. Specify your HTTP method here
+        headers: {
+          'Content-Type': 'application/json', // 2. Tell server you're sending JSON
+        },
+        body: JSON.stringify({email, password}), // 3. Convert your data payload to a string
+      });
+      //check if the response failed
+      if(!response.ok){
+        throw new Error(`Reponse status: ${response.status}`);
+      }
+
+      //parse the response body with response.json()
+      const result = await response.json();
+      //use setState() to update the app state with real user data
+      setState({
+        user: result.user,
+        matches: [],
+        connections: [],
+        isAuthenticated: true,
+      })
+
     return true
+    }catch(error){
+      console.error('Error', error);
+      return false;
+
+    }
   }
 
-  const signup = async (email: string, _password: string, name: string): Promise<boolean> => {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    const user: User = {
-      id: "1",
-      email,
-      name,
-      skills: [],
-      availability: "flexible",
-      profileComplete: false,
+  const signup = async (email: string, password: string, name: string): Promise<boolean> => {
+    const url = `${API_URL}/api/auth/register`;
+
+    try{
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type' : 'application/json',
+        },
+        body: JSON.stringify({email, password, name}),
+      });
+
+      //check if response failed 
+      if(!response.ok){
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      setState({
+        user: result.user,
+        matches: [],
+        connections: [],
+        isAuthenticated: true,
+
+      })
+      
+      return true;
+    }catch(error){
+      console.error("Error: ", error);
+      return false;
+
     }
-    setState({
-      user,
-      matches: [],
-      connections: [],
-      isAuthenticated: true,
-    })
-    return true
+    
   }
 
   const logout = () => {
@@ -194,6 +232,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateProfile,
       acceptMatch,
       declineMatch,
+      isLoading,
     }}>
       {children}
     </AppContext.Provider>

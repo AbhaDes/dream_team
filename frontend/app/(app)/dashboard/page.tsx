@@ -7,18 +7,18 @@ import { useEffect, useState } from "react"
 import { Hash, Users, UserCheck, Clock } from "lucide-react"
 
 export default function DashboardPage() {
-  const { user, matches, connections, isAuthenticated, updateProfile } = useApp()
+  const { user, matches, connections, isAuthenticated, isLoading, updateProfile } = useApp()
   const router = useRouter()
   const [eventCode, setEventCode] = useState("")
   const [showEventInput, setShowEventInput] = useState(false)
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isLoading && !isAuthenticated) {
       router.push("/login")
     }
-  }, [isAuthenticated, router])
+  }, [isAuthenticated, isLoading, router])
 
-  if (!isAuthenticated || !user) {
+  if (isLoading || !isAuthenticated || !user) {
     return null
   }
 
