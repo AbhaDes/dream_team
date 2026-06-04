@@ -8,7 +8,7 @@ import { useApp } from "@/lib/context"
 export default function SignupPage() {
   const router = useRouter()
   const { signup } = useApp()
-  const [name, setName] = useState("")
+  const [username, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -20,7 +20,7 @@ export default function SignupPage() {
     setLoading(true)
 
     try {
-      const success = await signup(email, password, name)
+      const success = await signup(email, password, username)
       if (success) {
         router.push("/profile")
       } else {
@@ -58,9 +58,9 @@ export default function SignupPage() {
                 Name
               </label>
               <input
-                id="name"
+                id="username"
                 type="text"
-                value={name}
+                value={username}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full h-10 px-3 rounded-md bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
                 placeholder="Your name"

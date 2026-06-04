@@ -8,7 +8,7 @@ export type Role = "developer" | "designer" | "pm" | "other"
 export interface User {
   id: string
   email: string
-  name: string
+  username: string
   role?: Role
   skills: string[]
   availability: "full-time" | "part-time" | "flexible"
@@ -41,7 +41,7 @@ interface AppState {
 
 interface AppContextType extends AppState {
   login: (email: string, password: string) => Promise<boolean>
-  signup: (email: string, password: string, name: string) => Promise<boolean>
+  signup: (email: string, password: string, username: string) => Promise<boolean>
   logout: () => void
   updateProfile: (updates: Partial<User>) => void
   acceptMatch: (matchId: string) => void
@@ -52,11 +52,11 @@ interface AppContextType extends AppState {
 const AppContext = createContext<AppContextType | null>(null)
 
 const mockUsers: User[] = [
-  { id: "2", email: "sarah@example.com", name: "Sarah Chen", role: "designer", skills: ["Figma", "UI/UX", "Prototyping"], availability: "full-time", bio: "Product designer passionate about creating intuitive experiences", profileComplete: true },
-  { id: "3", email: "mike@example.com", name: "Mike Johnson", role: "developer", skills: ["Python", "Machine Learning", "Data Science"], availability: "part-time", bio: "ML engineer interested in AI applications", profileComplete: true },
-  { id: "4", email: "emma@example.com", name: "Emma Wilson", role: "pm", skills: ["Agile", "Product Strategy", "User Research"], availability: "flexible", bio: "PM with experience shipping 0-to-1 products", profileComplete: true },
-  { id: "5", email: "alex@example.com", name: "Alex Rivera", role: "developer", skills: ["React", "Node.js", "GraphQL"], availability: "full-time", bio: "Full-stack developer who loves building web apps", profileComplete: true },
-  { id: "6", email: "jordan@example.com", name: "Jordan Lee", role: "designer", skills: ["Brand Design", "Motion", "Illustration"], availability: "part-time", bio: "Creative designer with a focus on brand identity", profileComplete: true },
+  { id: "2", email: "sarah@example.com", username: "Sarah Chen", role: "designer", skills: ["Figma", "UI/UX", "Prototyping"], availability: "full-time", bio: "Product designer passionate about creating intuitive experiences", profileComplete: true },
+  { id: "3", email: "mike@example.com", username: "Mike Johnson", role: "developer", skills: ["Python", "Machine Learning", "Data Science"], availability: "part-time", bio: "ML engineer interested in AI applications", profileComplete: true },
+  { id: "4", email: "emma@example.com", username: "Emma Wilson", role: "pm", skills: ["Agile", "Product Strategy", "User Research"], availability: "flexible", bio: "PM with experience shipping 0-to-1 products", profileComplete: true },
+  { id: "5", email: "alex@example.com", username: "Alex Rivera", role: "developer", skills: ["React", "Node.js", "GraphQL"], availability: "full-time", bio: "Full-stack developer who loves building web apps", profileComplete: true },
+  { id: "6", email: "jordan@example.com", username: "Jordan Lee", role: "designer", skills: ["Brand Design", "Motion", "Illustration"], availability: "part-time", bio: "Creative designer with a focus on brand identity", profileComplete: true },
 ]
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -135,7 +135,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const signup = async (email: string, password: string, name: string): Promise<boolean> => {
+  const signup = async (email: string, password: string, username: string): Promise<boolean> => {
     const url = `${API_URL}/api/auth/register`;
 
     try{
@@ -144,7 +144,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         headers: {
           'Content-Type' : 'application/json',
         },
-        body: JSON.stringify({email, password, name}),
+        body: JSON.stringify({email, password, username}),
       });
 
       //check if response failed 
