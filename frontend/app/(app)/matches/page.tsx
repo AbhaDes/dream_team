@@ -68,10 +68,10 @@ export default function MatchesPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-sm font-medium">
-                            {match.user.name.charAt(0)}
+                            {match.user.username.charAt(0)}
                           </div>
                           <div>
-                            <p className="font-medium">{match.user.name}</p>
+                            <p className="font-medium">{match.user.username}</p>
                             <p className="text-sm text-muted-foreground capitalize">
                               {match.user.role || "No role set"}
                             </p>
@@ -140,10 +140,10 @@ export default function MatchesPage() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-medium">
-                        {match.user.name.charAt(0)}
+                        {match.user.username.charAt(0)}
                       </div>
                       <div>
-                        <p className="text-sm font-medium">{match.user.name}</p>
+                        <p className="text-sm font-medium">{match.user.username}</p>
                         <p className="text-xs text-muted-foreground capitalize">
                           {match.user.role}
                         </p>

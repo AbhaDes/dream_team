@@ -46,9 +46,9 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (user) {
-      setName(user.name)
+      setName(user.username)
       setRole(user.role)
-      setSkills(user.skills)
+      setSkills(user?.skills ?? [])
       setAvailability(user.availability)
       setBio(user.bio || "")
     }
@@ -61,19 +61,19 @@ export default function ProfilePage() {
   const addSkill = (skill: string) => {
     const trimmed = skill.trim()
     if (trimmed && !skills.includes(trimmed) && skills.length < 10) {
-      setSkills([...skills, trimmed])
+      setSkills([...(skills ?? []), trimmed])
     }
     setSkillInput("")
   }
 
   const removeSkill = (skill: string) => {
-    setSkills(skills.filter(s => s !== skill))
+    setSkills((skills ?? []).filter(s => s !== skill))
   }
 
   const handleSave = () => {
     const profileComplete = !!role && skills.length > 0
     updateProfile({
-      name,
+      username,
       role,
       skills,
       availability,
