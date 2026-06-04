@@ -11,5 +11,6 @@ dist/
 build/
 *.pyc
 *.pyo
+.env.local
 
 #HI i am editing this file in another branch
