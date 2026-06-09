@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, ReactNode, useEffect } from "react"
+import { CURRENT_EVENT_ID } from "@/constants"
 const API_URL = process.env.NEXT_PUBLIC_API_URL 
 
 export type Role = "developer" | "designer" | "pm" | "other"
@@ -12,6 +13,7 @@ export interface User {
   role?: Role
   skills: string[]
   availability: "full-time" | "part-time" | "flexible"
+  experience?: "beginner" | "intermediate" | "advanced"
   bio?: string
   eventCode?: string
   profileComplete: boolean
@@ -44,6 +46,7 @@ interface AppContextType extends AppState {
   signup: (email: string, password: string, username: string) => Promise<boolean>
   logout: () => void
   updateProfile: (updates: Partial<User>) => void
+  fetchMatches: () => void
   acceptMatch: (matchId: string) => void
   declineMatch: (matchId: string) => void
   isLoading: boolean
@@ -51,13 +54,6 @@ interface AppContextType extends AppState {
 
 const AppContext = createContext<AppContextType | null>(null)
 
-const mockUsers: User[] = [
-  { id: "2", email: "sarah@example.com", username: "Sarah Chen", role: "designer", skills: ["Figma", "UI/UX", "Prototyping"], availability: "full-time", bio: "Product designer passionate about creating intuitive experiences", profileComplete: true },
-  { id: "3", email: "mike@example.com", username: "Mike Johnson", role: "developer", skills: ["Python", "Machine Learning", "Data Science"], availability: "part-time", bio: "ML engineer interested in AI applications", profileComplete: true },
-  { id: "4", email: "emma@example.com", username: "Emma Wilson", role: "pm", skills: ["Agile", "Product Strategy", "User Research"], availability: "flexible", bio: "PM with experience shipping 0-to-1 products", profileComplete: true },
-  { id: "5", email: "alex@example.com", username: "Alex Rivera", role: "developer", skills: ["React", "Node.js", "GraphQL"], availability: "full-time", bio: "Full-stack developer who loves building web apps", profileComplete: true },
-  { id: "6", email: "jordan@example.com", username: "Jordan Lee", role: "designer", skills: ["Brand Design", "Motion", "Illustration"], availability: "part-time", bio: "Creative designer with a focus on brand identity", profileComplete: true },
-]
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>({
@@ -87,16 +83,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [state])
 
-  
+  const fetchMatches = async() => {
+    const url = `/api/events/${CURRENT_EVENT_ID}/matches`;
 
-  const generateMatches = (currentUser: User): Match[] => {
-    return mockUsers.map((user, index) => ({
-      id: `match-${user.id}`,
-      user,
-      compatibility: Math.floor(Math.random() * 30) + 70,
-      status: "pending" as const,
-      matchedAt: new Date(Date.now() - index * 86400000).toISOString(),
-    }))
+    console.log(url);
+
+      try{
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type' : 'application/json'
+          },
+          credentials : 'include'
+        }) 
+
+        //check if response failed 
+        if(!response.ok){
+          throw new Error(`Response status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        setState(prev => ({
+          ...prev,
+          matches: result.matches 
+        }))          
+      }catch(error){
+        console.log("Error: ", error);
+      }
+
   }
 
   //change this function to call the login request
@@ -184,11 +198,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setState(prev => {
       if (!prev.user) return prev
       const updatedUser = { ...prev.user, ...updates }
-      const matches = prev.matches.length > 0 ? prev.matches : generateMatches(updatedUser)
       return {
         ...prev,
         user: updatedUser,
-        matches,
       }
     })
   }
@@ -230,6 +242,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       signup,
       logout,
       updateProfile,
+      fetchMatches,
       acceptMatch,
       declineMatch,
       isLoading,

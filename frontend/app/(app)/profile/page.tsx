@@ -26,17 +26,20 @@ const skillSuggestions = [
   "Product Strategy", "Agile", "Scrum", "Marketing",
 ]
 
+const experienceLevel = ["Beginner", "Intermediate", "Advanced"]
+
 export default function ProfilePage() {
   const { user, isAuthenticated, updateProfile } = useApp()
   const router = useRouter()
   
-  const [name, setName] = useState("")
+  const [username, setName] = useState("")
   const [role, setRole] = useState<Role | undefined>()
   const [skills, setSkills] = useState<string[]>([])
   const [availability, setAvailability] = useState<"full-time" | "part-time" | "flexible">("flexible")
   const [bio, setBio] = useState("")
   const [skillInput, setSkillInput] = useState("")
   const [saved, setSaved] = useState(false)
+  const [experience, setExperience] = 
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -51,6 +54,7 @@ export default function ProfilePage() {
       setSkills(user?.skills ?? [])
       setAvailability(user.availability)
       setBio(user.bio || "")
+      setExperience(user.)
     }
   }, [user])
 
@@ -71,6 +75,11 @@ export default function ProfilePage() {
   }
 
   const handleSave = () => {
+    //this is all the info expected from the controller in the backend
+    //const {role, experience, availability, skills, bio} = req.body;
+    //const eventId = req.params.eventId;
+    //const userId = req.user.user_id;
+    //it's a put request
     const profileComplete = !!role && skills.length > 0
     updateProfile({
       username,
@@ -100,7 +109,7 @@ export default function ProfilePage() {
               <label className="block text-sm font-medium mb-2">Name</label>
               <input
                 type="text"
-                value={name}
+                value={username}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full h-10 px-3 rounded-md bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
