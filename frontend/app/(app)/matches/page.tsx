@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { Check, X } from "lucide-react"
 
+
 export default function MatchesPage() {
-  const { user, matches, isAuthenticated, acceptMatch, declineMatch } = useApp()
+  const { user, matches, isAuthenticated, fetchMatches, acceptMatch, declineMatch } = useApp()
   const router = useRouter()
 
   useEffect(() => {
@@ -16,12 +17,18 @@ export default function MatchesPage() {
     }
   }, [isAuthenticated, router])
 
+  useEffect(() => {
+    fetchMatches();
+  },[])
+
   if (!isAuthenticated || !user) {
     return null
   }
 
   const pendingMatches = matches.filter(m => m.status === "pending")
   const decidedMatches = matches.filter(m => m.status !== "pending")
+
+
 
   return (
     <div className="flex min-h-screen bg-background">

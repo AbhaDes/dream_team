@@ -62,10 +62,10 @@ export default function ConnectionsPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex gap-4">
                       <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-lg font-medium">
-                        {connection.user.name.charAt(0)}
+                        {connection.user.username.charAt(0)}
                       </div>
                       <div>
-                        <p className="font-medium">{connection.user.name}</p>
+                        <p className="font-medium">{connection.user.username}</p>
                         <p className="text-sm text-muted-foreground capitalize mb-2">
                           {connection.user.role}
                         </p>
