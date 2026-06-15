@@ -5,18 +5,35 @@ import { Sidebar } from "@/components/sidebar"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { Check } from "lucide-react"
+import { CURRENT_EVENT_ID } from "@/constants"
+const API_URL = process.env.NEXT_PUBLIC_API_URL
+
+
+    // 'Frontend Developer', 
+    // 'Backend Developer',
+    // 'Full-stack Developer', 
+    // 'UI/UX Designer', 
+    // 'Product Manager' 
 
 const roles: { value: Role; label: string; description: string }[] = [
-  { value: "developer", label: "Developer", description: "Build the technical solution" },
-  { value: "designer", label: "Designer", description: "Create the user experience" },
-  { value: "pm", label: "Product Manager", description: "Lead strategy and coordination" },
-  { value: "other", label: "Other", description: "Marketing, data, or other roles" },
+  { value: "Frontend Developer", label: "Frontend Developer", description: "Build the technical solution" },
+  { value: "Backend Developer", label: "Backend Developer", description: "Create the user experience" },
+  { value: "Full-stack Developer", label: "Full-Stack Developer", description: "Lead strategy and coordination" },
+  { value: "UI/UX Designer", label: "UI/UX Designer", description: "Marketing, data, or other roles" },
+  { value: "Product Manager", label:"Product Manager", description:"Managing the making and planning of products"},
 ]
 
+    // 'Full Time (30+ hours)',
+    // 'Most of the Time (20-30 hours)',
+    // 'Part Time (10-20 hours)',
+    // 'Limited (Less than 10 hours)',
+    // 'Flexible Schedule'
 const availabilityOptions = [
-  { value: "full-time" as const, label: "Full-time", description: "Available throughout the event" },
-  { value: "part-time" as const, label: "Part-time", description: "A few hours per day" },
-  { value: "flexible" as const, label: "Flexible", description: "Varies day by day" },
+  { value: "Full Time (30+ hours)" as const, label: "Full-time", description: "30+ hours" },
+  { value: "Most of the Time (20-30 hours)" as const, label: "Most of the Time", description: "20 - 30 hours" },
+  { value: "Part Time (10-20 hours)" as const, label: "Part Time", description: "10 - 20 hours" },
+  { value: "Limited (Less than 10 hours)" as const, label: "Limited", description: "Less than 10 hours"}, 
+  { value: "Flexible Schedule" as const, label: "Flexible", description:" "},
 ]
 
 const skillSuggestions = [
@@ -26,6 +43,9 @@ const skillSuggestions = [
   "Product Strategy", "Agile", "Scrum", "Marketing",
 ]
 
+    // 'Beginner', 
+    // 'Advanced', 
+    // 'Intermediate'
 const experienceLevel = ["Beginner", "Intermediate", "Advanced"]
 
 export default function ProfilePage() {
@@ -35,11 +55,16 @@ export default function ProfilePage() {
   const [username, setName] = useState("")
   const [role, setRole] = useState<Role | undefined>()
   const [skills, setSkills] = useState<string[]>([])
-  const [availability, setAvailability] = useState<"full-time" | "part-time" | "flexible">("flexible")
+  const [availability, setAvailability] = useState<"Full Time (30+ hours)" | 
+                                                  "Most of the Time (20-30 hours)" | 
+                                                  "Part Time (10-20 hours)" | 
+                                                  "Limited (Less than 10 hours)" | 
+                                                  "Flexible Schedule"
+                                                  >("Flexible Schedule")
   const [bio, setBio] = useState("")
   const [skillInput, setSkillInput] = useState("")
   const [saved, setSaved] = useState(false)
-  const [experience, setExperience] = 
+  const [experience, setExperience] = useState<"Beginner" | "Intermediate" | "Advanced">("Beginner")
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -54,7 +79,7 @@ export default function ProfilePage() {
       setSkills(user?.skills ?? [])
       setAvailability(user.availability)
       setBio(user.bio || "")
-      setExperience(user.)
+      setExperience(user.experience ?? "Beginner")
     }
   }, [user])
 
@@ -74,22 +99,43 @@ export default function ProfilePage() {
     setSkills((skills ?? []).filter(s => s !== skill))
   }
 
-  const handleSave = () => {
-    //this is all the info expected from the controller in the backend
-    //const {role, experience, availability, skills, bio} = req.body;
-    //const eventId = req.params.eventId;
-    //const userId = req.user.user_id;
-    //it's a put request
-    const profileComplete = !!role && skills.length > 0
-    updateProfile({
-      username,
-      role,
-      skills,
-      availability,
-      bio,
-      profileComplete,
-    })
-    setSaved(true)
+  const handleSave = async() => {
+    const url = `/api/events/${CURRENT_EVENT_ID}/participants/me` 
+    console.log(url);
+
+    try{
+      const response = await fetch(url, {
+        method: 'PUT', 
+        headers: {
+          'Content-Type' : 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({role, experience, availability, skills, bio}),
+      });
+      console.log("body sent to backend");
+      //check if response failed 
+      if(!response.ok){
+        console.log("no response from the backend");
+        throw new Error(`Response status: ${response.status}`);
+        
+      }else{
+        const profileComplete = !!role && skills.length > 0
+        updateProfile({
+          username,
+          role,
+          skills,
+          availability,
+          bio,
+          profileComplete,
+          experience
+        })
+        setSaved(true)
+      }
+
+    }catch(error){
+      console.log("Error: ", error);
+
+    }
     setTimeout(() => setSaved(false), 2000)
   }
 
@@ -221,6 +267,26 @@ export default function ProfilePage() {
                     {availability === opt.value && (
                       <Check className="w-4 h-4" />
                     )}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Experience */}
+            <div>
+              <label className="block text-sm font-medium mb-3">Experience Level</label>
+              <div className="space-y-2">
+                {(["Beginner", "Intermediate", "Advanced"] as const).map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setExperience(level)}
+                    className={`w-full text-left p-3 rounded-md border transition-colors flex items-center justify-between ${
+                      experience === level
+                        ? "border-foreground bg-secondary"
+                        : "border-border hover:border-muted-foreground"
+                    }`}
+                  >
+                    <p className="font-medium text-sm capitalize">{level}</p>
+                    {experience === level && <Check className="w-4 h-4" />}
                   </button>
                 ))}
               </div>

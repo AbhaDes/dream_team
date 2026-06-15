@@ -4,7 +4,18 @@ import { createContext, useContext, useState, ReactNode, useEffect } from "react
 import { CURRENT_EVENT_ID } from "@/constants"
 const API_URL = process.env.NEXT_PUBLIC_API_URL 
 
-export type Role = "developer" | "designer" | "pm" | "other"
+// 'Frontend Developer', 
+    // 'Backend Developer',
+    // 'Full-stack Developer', 
+    // 'UI/UX Designer', 
+    // 'Product Manager' 
+export type Role = "Frontend Developer" | "Backend Developer" | "Full-stack Developer" | "UI/UX Designer" | "Product Manager";
+
+// 'Full Time (30+ hours)',
+    // 'Most of the Time (20-30 hours)',
+    // 'Part Time (10-20 hours)',
+    // 'Limited (Less than 10 hours)',
+    // 'Flexible Schedule'
 
 export interface User {
   id: string
@@ -12,19 +23,28 @@ export interface User {
   username: string
   role?: Role
   skills: string[]
-  availability: "full-time" | "part-time" | "flexible"
-  experience?: "beginner" | "intermediate" | "advanced"
+  availability: "Full Time (30+ hours)" | 
+                "Most of the Time (20-30 hours)" | 
+                "Part Time (10-20 hours)" | 
+                "Limited (Less than 10 hours)" | 
+                "Flexible Schedule"
+  experience?: "Beginner" | "Intermediate" | "Advanced"
   bio?: string
   eventCode?: string
   profileComplete: boolean
 }
 
 export interface Match {
-  id: string
-  user: User
-  compatibility: number
-  status: "pending" | "accepted" | "declined"
-  matchedAt: string
+  participant_id: string
+  user_id: string
+  event_id: string
+  role: string
+  experience: string
+  skills: string[]
+  availability: string
+  bio: string
+  username: string
+  compatibility_score: number
 }
 
 export interface Connection {
@@ -116,7 +136,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   //change this function to call the login request
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    const url = `${API_URL}/api/auth/login`;
+    const url = `/api/auth/login`;
     
     try {
       const response = await fetch(url, {
@@ -150,7 +170,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   const signup = async (email: string, password: string, username: string): Promise<boolean> => {
-    const url = `${API_URL}/api/auth/register`;
+    const url = `/api/auth/register`;
 
     try{
       const response = await fetch(url, {
