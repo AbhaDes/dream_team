@@ -68,31 +68,31 @@ export default function MatchesPage() {
               <div className="space-y-3">
                 {pendingMatches.map((match) => (
                   <div
-                    key={match.id}
+                    key={match.user_id}
                     className="bg-card border border-border rounded-md p-5"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-sm font-medium">
-                            {match.user.username.charAt(0)}
+                            {match.username.charAt(0)}
                           </div>
                           <div>
-                            <p className="font-medium">{match.user.username}</p>
+                            <p className="font-medium">{match.username}</p>
                             <p className="text-sm text-muted-foreground capitalize">
-                              {match.user.role || "No role set"}
+                              {match.role || "No role set"}
                             </p>
                           </div>
                         </div>
                         
-                        {match.user.bio && (
+                        {match.bio && (
                           <p className="text-sm text-muted-foreground mb-3 ml-13">
-                            {match.user.bio}
+                            {match.bio}
                           </p>
                         )}
 
                         <div className="flex flex-wrap gap-1.5 ml-13">
-                          {match.user.skills.map((skill) => (
+                          {match.skills.map((skill) => (
                             <span
                               key={skill}
                               className="px-2 py-0.5 rounded bg-secondary text-xs"
@@ -103,22 +103,22 @@ export default function MatchesPage() {
                         </div>
 
                         <div className="flex items-center gap-4 mt-4 ml-13 text-xs text-muted-foreground">
-                          <span className="capitalize">{match.user.availability}</span>
+                          <span className="capitalize">{match.availability}</span>
                           <span>•</span>
-                          <span>{match.compatibility}% match</span>
+                          <span>{match.compatibility_score}% match</span>
                         </div>
                       </div>
 
                       <div className="flex gap-2 ml-4">
                         <button
-                          onClick={() => declineMatch(match.id)}
+                          onClick={() => declineMatch(match.user_id)}
                           className="w-9 h-9 rounded-md border border-border flex items-center justify-center hover:bg-secondary transition-colors"
                           title="Decline"
                         >
                           <X className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => acceptMatch(match.id)}
+                          onClick={() => acceptMatch(match.user_id)}
                           className="w-9 h-9 rounded-md bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
                           title="Accept"
                         >
@@ -142,28 +142,28 @@ export default function MatchesPage() {
               <div className="space-y-2">
                 {decidedMatches.map((match) => (
                   <div
-                    key={match.id}
+                    key={match.user_id}
                     className="border border-border rounded-md p-4 flex items-center justify-between"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-medium">
-                        {match.user.username.charAt(0)}
+                        {match.username.charAt(0)}
                       </div>
                       <div>
                         <p className="text-sm font-medium">{match.user.username}</p>
                         <p className="text-xs text-muted-foreground capitalize">
-                          {match.user.role}
+                          {match.role}
                         </p>
                       </div>
                     </div>
                     <span
                       className={`text-xs px-2 py-1 rounded ${
-                        match.status === "accepted"
+                        //match.status === "accepted"
                           ? "bg-[#22c55e]/10 text-[#22c55e]"
                           : "bg-secondary text-muted-foreground"
                       }`}
                     >
-                      {match.status === "accepted" ? "Connected" : "Declined"}
+                      //{match.status === "accepted" ? "Connected" : "Declined"}
                     </span>
                   </div>
                 ))}
