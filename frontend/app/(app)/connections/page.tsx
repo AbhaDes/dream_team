@@ -56,28 +56,28 @@ export default function ConnectionsPage() {
             <div className="space-y-3">
               {connections.map((connection) => (
                 <div
-                  key={connection.id}
+                  key={connection.match_id}
                   className="bg-card border border-border rounded-md p-5"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex gap-4">
                       <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-lg font-medium">
-                        {connection.user.username.charAt(0)}
+                        {connection.other_username.charAt(0)}
                       </div>
                       <div>
-                        <p className="font-medium">{connection.user.username}</p>
+                        <p className="font-medium">{connection.other_username}</p>
                         <p className="text-sm text-muted-foreground capitalize mb-2">
-                          {connection.user.role}
+                          {connection.other_role}
                         </p>
                         
-                        {connection.user.bio && (
+                        {connection.other_bio && (
                           <p className="text-sm text-muted-foreground mb-3">
-                            {connection.user.bio}
+                            {connection.other_bio}
                           </p>
                         )}
 
                         <div className="flex flex-wrap gap-1.5 mb-3">
-                          {connection.user.skills.map((skill) => (
+                          {connection.other_skills.map((skill) => (
                             <span
                               key={skill}
                               className="px-2 py-0.5 rounded bg-secondary text-xs"
@@ -88,9 +88,9 @@ export default function ConnectionsPage() {
                         </div>
 
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span className="capitalize">{connection.user.availability}</span>
+                          <span className="capitalize">{connection.other_availability}</span>
                           <span>•</span>
-                          <span>Connected {formatDate(connection.connectedAt)}</span>
+                          <span>Connected {formatDate(connection.matched_at)}</span>
                         </div>
                       </div>
                     </div>
@@ -119,19 +119,19 @@ export default function ConnectionsPage() {
                 </div>
                 <div className="bg-card border border-border rounded-md p-4">
                   <p className="text-2xl font-semibold mb-1">
-                    {connections.filter(c => c.user.role === "developer").length}
+                    {connections.filter(c => c.other_role === "developer").length}
                   </p>
                   <p className="text-xs text-muted-foreground">Developers</p>
                 </div>
                 <div className="bg-card border border-border rounded-md p-4">
                   <p className="text-2xl font-semibold mb-1">
-                    {connections.filter(c => c.user.role === "designer").length}
+                    {connections.filter(c => c.other_role === "designer").length}
                   </p>
                   <p className="text-xs text-muted-foreground">Designers</p>
                 </div>
                 <div className="bg-card border border-border rounded-md p-4">
                   <p className="text-2xl font-semibold mb-1">
-                    {connections.filter(c => c.user.role === "pm").length}
+                    {connections.filter(c => c.other_role === "pm").length}
                   </p>
                   <p className="text-xs text-muted-foreground">PMs</p>
                 </div>

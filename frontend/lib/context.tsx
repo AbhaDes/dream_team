@@ -4,18 +4,7 @@ import { createContext, useContext, useState, ReactNode, useEffect } from "react
 import { CURRENT_EVENT_ID } from "@/constants"
 const API_URL = process.env.NEXT_PUBLIC_API_URL 
 
-// 'Frontend Developer', 
-    // 'Backend Developer',
-    // 'Full-stack Developer', 
-    // 'UI/UX Designer', 
-    // 'Product Manager' 
 export type Role = "Frontend Developer" | "Backend Developer" | "Full-stack Developer" | "UI/UX Designer" | "Product Manager";
-
-// 'Full Time (30+ hours)',
-    // 'Most of the Time (20-30 hours)',
-    // 'Part Time (10-20 hours)',
-    // 'Limited (Less than 10 hours)',
-    // 'Flexible Schedule'
 
 export interface User {
   id: string
@@ -48,15 +37,39 @@ export interface Match {
 }
 
 export interface Connection {
-  id: string
-  user: User
-  connectedAt: string
-  message?: string
+  match_id: string
+  other_username: string
+  other_role: string
+  other_skills: string[]
+  other_experience: string
+  other_availability: string
+  other_bio: string
+  matched_at: string
+}
+
+export interface PendingMatch{
+  match_id: string
+  user1_id: string
+  user2_id: string
+  user1_status: string
+  user2_status: string
+  other_username: string
+  other_user_id: string
+  other_role: string
+  other_experience: string
+  other_participant_id: string
+  other_availability: string
+  other_skills: string[]
+  other_bio: string
+  needs_my_response: boolean
+  created_at: string
+
 }
 
 interface AppState {
   user: User | null
   matches: Match[]
+  pendingMatches: PendingMatch[]
   connections: Connection[]
   isAuthenticated: boolean
 }
@@ -68,7 +81,6 @@ interface AppContextType extends AppState {
   updateProfile: (updates: Partial<User>) => void
   fetchMatches: () => void
   acceptMatch: (matchId: string) => void
-  declineMatch: (matchId: string) => void
   isLoading: boolean
 }
 
@@ -79,6 +91,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>({
     user: null,
     matches: [],
+    pendingMatches: [],
     connections: [],
     isAuthenticated: false,
   })
@@ -133,7 +146,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   }
 
-  //change this function to call the login request
+  //PENDING MATCHES 
+  //router.get('/:eventId/matches/mutual', authMiddleware, matchController.getMutualMatches);
+  const fetchPendingMatches = async() => {
+    const url = `/api/events/${CURRENT_EVENT_ID}/matches/pending`;
+    console.log(url);
+
+    try{
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+
+      })
+      //check if the response failed 
+      if(!response.ok){
+        throw new Error(`Response status: ${response.status}`);
+      }
+      const result = await response.json();
+      setState(prev => ({
+        ...prev, 
+        pendingMatches: result.pending
+      }))
+    }catch(error){
+      console.log('Error: ', error);
+
+    }
+  }
 
   const login = async (email: string, password: string): Promise<boolean> => {
     const url = `/api/auth/login`;
@@ -157,6 +198,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setState({
         user: result.user,
         matches: [],
+        pendingMatches: [],
         connections: [],
         isAuthenticated: true,
       })
@@ -191,6 +233,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         user: result.user,
         matches: [],
         connections: [],
+        pendingMatches: [],
         isAuthenticated: true,
 
       })
@@ -209,6 +252,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setState({
       user: null,
       matches: [],
+      pendingMatches: [],
       connections: [],
       isAuthenticated: false,
     })
@@ -224,37 +268,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     })
   }
-
+  
+  //change acceptMatch to call on the backend
   const acceptMatch = (matchId: string) => {
     setState(prev => {
-      const match = prev.matches.find(m => m.id === matchId)
+      const match = prev.matches.find(m => m.user_id === matchId)
       if (!match) return prev
-      
-      const newConnection: Connection = {
-        id: `conn-${match.user.id}`,
-        user: match.user,
-        connectedAt: new Date().toISOString(),
-      }
       
       return {
         ...prev,
         matches: prev.matches.map(m => 
-          m.id === matchId ? { ...m, status: "accepted" as const } : m
+          m.user_id === matchId ? { ...m, status: "accepted" as const } : m
         ),
-        connections: [...prev.connections, newConnection],
+        connections: [...prev.connections],
       }
     })
   }
-
-  const declineMatch = (matchId: string) => {
-    setState(prev => ({
-      ...prev,
-      matches: prev.matches.map(m => 
-        m.id === matchId ? { ...m, status: "declined" as const } : m
-      ),
-    }))
-  }
-
+  
   return (
     <AppContext.Provider value={{
       ...state,
@@ -264,7 +294,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateProfile,
       fetchMatches,
       acceptMatch,
-      declineMatch,
       isLoading,
     }}>
       {children}
