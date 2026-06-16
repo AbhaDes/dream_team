@@ -1,10 +1,11 @@
 "use client"
 
-import { useApp } from "@/lib/context"
+import { useApp, Match} from "@/lib/context"
 import { Sidebar } from "@/components/sidebar"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { Check, X } from "lucide-react"
+
 
 
 export default function MatchesPage() {
@@ -25,8 +26,8 @@ export default function MatchesPage() {
     return null
   }
 
-  const pendingMatches = matches.filter(m => m.status === "pending")
-  const decidedMatches = matches.filter(m => m.status !== "pending")
+  const pendingMatches = matches //here, matches endpoint getPendingMatches can be call
+  const mutualMatches = [] as Match[]//here, match controller endpoint getMutualMatches can be called
 
 
 
@@ -68,7 +69,7 @@ export default function MatchesPage() {
               <div className="space-y-3">
                 {pendingMatches.map((match) => (
                   <div
-                    key={match.user_id}
+                    key={match.participant_id}
                     className="bg-card border border-border rounded-md p-5"
                   >
                     <div className="flex items-start justify-between">
@@ -111,14 +112,14 @@ export default function MatchesPage() {
 
                       <div className="flex gap-2 ml-4">
                         <button
-                          onClick={() => declineMatch(match.user_id)}
+                          onClick={() => declineMatch(match.participant_id)}
                           className="w-9 h-9 rounded-md border border-border flex items-center justify-center hover:bg-secondary transition-colors"
                           title="Decline"
                         >
                           <X className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => acceptMatch(match.user_id)}
+                          onClick={() => acceptMatch(match.participant_id)}
                           className="w-9 h-9 rounded-md bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
                           title="Accept"
                         >
@@ -132,15 +133,15 @@ export default function MatchesPage() {
             )}
           </section>
 
-          {/* Decided Matches */}
-          {decidedMatches.length > 0 && (
+          {/* Mutual Matches */}
+          {mutualMatches.length > 0 && (
             <section>
               <h2 className="text-sm font-medium text-muted-foreground mb-4">
-                Decided ({decidedMatches.length})
+                Decided ({mutualMatches.length})
               </h2>
               
               <div className="space-y-2">
-                {decidedMatches.map((match) => (
+                {mutualMatches.map((match) => (
                   <div
                     key={match.user_id}
                     className="border border-border rounded-md p-4 flex items-center justify-between"
@@ -150,20 +151,14 @@ export default function MatchesPage() {
                         {match.username.charAt(0)}
                       </div>
                       <div>
-                        <p className="text-sm font-medium">{match.user.username}</p>
+                        <p className="text-sm font-medium">{match.username}</p>
                         <p className="text-xs text-muted-foreground capitalize">
                           {match.role}
                         </p>
                       </div>
                     </div>
-                    <span
-                      className={`text-xs px-2 py-1 rounded ${
-                        //match.status === "accepted"
-                          ? "bg-[#22c55e]/10 text-[#22c55e]"
-                          : "bg-secondary text-muted-foreground"
-                      }`}
-                    >
-                      //{match.status === "accepted" ? "Connected" : "Declined"}
+                    <span className="text-xs px-2 py-1 rounded bg-[#22c55e]/10 text-[#22c55e]">
+                      Connected
                     </span>
                   </div>
                 ))}
