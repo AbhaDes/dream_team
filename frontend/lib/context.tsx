@@ -80,6 +80,7 @@ interface AppContextType extends AppState {
   logout: () => void
   updateProfile: (updates: Partial<User>) => void
   fetchMatches: () => void
+  fetchPendingMatches: () => void
   acceptMatch: (matchId: string) => void
   isLoading: boolean
 }
@@ -293,6 +294,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       logout,
       updateProfile,
       fetchMatches,
+      fetchPendingMatches,
       acceptMatch,
       isLoading,
     }}>

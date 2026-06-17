@@ -100,37 +100,54 @@ export default function ProfilePage() {
   }
 
   const handleSave = async() => {
-    const url = `/api/events/${CURRENT_EVENT_ID}/participants/me` 
-    console.log(url);
+    const updateUrl = `/api/events/${CURRENT_EVENT_ID}/participants/me` 
+    const joinUrl = `api/events/${CURRENT_EVENT_ID}/join`
+    const body = JSON.stringify({role, experience, availability, skills, bio})
+    console.log(updateUrl);
 
     try{
-      const response = await fetch(url, {
-        method: 'PUT', 
+      console.log("Sending data to:  ", updateUrl);
+      let response = await fetch(updateUrl, {
+        method: 'PUT',
         headers: {
-          'Content-Type' : 'application/json'
+          'Content-type' : 'application/json'
         },
         credentials: 'include',
-        body: JSON.stringify({role, experience, availability, skills, bio}),
-      });
+        body,
+      })
+
+      //if not found, join the event
+      if(response.status == 404){
+        console.log("Sending data to: ", joinUrl);
+        response = await fetch(joinUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type' : 'application/json'
+          },
+          credentials : 'include',
+          body,
+        })
+
+      }
       console.log("body sent to backend");
       //check if response failed 
       if(!response.ok){
         console.log("no response from the backend");
         throw new Error(`Response status: ${response.status}`);
         
-      }else{
-        const profileComplete = !!role && skills.length > 0
-        updateProfile({
-          username,
-          role,
-          skills,
-          availability,
-          bio,
-          profileComplete,
-          experience
-        })
-        setSaved(true)
       }
+      const profileComplete = !!role && skills.length > 0
+      updateProfile({
+        username,
+        role,
+        skills,
+        availability,
+        bio,
+        profileComplete,
+        experience
+      })
+      setSaved(true)
+      
 
     }catch(error){
       console.log("Error: ", error);

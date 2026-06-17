@@ -9,7 +9,7 @@ import { Check, X } from "lucide-react"
 
 
 export default function MatchesPage() {
-  const { user, matches, isAuthenticated, fetchMatches, acceptMatch, declineMatch } = useApp()
+  const { user, matches, isAuthenticated, fetchMatches, acceptMatch} = useApp()
   const router = useRouter()
 
   useEffect(() => {
@@ -112,7 +112,6 @@ export default function MatchesPage() {
 
                       <div className="flex gap-2 ml-4">
                         <button
-                          onClick={() => declineMatch(match.participant_id)}
                           className="w-9 h-9 rounded-md border border-border flex items-center justify-center hover:bg-secondary transition-colors"
                           title="Decline"
                         >
