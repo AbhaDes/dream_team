@@ -179,6 +179,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     const url = `/api/auth/login`;
+    const getProfileUrl = `/api/events/${CURRENT_EVENT_ID}/participants/me`;
     
     try {
       const response = await fetch(url, {
@@ -192,7 +193,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if(!response.ok){
         throw new Error(`Reponse status: ${response.status}`);
       }
-
       //parse the response body with response.json()
       const result = await response.json();
       //use setState() to update the app state with real user data
@@ -203,6 +203,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
         connections: [],
         isAuthenticated: true,
       })
+
+      const profileResponse = await fetch(getProfileUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type' : 'application/json'
+        },
+      });
+
+      if(profileResponse.ok){
+        const profileResult = await profileResponse.json();
+        console.log('Profile Result: ' , profileResult);
+        //merge profile into user state 
+        setState(prev => ({
+          ...prev, 
+          user: {
+           ...prev.user,
+            ...profileResult.profile
+          }
+        }))
+      }
+
+
+      
 
     return true
     }catch(error){
@@ -271,19 +294,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
   
   //change acceptMatch to call on the backend
-  const acceptMatch = (matchId: string) => {
-    setState(prev => {
-      const match = prev.matches.find(m => m.user_id === matchId)
-      if (!match) return prev
-      
-      return {
-        ...prev,
-        matches: prev.matches.map(m => 
-          m.user_id === matchId ? { ...m, status: "accepted" as const } : m
-        ),
-        connections: [...prev.connections],
+  const acceptMatch = async (matchId: string) => {
+    const url = `/api/events/${CURRENT_EVENT_ID}/like`
+
+    try{
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type' : 'application/json',
+        },
+        body : JSON.stringify({
+          participant_id : matchId
+        }),
+        credentials: 'include',
+      })
+      console.log('body:', JSON.stringify({ participant_id: matchId}))
+      if(!response.ok){
+        return new Error(`Response Status: ${response.status}`);
       }
-    })
+
+    }catch(error){
+      console.log('Error: ', error);
+
+    }
   }
   
   return (
