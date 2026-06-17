@@ -40,7 +40,7 @@ export default function DashboardPage() {
         <div className="max-w-4xl">
           <h1 className="text-2xl font-semibold tracking-tight mb-1">Dashboard</h1>
           <p className="text-muted-foreground mb-8">
-            Welcome back, {user.name}
+            Welcome back, {user.username}
           </p>
 
           {!user.profileComplete && (
