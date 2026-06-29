@@ -9,9 +9,11 @@ var port = 3001;
 
 const cors = require('cors');
 app.use(cors({
-    origin: true, 
+    origin: process.env.NODE_ENV === 'production' 
+        ? 'https://your-vercel-url.vercel.app'
+        : 'http://localhost:3000',
     credentials: true
-}));
+}))
 
 const pool = require('./config/database');  
 const authRoutes = require('./routes/auth');
