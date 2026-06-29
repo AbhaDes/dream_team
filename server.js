@@ -39,7 +39,7 @@ app.use(session({
         resave: false, 
         cookie: {
             maxAge: 3600000, 
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', //sameSite 'lax' means the cookes is sent with the same site requests top //only for local development
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', 
             secure: process.env.NODE_ENV === 'production'
         }
     })
