@@ -10,7 +10,7 @@ var port = 3001;
 const cors = require('cors');
 app.use(cors({
     origin: process.env.NODE_ENV === 'production' 
-        ? 'https://your-vercel-url.vercel.app'
+        ? 'https://dream-team-nine.vercel.app'
         : 'http://localhost:3000',
     credentials: true
 }))
