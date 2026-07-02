@@ -1,4 +1,5 @@
 const { networkInterfaces } = require('os');
+const { pgSession } = require('connect-pg-simple');
 var message = 'CSC-317 node/express app \n'
          + 'This uses nodeJS, express, and express.static\n'
          + 'to \"serve\" the files in the ./public/ dir!\n';
