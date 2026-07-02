@@ -6,7 +6,8 @@ const pool = require('../config/database');
 //create the middleware function
 const authMiddleware = async (req, res, next)=>{
     try{
-        console.log("Reaching the auth middleware :)")
+        console.log("Reaching the auth middleware :)");
+        console.log(req.session);
         //check if req.session.user_exists
         //if not return 401 error
         const id = req.session.user_id;
