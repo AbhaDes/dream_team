@@ -94,6 +94,7 @@ const login = async (req, res)=>{
            })
        }
        req.session.user_id = user.user_id;
+       console.log(req.session);
        return res.status(200).json({
            user:{
                user_id : user.user_id,
