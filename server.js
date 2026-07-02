@@ -1,5 +1,5 @@
 const { networkInterfaces } = require('os');
-const { pgSession } = require('connect-pg-simple')(session);
+
 var message = 'CSC-317 node/express app \n'
          + 'This uses nodeJS, express, and express.static\n'
          + 'to \"serve\" the files in the ./public/ dir!\n';
@@ -36,12 +36,14 @@ var StaticDirectory = path.join(__dirname, 'public');
 app.use(express.static(StaticDirectory));
 app.use(express.json());
 
+const pgSession = require('connect-pg-simple')(session)
+
 app.use(session({
         store: new pgSession({
             pool: pool, 
-            tableName: 'session'
+            tableName: 'user_sessions'
         }),
-        secret: "I am the best in existence", 
+        secret: process.env.SESSION_SECRET, 
         saveUninitialized : false,
         resave: false, 
         cookie: {
