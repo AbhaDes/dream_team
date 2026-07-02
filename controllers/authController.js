@@ -66,6 +66,7 @@ const register = async (req, res) => {
 //login logic
 const login = async (req, res)=>{
    try{
+    console.log("Login request hit :)")
        //1. Get data from req block
        const {email, password } = req.body;
        //2. Check if any feilds are missing
