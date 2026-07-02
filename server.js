@@ -41,7 +41,7 @@ const pgSession = require('connect-pg-simple')(session)
 app.use(session({
         store: new pgSession({
             pool: pool, 
-            tableName: 'user_sessions'
+            tableName: 'session'
         }),
         secret: process.env.SESSION_SECRET, 
         saveUninitialized : false,
