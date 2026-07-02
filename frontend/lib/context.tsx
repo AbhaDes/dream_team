@@ -296,8 +296,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   //change acceptMatch to call on the backend
   const acceptMatch = async (matchId: string) => {
     const url = `/api/events/${CURRENT_EVENT_ID}/like`
+    console.log("Function acceptMatch called");
 
     try{
+      console.log("Url fetched")
       const response = await fetch(url, {
         method: 'POST',
         headers: {
