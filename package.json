@@ -22,12 +22,13 @@
   "homepage": "https://github.com/CSC317-F25/group-project-autuvmn#readme",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "connect-pg-simple": "^10.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
     "express-sessions": "^1.0.6",
     "mysql2": "^3.15.3",
-    "pg": "^8.16.3"
+    "pg": "^8.22.0"
   }
 }

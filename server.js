@@ -36,6 +36,10 @@ app.use(express.static(StaticDirectory));
 app.use(express.json());
 
 app.use(session({
+        store: new pgSession({
+            pool: pool, 
+            tableName: 'session'
+        }),
         secret: "I am the best in existence", 
         saveUninitialized : false,
         resave: false, 
