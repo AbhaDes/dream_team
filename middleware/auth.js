@@ -10,13 +10,16 @@ const authMiddleware = async (req, res, next)=>{
         console.log(req.session);
         //check if req.session.user_exists
         //if not return 401 error
+        console.log("failing here 1")
         const id = req.session.user_id;
+        console.log("failing here 2")
         if(!id){
             return res.status(401).json({
                 error: 'Unauthorized login'
             });
         }
         const result = await pool.query('SELECT * FROM users WHERE user_id = $1', [id]);
+        console.log("failing here 3")
 
         //check if the user was found in the database 
         if(result.rows.length === 0){
