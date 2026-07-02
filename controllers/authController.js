@@ -103,7 +103,7 @@ const login = async (req, res)=>{
        console.log("right before setting req.session")
        req.session.user_id = user.user_id;
        
-       console.log(req.session);
+       req.session.save();
        return res.status(200).json({
            user:{
                user_id : user.user_id,
