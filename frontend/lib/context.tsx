@@ -187,6 +187,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         headers: {
           'Content-Type': 'application/json', // 2. Tell server you're sending JSON
         },
+        credentials: "include", //tells the browser to include cookies in the request
         body: JSON.stringify({email, password}), // 3. Convert your data payload to a string
       });
       //check if the response failed
@@ -209,6 +210,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         headers: {
           'Content-Type' : 'application/json'
         },
+        credentials: "include"
       });
 
       if(profileResponse.ok){
@@ -244,6 +246,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         headers: {
           'Content-Type' : 'application/json',
         },
+        credentials: "include",
         body: JSON.stringify({email, password, username}),
       });
 
