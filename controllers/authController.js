@@ -103,7 +103,13 @@ const login = async (req, res)=>{
        console.log("right before setting req.session")
        req.session.user_id = user.user_id;
        
-       req.session.save();
+        await new Promise((resolve, reject) => {
+            req.session.save((err) => {
+                if(err) reject(err);
+                else resolve();
+            });
+        });
+
        return res.status(200).json({
            user:{
                user_id : user.user_id,
