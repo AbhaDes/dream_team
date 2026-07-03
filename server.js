@@ -36,6 +36,8 @@ var StaticDirectory = path.join(__dirname, 'public');
 app.use(express.static(StaticDirectory));
 app.use(express.json());
 
+app.set('trust proxy', 1);
+
 const pgSession = require('connect-pg-simple')(session)
 
 app.use(session({
@@ -48,8 +50,8 @@ app.use(session({
         resave: false, 
         cookie: {
             maxAge: 3600000, 
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', 
-            secure: process.env.NODE_ENV === 'production'
+            sameSite: 'none', 
+            secure: true
         }
     })
 )
