@@ -105,6 +105,7 @@ const login = async (req, res)=>{
        
         await new Promise((resolve, reject) => {
             req.session.save((err) => {
+                console.log("here you are :)");
                 if(err) reject(err);
                 else resolve();
             });
