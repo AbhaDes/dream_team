@@ -199,8 +199,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
       const result = await response.json();
       setState(prev => ({
-        ...prev, 
-        connections: result.connections
+        ...prev,
+        connections: result.mutual
       }))
       
     }catch(error){

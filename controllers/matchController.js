@@ -35,12 +35,12 @@ const findMatch = async(req, res, next) => {
         
         //In the case where there are no participants
         if(result.rows.length === 0){
-            return res.status(404).json({
-                error: "There are no participants in this event."
+            return res.status(200).json({
+                matches: []
             });
         }
-        
-        //Get the user and the participant data for them 
+
+        //Get the user and the participant data for them
         const user = await pool.query('SELECT * FROM event_participants WHERE user_id = $1 AND event_id = $2', [userId, eventId]); 
         
         //If user has not joined the event
@@ -323,13 +323,6 @@ const getPendingMatches = async (req, res) => {
             [userId, eventId]
         );
 
-        //if no pending matches are fond 
-        if(matches.rows.length === 0){
-            return res.status(404).json({
-                error: "You or any other participants have not initiated any matches"
-            });
-        }
-        
         return res.status(200).json({
             pending: matches.rows
         });
