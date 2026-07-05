@@ -7,8 +7,6 @@ const nextConfig = {
     unoptimized: true,
   },
   async rewrites() {
-    console.log("hitting the rewrites function")
-    console.log(process.env.NEXT_PUBLIC_API_URL)
     return [
       {
         source: '/api/:path*',

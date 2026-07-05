@@ -27,8 +27,6 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
-    "express-sessions": "^1.0.6",
-    "mysql2": "^3.15.3",
     "pg": "^8.22.0"
   }
 }

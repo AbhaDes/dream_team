@@ -66,28 +66,23 @@ const register = async (req, res) => {
 //login logic
 const login = async (req, res)=>{
    try{
-    console.log("Login request hit :)")
        //1. Get data from req block
        const {email, password } = req.body;
        //2. Check if any feilds are missing
-       
        if(!email || !password){
            return res.status(400).json({
                error: 'Email and password are required'
            });
-           console.log("failing here 4")
        }
 
-       
        //3.First check if the user exists in the database
        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email])
        if(result.rows.length === 0){
            return res.status(401).json({
                error: 'Invalid email or password'
            });
-           console.log("failing here 6")
        }
-       
+
        //4. If exists, then give it a variable
        const user = result.rows[0];
        //5. Check if the password matches
@@ -98,14 +93,11 @@ const login = async (req, res)=>{
            return res.status(401).json({
                error: 'Invalid email or password'
            })
-           console.log("failing here 7")
        }
-       console.log("right before setting req.session")
        req.session.user_id = user.user_id;
-       
+
         await new Promise((resolve, reject) => {
             req.session.save((err) => {
-                console.log("here you are :)");
                 if(err) reject(err);
                 else resolve();
             });
