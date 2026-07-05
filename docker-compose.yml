@@ -10,6 +10,10 @@ services:
         condition: service_healthy
     env_file: ##this tell docker to load the .env file and load all the variables into the container's environment
       - .env
+    environment:
+      # Inside the compose network the database host is the "db" service,
+      # overriding the localhost URL in .env used for running node directly.
+      DATABASE_URL: postgres://abhadeshpande:mypassword@db:5432/dream_team
 
   #The PostgreSQL container
   db:

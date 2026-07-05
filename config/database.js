@@ -1,11 +1,13 @@
 const { Pool } = require('pg');  
 require('dotenv').config();
 
+// Hosted Postgres (Render/Neon/etc.) requires SSL; the local docker-compose
+// Postgres doesn't support it, so only enable SSL in production.
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  ssl: process.env.NODE_ENV === 'production'
+    ? { rejectUnauthorized: false }
+    : false
 });
 // require('dotenv').config();
 // const { Pool } = require('pg');
