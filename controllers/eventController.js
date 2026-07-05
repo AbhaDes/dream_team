@@ -27,11 +27,13 @@ const joinEvent = async(req, res, next) => {
     try{
         //1.Get eventId from the parameter 
         const eventId = req.params.eventId;
+        console.log(eventId);
         const userId = req.user.user_id;
         //2. Get all the other info from the request body
         const {role, experience, availability, skills, bio} = req.body;
         //3. check if the event exists 
         const result = await pool.query('SELECT * FROM events WHERE event_id = $1', [eventId]);
+        console.log("Here in the join event endpoint");
         if(result.rows.length === 0){
             return res.status(404).json({
                 error: 'This event does not exist'

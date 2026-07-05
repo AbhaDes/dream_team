@@ -101,7 +101,7 @@ export default function ProfilePage() {
 
   const handleSave = async() => {
     const updateUrl = `/api/events/${CURRENT_EVENT_ID}/participants/me` 
-    const joinUrl = `api/events/${CURRENT_EVENT_ID}/join`
+    const joinUrl = `/api/events/${CURRENT_EVENT_ID}/join`
     const body = JSON.stringify({role, experience, availability, skills, bio})
     console.log(updateUrl);
 

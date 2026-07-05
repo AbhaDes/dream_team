@@ -68,9 +68,9 @@ export interface PendingMatch{
 
 interface AppState {
   user: User | null
-  matches: Match[]
-  pendingMatches: PendingMatch[]
-  connections: Connection[]
+  matches: Match[] //used for fetching top 10 matches
+  pendingMatches: PendingMatch[] //used for fetching pending matches
+  connections: Connection[] //used for people you have already matched with
   isAuthenticated: boolean
 }
 
@@ -81,7 +81,9 @@ interface AppContextType extends AppState {
   updateProfile: (updates: Partial<User>) => void
   fetchMatches: () => void
   fetchPendingMatches: () => void
+  fetchMutualMatches: () => void
   acceptMatch: (matchId: string) => void
+
   isLoading: boolean
 }
 
@@ -116,7 +118,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("dreamteam-state", JSON.stringify(state))
     }
   }, [state])
-
+  
+  //GETS THE TOP 10 MATCHES ON THE MATCHES PAGE
   const fetchMatches = async() => {
     const url = `/api/events/${CURRENT_EVENT_ID}/matches`;
 
@@ -148,7 +151,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   //PENDING MATCHES 
-  //router.get('/:eventId/matches/mutual', authMiddleware, matchController.getMutualMatches);
+  //split by needs my response. 
   const fetchPendingMatches = async() => {
     const url = `/api/events/${CURRENT_EVENT_ID}/matches/pending`;
     console.log(url);
@@ -177,6 +180,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const fetchMutualMatches = async() => {
+    const url = `/api/events/${CURRENT_EVENT_ID}/matches/mutual`;
+    console.log(url) //just checking for the intial stage 
+
+    try{
+      const response = await fetch(url, {
+        method: 'GET', 
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include' //need this for session cookie purposes REMEMBER!!
+
+      })
+      //check if the response failed 
+      if(!response.ok){
+        throw new Error(`Response status: ${response.status}`);
+      }
+      const result = await response.json();
+      setState(prev => ({
+        ...prev, 
+        connections: result.connections
+      }))
+      
+    }catch(error){
+      console.log("Error: ", error);
+
+    }
+  }
+
+  //FOR LOGIN PURPOSES ONLY 
   const login = async (email: string, password: string): Promise<boolean> => {
     const url = `/api/auth/login`;
     const getProfileUrl = `/api/events/${CURRENT_EVENT_ID}/participants/me`;
@@ -237,6 +270,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  //FOR SIGNUP PURPOSES ONLY
   const signup = async (email: string, password: string, username: string): Promise<boolean> => {
     const url = `/api/auth/register`;
 
@@ -296,7 +330,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     })
   }
   
-  //change acceptMatch to call on the backend
+  //FOR LIKING MATCH PURPOSES ONLY
   const acceptMatch = async (matchId: string) => {
     const url = `/api/events/${CURRENT_EVENT_ID}/like`
     console.log("Function acceptMatch called");
@@ -334,6 +368,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       fetchMatches,
       fetchPendingMatches,
       acceptMatch,
+      fetchMutualMatches,
       isLoading,
     }}>
       {children}

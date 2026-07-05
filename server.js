@@ -40,6 +40,8 @@ app.set('trust proxy', 1);
 
 const pgSession = require('connect-pg-simple')(session)
 
+
+
 app.use(session({
         store: new pgSession({
             pool: pool, 
@@ -50,8 +52,8 @@ app.use(session({
         resave: false, 
         cookie: {
             maxAge: 3600000, 
-            sameSite: 'none', 
-            secure: true
+            sameSite: process.env.NODE_ENV === 'production'?'none' : 'lax', 
+            secure: process.env.NODE_ENV === 'production'
         }
     })
 )
