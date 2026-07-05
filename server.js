@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { networkInterfaces } = require('os');
 
 var message = 'CSC-317 node/express app \n'
@@ -6,13 +7,20 @@ var message = 'CSC-317 node/express app \n'
 
 var express = require('express');
 var app = express();
-var port = 3001;
+var port = process.env.PORT || 3001;
 
 const cors = require('cors');
+// FRONTEND_URL lets production point at any domain without a code change;
+// localhost is always allowed so local dev works against a deployed backend too.
+const allowedOrigins = [
+    'http://localhost:3000',
+    'https://dream-team-nine.vercel.app',
+];
+if (process.env.FRONTEND_URL) {
+    allowedOrigins.push(process.env.FRONTEND_URL);
+}
 app.use(cors({
-    origin: process.env.NODE_ENV === 'production' 
-        ? 'https://dream-team-nine.vercel.app'
-        : 'http://localhost:3000',
+    origin: allowedOrigins,
     credentials: true
 }))
 
@@ -44,8 +52,9 @@ const pgSession = require('connect-pg-simple')(session)
 
 app.use(session({
         store: new pgSession({
-            pool: pool, 
-            tableName: 'session'
+            pool: pool,
+            tableName: 'session',
+            createTableIfMissing: true
         }),
         secret: process.env.SESSION_SECRET, 
         saveUninitialized : false,
@@ -58,7 +67,6 @@ app.use(session({
     })
 )
 
-app.use(express.static('public'));
 app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes); 
 app.use('/api/events', matchRoutes);
@@ -69,7 +77,7 @@ app.get('/api/test', (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Listening on http://127.0.0.1:${port}/`);
+    console.log(`Listening on port ${port}`);
 });
 
 console.log(message);
