@@ -331,26 +331,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
   
   //FOR LIKING MATCH PURPOSES ONLY
-  const acceptMatch = async (matchId: string) => {
+  const acceptMatch = async (participantId: string) => {
     const url = `/api/events/${CURRENT_EVENT_ID}/like`
-    console.log("Function acceptMatch called");
 
     try{
-      console.log("Url fetched")
       const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type' : 'application/json',
         },
         body : JSON.stringify({
-          participant_id : matchId
+          participant_id : participantId
         }),
         credentials: 'include',
       })
-      console.log('body:', JSON.stringify({ participant_id: matchId}))
       if(!response.ok){
-        return new Error(`Response Status: ${response.status}`);
+        throw new Error(`Response Status: ${response.status}`);
       }
+
+      //remove the liked person from the matches list right away
+      setState(prev => ({
+        ...prev,
+        matches: prev.matches.filter(m => m.participant_id !== participantId)
+      }))
+
+      //refresh pending + mutual so the connections page sections are current
+      //(a like can create a pending match or complete a mutual one)
+      await Promise.all([fetchPendingMatches(), fetchMutualMatches()])
 
     }catch(error){
       console.log('Error: ', error);

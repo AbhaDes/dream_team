@@ -8,12 +8,23 @@ import { MessageSquare, Clock, Heart } from "lucide-react"
 import { PendingMatch, Connection } from "@/lib/context"
 
 export default function ConnectionsPage() {
-  const { user, connections, pendingMatches, isAuthenticated } = useApp()
+  const { user, connections, pendingMatches, isAuthenticated, fetchPendingMatches, fetchMutualMatches, acceptMatch } = useApp()
   const router = useRouter()
 
   useEffect(() => {
     if (!isAuthenticated) router.push("/login")
   }, [isAuthenticated, router])
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchPendingMatches()
+      fetchMutualMatches()
+    }
+  }, [isAuthenticated])
+
+  const handleLikeBack = async (p: PendingMatch) => {
+    await acceptMatch(p.other_participant_id)
+  }
 
   if (!isAuthenticated || !user) return null
 
@@ -24,7 +35,7 @@ export default function ConnectionsPage() {
   const formatDate = (dateString: string) =>
     new Date(dateString).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 
-  const PendingCard = ({ p }: { p: PendingMatch }) => (
+  const PendingCard = ({ p, onLikeBack }: { p: PendingMatch; onLikeBack?: (p: PendingMatch) => void }) => (
     <div className="bg-card border border-border rounded-md p-5">
       <div className="flex items-start gap-4">
         <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-base font-medium shrink-0">
@@ -41,6 +52,15 @@ export default function ConnectionsPage() {
           </div>
           <p className="text-xs text-muted-foreground capitalize">{p.other_availability}</p>
         </div>
+        {onLikeBack && (
+          <button
+            onClick={() => onLikeBack(p)}
+            className="flex items-center gap-2 h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm hover:bg-primary/90 transition-colors shrink-0"
+          >
+            <Heart className="w-4 h-4" />
+            Like back
+          </button>
+        )}
       </div>
     </div>
   )
@@ -110,7 +130,7 @@ export default function ConnectionsPage() {
           <Section title="Awaiting response" count={awaiting.length} icon={<Clock className="w-4 h-4 text-muted-foreground" />}>
             {awaiting.length === 0
               ? <EmptyState label="Nobody is waiting on you right now." />
-              : <div className="space-y-3">{awaiting.map(p => <PendingCard key={p.match_id} p={p} />)}</div>}
+              : <div className="space-y-3">{awaiting.map(p => <PendingCard key={p.match_id} p={p} onLikeBack={handleLikeBack} />)}</div>}
           </Section>
 
           <Section title="Liked" count={liked.length} icon={<Heart className="w-4 h-4 text-muted-foreground" />}>

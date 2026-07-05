@@ -31,6 +31,12 @@ const findMatch = async(req, res, next) => {
             INNER JOIN users u ON ep.user_id = u.user_id
             WHERE ep.event_id = $1
             AND NOT u.user_id = $2
+            AND NOT EXISTS (
+                SELECT 1 FROM matches m
+                WHERE m.event_id = $1
+                AND ((m.user1_id = $2 AND m.user2_id = u.user_id)
+                  OR (m.user1_id = u.user_id AND m.user2_id = $2))
+            )
         `, [eventId, userId]);
         
         //In the case where there are no participants
