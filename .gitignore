@@ -12,5 +12,8 @@ build/
 *.pyc
 *.pyo
 .env.local
+.venv/
+__pychache__/
+
 
 #HI i am editing this file in another branch
