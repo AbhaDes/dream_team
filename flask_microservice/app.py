@@ -9,18 +9,16 @@ app = Flask(__name__)
 @app.route('/api/embed', methods=['POST'])
 def embed_desc():
     print ("Flask POST endpoint hit")
-    data = request.get_json(silent=True) or {}
+    if request.is_json:
+        data = request.get_json()
 
     #in case the request is empty
     if not data.get("description"):
         return jsonify({"error": "Please enter a description"}), 400
-    #when request not in json format
-    if not data.is_json:
-        return jsonify({"error" : "Please post in JSON format"}), 400
+    
     
     #get the description
-    response = data.get_json()
-    description = response["description"]
+    description = data["description"]
 
     #return 400 if empty string sent
     if not description:
