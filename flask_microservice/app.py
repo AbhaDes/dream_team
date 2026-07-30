@@ -1,6 +1,8 @@
-from flask import Flask, jsonify, request
-import embed_test
-import os
+from flask import Flask, request, jsonify
+import embeddings
+import matchAlgo
+import openai
+
 
 app = Flask(__name__)
 
@@ -8,30 +10,80 @@ app = Flask(__name__)
 
 @app.route('/api/embed', methods=['POST'])
 def embed_desc():
-    print ("Flask POST endpoint hit")
-    if request.is_json:
-        data = request.get_json()
+    try:
+        #this basically avoids a crash if the data is non-json, flask just assigns none to the variable
+        data = request.get_json(silent=True)
 
-    #in case the request is empty
-    if not data.get("description"):
-        return jsonify({"error": "Please enter a description"}), 400
-    
-    
-    #get the description
-    description = data["description"]
 
-    #return 400 if empty string sent
-    if not description:
-        return jsonify({"error" : "Please enter a description"}), 400
-    
-    
-    print(repr(description), type(description))
+        #safe extraction; if description missing no error (KeyError - meaning if there no key, error)
+        description = data.get("description") if data else None
 
-    #use embed to create an embedding for that description 
-    vector = embed_test.get_embeddings(description)
+        #return 400 if empty string sent
+        if not description or not description.strip():
+            return jsonify({"error" : "Please enter a description"}), 400
 
-    #turn that vector into json 
-    return jsonify(vector)
+        #cap input length so oversized text never reaches the paid API
+        if len(description) > 2000:
+            return jsonify({"error" : "Description too long (max 2000 characters)"}), 400
+
+
+        #get the embedding (single-element batch, unwrap the one vector)
+        vector = embeddings.get_embeddings([description])[0]
+
+        vector_object = {
+            "embedding" : vector,
+            "model" : "text-embedding-3-small",
+            "dimensions" : len(vector)
+        }
+
+        return jsonify(vector_object), 200
+        
+    except openai.OpenAIError:
+        return jsonify({
+            "error" : "Bad Gateway",
+            "message" : "Failed to fetch data from the upstream service."
+        }), 502
+
+
+@app.route('/api/similarity', methods=['POST'])
+def get_similarity():
+    try:
+        ##accepts two descriptions
+        data = request.get_json(silent=True)
+
+        #safely extract both fields 
+        desc_1 = data.get("desc_1") if data else None
+        desc_2 = data.get("desc_2") if data else None
+
+        #Validate that both descriptions are present, not empty 
+        if not desc_1 or not desc_1.strip():
+            return jsonify({"error" : "missing or empty description 1"}), 400
+
+        if not desc_2 or not desc_2.strip():
+            return jsonify({"error" : "missing or empty description 2"}), 400
+
+        #cap input length so oversized text never reaches the paid API
+        if len(desc_1) > 2000 or len(desc_2) > 2000:
+            return jsonify({"error" : "Description too long (max 2000 characters)"}), 400
+
+        #embeds them both in one API call
+        vec1, vec2 = embeddings.get_embeddings([desc_1, desc_2])
+
+        #calculates the similarity between them 
+        similarity = {
+            "similarity" : float(matchAlgo.cosine_similarity(vec1, vec2))
+        }
+        
+        #return the similarity between the two vectors
+        return jsonify(similarity), 200
+
+    except openai.OpenAIError:
+        return jsonify({
+            "error" : "Bad Gateway",
+            "message" : "Failed to fetch data from the upstream service"
+        }), 502
+
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
