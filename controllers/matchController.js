@@ -17,9 +17,57 @@ const findMatch = async(req, res, next) => {
             });
         }
         
-        //3. QUERY THE EVENT_PARTICIPANTS TABLE TO FIND USERS IN THE SAME EVENT
+        //3. GET THE USER'S OWN PARTICIPANT ROW (needed for both ranking paths)
+        const user = await pool.query('SELECT * FROM event_participants WHERE user_id = $1 AND event_id = $2', [userId, eventId]);
+
+        //If user has not joined the event
+        if(user.rows.length === 0){
+            return res.status(403).json({
+                error: "You must join the event to continue"
+            });
+        }
+        const myEmbedding = user.rows[0].bio_embedding;
+
+        //4a. PRIMARY PATH: rank by bio-embedding cosine similarity in SQL.
+        //Participants without an embedding rank last with a score of 0
+        //(the backfill script fills them in).
+        if(myEmbedding){
+            const result = await pool.query(`
+                SELECT
+                    ep.participant_id,
+                    ep.role,
+                    ep.experience,
+                    ep.skills,
+                    ep.availability,
+                    ep.bio,
+                    u.username,
+                    CASE WHEN ep.bio_embedding IS NOT NULL
+                        THEN (ROUND(((1 - (ep.bio_embedding <=> $3)) * 100)::numeric))::int
+                        ELSE 0
+                    END AS compatibility_score
+                FROM event_participants ep
+                INNER JOIN users u ON ep.user_id = u.user_id
+                WHERE ep.event_id = $1
+                AND NOT u.user_id = $2
+                AND NOT EXISTS (
+                    SELECT 1 FROM matches m
+                    WHERE m.event_id = $1
+                    AND ((m.user1_id = $2 AND m.user2_id = u.user_id)
+                      OR (m.user1_id = u.user_id AND m.user2_id = $2))
+                )
+                ORDER BY ep.bio_embedding <=> $3 NULLS LAST
+                LIMIT 10
+            `, [eventId, userId, myEmbedding]);
+
+            return res.status(200).json({
+                matches: result.rows
+            });
+        }
+
+        //4b. FALLBACK: user has no embedding yet (service was down when they
+        //joined) — use the old rule-based scoring so matches still work.
         const result = await pool.query(`
-            SELECT 
+            SELECT
                 ep.participant_id,
                 ep.role,
                 ep.experience,
@@ -38,34 +86,14 @@ const findMatch = async(req, res, next) => {
                   OR (m.user1_id = u.user_id AND m.user2_id = $2))
             )
         `, [eventId, userId]);
-        
-        //In the case where there are no participants
-        if(result.rows.length === 0){
-            return res.status(200).json({
-                matches: []
-            });
-        }
 
-        //Get the user and the participant data for them
-        const user = await pool.query('SELECT * FROM event_participants WHERE user_id = $1 AND event_id = $2', [userId, eventId]); 
-        
-        //If user has not joined the event
-        if(user.rows.length === 0){
-            return res.status(403).json({
-                error: "You must join the event to continue"
-            });
-        }                                 
-        
-        //4. Create compatibility scores
         const matches = result.rows.map(participant => ({
-            ...participant, 
+            ...participant,
             compatibility_score: getCompatibilityScore(user.rows[0], participant)
         }));
-        
-        //5. SORT THEM INTO HIGHEST MATCHES 
+
         const sorted = matches.sort(function(a,b){return b.compatibility_score - a.compatibility_score});
-        
-        //6. RETURN TOP 10 
+
         const top10 = sorted.slice(0,10);
         return res.status(200).json({
             matches: top10
