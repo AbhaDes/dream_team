@@ -14,10 +14,25 @@ services:
       # Inside the compose network the database host is the "db" service,
       # overriding the localhost URL in .env used for running node directly.
       DATABASE_URL: postgres://abhadeshpande:mypassword@db:5432/dream_team
+      EMBEDDING_SERVICE_URL: http://embeddings:5001
 
-  #The PostgreSQL container
+  #The Flask embedding microservice — the API tolerates it being down
+  # (profiles save with a null embedding), so web doesn't depend on it.
+  embeddings:
+    build: ./flask_microservice
+    ports:
+      - "5001:5001"
+    env_file:
+      - flask_microservice/.env
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5001/health')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  #The PostgreSQL container (pgvector build of Postgres 16, same data volume)
   db:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     restart: always
     environment:
       POSTGRES_USER: abhadeshpande
