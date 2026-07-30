@@ -1,7 +1,9 @@
 //import event_id 
 const {CURRENT_EVENT_ID} = require('../config/constants');
-//import database pool 
+//import database pool
 const pool = require('../config/database');
+//import embedding service client
+const { getProfileEmbedding } = require('../utils/embeddingService');
 
 const event_id = CURRENT_EVENT_ID;
 
@@ -51,9 +53,13 @@ const joinEvent = async(req, res, next) => {
                 error: 'You have already joined this event'
             });
         }
-        //6. if not, then insert into table and return profile info
-        const insert = await pool.query('INSERT INTO event_participants(user_id, event_id, role, experience, availability, skills, bio) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *', 
-            [userId, eventId, role, experience, availability, skills, bio]
+        //6. embed the full profile (role, experience, availability, skills, bio)
+        //for similarity matching (null if the service is down)
+        const profileEmbedding = await getProfileEmbedding({ role, experience, availability, skills, bio });
+
+        //7. if not, then insert into table and return profile info
+        const insert = await pool.query('INSERT INTO event_participants(user_id, event_id, role, experience, availability, skills, bio, profile_embedding) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+            [userId, eventId, role, experience, availability, skills, bio, profileEmbedding]
         );
         const newEvent_participant = insert.rows[0];
         return res.status(200).json({
@@ -194,18 +200,23 @@ const updateProfile = async(req, res, next) => {
                 error: "Please fill out all required feilds"
             });
         }
+        //re-embed the full profile so similarity matching stays in sync
+        //(null if the service is down — matching falls back for this user)
+        const profileEmbedding = await getProfileEmbedding({ role, experience, availability, skills, bio });
+
         //if they have sent everything then update
         const update = await pool.query(`
             UPDATE event_participants
-                SET role = $1, 
-                    experience = $2, 
-                    availability = $3, 
-                    skills = $4, 
-                    bio = $5
-                WHERE user_id = $6 
-                AND event_id = $7
-                RETURNING *`, 
-            [role, experience, availability, skills, bio, userId, eventId]
+                SET role = $1,
+                    experience = $2,
+                    availability = $3,
+                    skills = $4,
+                    bio = $5,
+                    profile_embedding = $6
+                WHERE user_id = $7
+                AND event_id = $8
+                RETURNING *`,
+            [role, experience, availability, skills, bio, profileEmbedding, userId, eventId]
         );
         const updated = update.rows[0];
         res.status(200).json({

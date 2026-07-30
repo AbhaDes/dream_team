@@ -1,3 +1,7 @@
+-- pgvector extension for storing bio embeddings (requires a pgvector-enabled
+-- Postgres image, e.g. pgvector/pgvector:pg16)
+CREATE EXTENSION IF NOT EXISTS vector;
+
 CREATE TABLE users (
     user_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     username VARCHAR(100) NOT NULL,
@@ -42,8 +46,12 @@ CREATE TABLE event_participants(
     experience experience_level NOT NULL, 
     availability availability_type NOT NULL, 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    skills TEXT[], 
-    bio VARCHAR(300)    
+    skills TEXT[],
+    bio VARCHAR(300),
+    -- embedding of the composed profile description (role, experience,
+    -- availability, skills, bio). 1536 dims = text-embedding-3-small;
+    -- null until the embedding service fills it
+    profile_embedding vector(1536)
 );
 
 CREATE TYPE match_type AS ENUM (
