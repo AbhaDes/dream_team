@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // The repo has a second lockfile at its root (the Express API), which makes
+  // Next.js infer the wrong workspace root — pin it to this directory.
+  turbopack: {
+    root: import.meta.dirname,
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
