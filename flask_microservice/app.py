@@ -6,6 +6,13 @@ import openai
 
 app = Flask(__name__)
 
+
+#used by docker/deploy platforms to check the service is up
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({"status": "ok"}), 200
+
+
 #this just embeds the description
 
 @app.route('/api/embed', methods=['POST'])
