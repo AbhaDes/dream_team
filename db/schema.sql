@@ -48,8 +48,10 @@ CREATE TABLE event_participants(
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     skills TEXT[],
     bio VARCHAR(300),
-    -- 1536 dims = text-embedding-3-small; null until the embedding service fills it
-    bio_embedding vector(1536)
+    -- embedding of the composed profile description (role, experience,
+    -- availability, skills, bio). 1536 dims = text-embedding-3-small;
+    -- null until the embedding service fills it
+    profile_embedding vector(1536)
 );
 
 CREATE TYPE match_type AS ENUM (

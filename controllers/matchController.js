@@ -26,9 +26,9 @@ const findMatch = async(req, res, next) => {
                 error: "You must join the event to continue"
             });
         }
-        const myEmbedding = user.rows[0].bio_embedding;
+        const myEmbedding = user.rows[0].profile_embedding;
 
-        //4a. PRIMARY PATH: rank by bio-embedding cosine similarity in SQL.
+        //4a. PRIMARY PATH: rank by profile-embedding cosine similarity in SQL.
         //Participants without an embedding rank last with a score of 0
         //(the backfill script fills them in).
         if(myEmbedding){
@@ -41,8 +41,8 @@ const findMatch = async(req, res, next) => {
                     ep.availability,
                     ep.bio,
                     u.username,
-                    CASE WHEN ep.bio_embedding IS NOT NULL
-                        THEN (ROUND(((1 - (ep.bio_embedding <=> $3)) * 100)::numeric))::int
+                    CASE WHEN ep.profile_embedding IS NOT NULL
+                        THEN (ROUND(((1 - (ep.profile_embedding <=> $3)) * 100)::numeric))::int
                         ELSE 0
                     END AS compatibility_score
                 FROM event_participants ep
@@ -55,7 +55,7 @@ const findMatch = async(req, res, next) => {
                     AND ((m.user1_id = $2 AND m.user2_id = u.user_id)
                       OR (m.user1_id = u.user_id AND m.user2_id = $2))
                 )
-                ORDER BY ep.bio_embedding <=> $3 NULLS LAST
+                ORDER BY ep.profile_embedding <=> $3 NULLS LAST
                 LIMIT 10
             `, [eventId, userId, myEmbedding]);
 
