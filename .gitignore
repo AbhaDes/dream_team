@@ -1,19 +1,15 @@
 .env
+.env.local
 node_modules/
-package-lock.json
-package.json
 __pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
 *.log
 .DS_Store
 .vscode/
 .idea/
 dist/
 build/
-*.pyc
-*.pyo
-.env.local
-.venv/
-__pychache__/
-
-
-#HI i am editing this file in another branch
+backup.sql
