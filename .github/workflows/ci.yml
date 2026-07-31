@@ -1,0 +1,13 @@
+yaml
+name: Dream-Team NodeJS CI
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps: 
+      - run: echo "Hello, World!"
+    
