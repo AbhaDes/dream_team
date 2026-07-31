@@ -1,4 +1,3 @@
-yaml
 name: Dream-Team NodeJS CI
 on:
   push:
