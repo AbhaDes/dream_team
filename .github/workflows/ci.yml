@@ -40,9 +40,6 @@ jobs:
             DATABASE_URL: "postgres://test_user:test_password@localhost:5432/my_test_db" 
             SESSION_SECRET: sk_test_key
 
-  #Second job. It sits at the same level as "build", so GitHub runs both at the
-  #same time on two separate machines. No postgres service here: the Flask
-  #service never touches the database.
   flask-tests:
     runs-on: ubuntu-latest
     steps:
@@ -58,8 +55,6 @@ jobs:
         working-directory: flask_microservice
         run: pytest -v
         env:
-          #a throwaway value so the OpenAI client can be built. It is never used
-          #to call anything: every test swaps get_embeddings for a fake.
           OPENAI_API_KEY: not-a-real-key-the-tests-fake-openai
 
         
