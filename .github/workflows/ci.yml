@@ -39,7 +39,7 @@ jobs:
         env:
             DATABASE_URL: "postgres://test_user:test_password@localhost:5432/my_test_db" 
             SESSION_SECRET: sk_test_key
-
+  #adding tests for the flask_microservice
   flask-tests:
     runs-on: ubuntu-latest
     steps:

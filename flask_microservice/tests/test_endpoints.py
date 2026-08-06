@@ -1,5 +1,4 @@
-#Tests for the Flask endpoints. The OpenAI call is always replaced with a fake,
-#so this suite costs nothing, needs no API key, and passes with the wifi off.
+
 
 import openai
 import pytest
