@@ -57,6 +57,26 @@ jobs:
         env:
           OPENAI_API_KEY: not-a-real-key-the-tests-fake-openai
 
+  #ci workflow for the frontend
+  frontend-build:
+    runs-on: ubuntu-latest 
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v7
+      - name: Setup VM
+        uses: actions/setup-node@v7
+        with: 
+          node-version: 20 
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Run react frontend  
+        working-directory: frontend    
+        run: npm run build     
+        
+
+
+
         
 
   
