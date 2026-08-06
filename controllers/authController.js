@@ -74,8 +74,14 @@ const login = async (req, res)=>{
                error: 'Email and password are required'
            });
        }
+       //3.Check if the email entered starts with sfsu.edu
+       if(!email.endsWith('@sfsu.edu')){
+            return res.status(400).json({
+                error: 'Please enter your school email'
+            });
+       } 
 
-       //3.First check if the user exists in the database
+       //4.First check if the user exists in the database
        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email])
        if(result.rows.length === 0){
            return res.status(401).json({
@@ -90,9 +96,9 @@ const login = async (req, res)=>{
 
        //6. If not a match then return an error
        if(!isMatch){
-           return res.status(401).json({
-               error: 'Invalid email or password'
-           })
+           return res.status(404).json({
+               error: 'User not found in the system'
+           });
        }
        req.session.user_id = user.user_id;
 

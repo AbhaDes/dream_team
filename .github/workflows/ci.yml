@@ -5,7 +5,27 @@ on:
       - main
 
 jobs:
+  #the name of this job is build
   build:
+    services:
+        postgres:
+          image: pgvector/pgvector:pg16 #describes the image used to whip up the docker service
+          #these are variables that the image reads to set up the database
+          env:
+            POSTGRES_DB : my_test_db
+            POSTGRES_USER: test_user 
+            POSTGRES_PASSWORD: test_password
+          #the port on which the database will be listening
+          ports:
+            #you're just mapping the 
+            - 5432:5432
+          #add health checks to see if the psql database is ready
+          options: >-
+            --health-cmd pg_isready
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
+          
     runs-on: ubuntu-latest
     steps: 
       - name: Checkout repo
@@ -15,4 +35,28 @@ jobs:
         with: 
           node-version: 20
       - run: npm install
+      #this is basically another job running under build, 
+      #we first name it "Connect to PostGreSQL"
+      - name: Connect to PostGreSQL
+      #then we create a database using the schema.sql file from the project
+        run: psql -U test_user -d my_test_db -f db/schema.sql
+      #now we need to set the database on a certain port, where it will listen to commands in the test 
+      #we are doing that by defining the host server: localhost, then the port at which the server listens:
+      #5432 and then the password it's going to use to access that server: test_password
+        env:
+          PGHOST: localhost
+          PGPORT: 5432
+          PGPASSWORD: test_password
+      #then we write the actual command that starts the database up
+      - run: npm test
+      #then for the run command we configure some env variables so it can actually access the database we just made 
+      #at the port
+        env:
+            DATABASE_URL: "postgres://test_user:test_password@localhost:5432/my_test_db" 
+            SESSION_SECRET: sk_test_key
+
+        
+
+  
+    
     
