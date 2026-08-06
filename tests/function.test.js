@@ -13,6 +13,11 @@ afterAll(async() => {
 //1. LOGIN 
 //--the login endpoint is supposed to return the user_id, email and username, with status code 200
 describe('POST /api/auth/login', () =>{
+    beforeAll(async() =>{
+        const res = await request(app)
+        .post('/api/auth/register')
+        .send({username: "Arvind Deshpande", email: "arvinddeshpande@sfsu.edu", password: "12345678"});
+    });
     //what it returns on success 
     it('returns a 200 with the username, email and user_id', async () =>{
         const res = await request(app)
