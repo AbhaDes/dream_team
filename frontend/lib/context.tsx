@@ -233,7 +233,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setState({
         user: result.user,
         matches: [],
-        pendingMatches: [],
+        //manually breaking my code to see if CI/CD catches it
         connections: [],
         isAuthenticated: true,
       })
