@@ -1,4 +1,5 @@
 # Dream-Team
+[![Dream-Team NodeJS CI](https://github.com/AbhaDes/dream_team/actions/workflows/ci.yml/badge.svg)](https://github.com/AbhaDes/dream_team/actions/workflows/ci.yml)
 
 A web app that matches students with teammates for hackathons and group projects —
 based on skills, availability, and role preferences.
