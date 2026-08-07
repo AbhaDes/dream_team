@@ -122,7 +122,7 @@ def test_similarity_returns_1_for_identical_vectors(client, monkeypatch):
         "desc_2": "A backend developer who loves python"
     })
 
-    assert res.status_code == 200
+    assert res.status_code == 201
     assert res.get_json()["similarity"] == pytest.approx(1.0)
 
 
