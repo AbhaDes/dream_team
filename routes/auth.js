@@ -14,4 +14,7 @@ router.post('/login', authController.login);
 //Define route "me"
 router.get('/me', authMiddleware, authController.me);
 
+//logout endpoint
+router.post('/logout',authMiddleware, authController.logout);
+
 module.exports = router;

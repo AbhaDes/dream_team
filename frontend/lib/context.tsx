@@ -258,10 +258,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
           }
         }))
       }
-
-
-      
-
     return true
     }catch(error){
       console.error('Error', error);
@@ -308,15 +304,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
     
   }
 
-  const logout = () => {
-    localStorage.removeItem("dreamteam-state")
-    setState({
-      user: null,
-      matches: [],
-      pendingMatches: [],
-      connections: [],
-      isAuthenticated: false,
-    })
+  const logout = async() => {
+
+    //call the backend here 
+    const url = '/api/auth/logout'
+    try{
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type' : 'application/json',
+        },
+        credentials: "include" //tells the browser to include cookies in the request
+      })
+
+      //check if response failed 
+      if(!response.ok){
+        throw new Error(`Response status: ${response.status}`);
+      }
+
+      setState({
+        user: null,
+        matches: [],
+        pendingMatches: [],
+        connections: [],
+        isAuthenticated: false,
+      })
+
+      localStorage.removeItem("dreamteam-state");
+
+    }catch(error){
+      console.error('Error', error);
+      return false;
+
+    }
   }
 
   const updateProfile = (updates: Partial<User>) => {
