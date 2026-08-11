@@ -148,4 +148,47 @@ describe('POST /api/auth/register', () => {
 
 });
 
+//3. LOGOUT
+describe('POST /api/auth/logout', () =>{
+    //declare setCookieHeader 
+    let setCookieHeader;
+    //register + login a test user
+    beforeAll(async() =>{
+        //register
+        const regRes = await request(app)
+        .post('/api/auth/register')
+        .send({username: "Logout Test", email: "logouttest@sfsu.edu", password: "12345678"});
+
+        //then login 
+        const loginRes = await request(app)
+        .post('/api/auth/login')
+        .send({email: "logouttest@sfsu.edu", password: "12345678"});
+
+        //get the cookie 
+        setCookieHeader = loginRes.header['set-cookie'];
+    });
+
+    //call the endpoint with that cookie attached -- expect 200 
+    it('returns a 200 when session successfully deleted', async () =>{
+        const res = await request(app)
+        .post('/api/auth/logout')
+        .set('Cookie', setCookieHeader);
+
+        expect(res.statusCode).toBe(200)
+        expect(res.body).toEqual({message: "Logged out of account. Login again to match!"});
+
+    });
+
+    //call GET /auth/me using the same coookie -- expect 401 
+    it('returns a 401 when trying to add an expired cookie', async() => {
+        const res = await request(app)
+        .get('/api/auth/me')
+        .set('Cookie', setCookieHeader);
+
+        expect(res.statusCode).toBe(401)
+        expect(res.body).toEqual({error: "Unauthorized login"});
+    })
+
+});
+
 

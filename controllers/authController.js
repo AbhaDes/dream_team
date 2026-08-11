@@ -125,6 +125,38 @@ const login = async (req, res)=>{
        });
    }
 }
+
+//logout endpoint 
+const logout = async (req, res) => {
+    //call req.destroy with a callback 
+    //in that callback call res.clearCookie() with the cookie name and then send a response
+    try{
+        req.session.destroy((err) =>{
+            if(err){
+                console.error('Session destruction failed: ', err);
+                return res.status(500).json({
+                    error: "Could not destroy session."
+                });
+            }
+
+            res.clearCookie('connect.sid'); //cleaning up the client cookie 
+
+            //sending a success response 
+            return res.status(200).json({
+                message: "Logged out of account. Login again to match!"
+            });
+        });
+
+        
+
+    }catch(error){
+        console.log('Get user error: ', error);
+        res.status(500).json({
+            error: 'Failed to logout. Please try again later.'
+        })
+
+    }
+}
 //Getting my own profile on the website 
 const me = async(req, res, next)=>{
     try{
@@ -145,5 +177,5 @@ const me = async(req, res, next)=>{
 
 }
 
-module.exports = {register,login, me};
+module.exports = {register,login, logout, me};
 
