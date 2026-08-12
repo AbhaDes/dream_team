@@ -9,6 +9,48 @@ afterAll(async() => {
     await pool.end();
 });
 
+//3. LOGOUT
+describe('POST /api/auth/logout', () =>{
+    //declare setCookieHeader 
+    let setCookieHeader;
+    //register + login a test user
+    beforeAll(async() =>{
+        //register
+        const regRes = await request(app)
+        .post('/api/auth/register')
+        .send({username: "Logout Test", email: "logouttest@sfsu.edu", password: "12345678"});
+
+        //then login 
+        const loginRes = await request(app)
+        .post('/api/auth/login')
+        .send({email: "logouttest@sfsu.edu", password: "12345678"});
+
+        //get the cookie 
+        setCookieHeader = loginRes.header['set-cookie'];
+    });
+
+    //call the endpoint with that cookie attached -- expect 200 
+    it('returns a 200 when session successfully deleted', async () =>{
+        const res = await request(app)
+        .post('/api/auth/logout')
+        .set('Cookie', setCookieHeader);
+
+        expect(res.statusCode).toBe(200)
+        expect(res.body).toEqual({message: "Logged out of account. Login again to match!"});
+
+    });
+
+    //call GET /auth/me using the same coookie -- expect 401 
+    it('returns a 401 when trying to add an expired cookie', async() => {
+        const res = await request(app)
+        .get('/api/auth/me')
+        .set('Cookie', setCookieHeader);
+
+        expect(res.statusCode).toBe(401)
+        expect(res.body).toEqual({error: "Unauthorized login"});
+    })
+
+});
 
 //1. LOGIN 
 //--the login endpoint is supposed to return the user_id, email and username, with status code 200
@@ -58,7 +100,7 @@ describe('POST /api/auth/login', () =>{
         expect(res.body).toEqual({error: 'Email and password are required'});
     })
     //non existing user -- test it using a test user I know does not exist in the database
-    it('returns 404 when the user not found', async() => {
+    it('returns 401 when the user not found', async() => {
         const res = await request(app)
         .post('/api/auth/login')
         .send({email: 'jlamberti@sfsu.edu', password: "12345678"});
@@ -67,6 +109,33 @@ describe('POST /api/auth/login', () =>{
         expect(res.body).toEqual({error: 'Invalid email or password'});
     })
     
+    //adding check for invalid password
+    it('returns 401 when password is invalid', async() =>{
+        const res = await request(app)
+        .post('/api/auth/login ')
+        .send({email: "arvindeshpande@sfsu.edu", password: "iamarvind"});
+
+        expect(res.statusCode).toBe(401)
+        expect(res.body).toEqual({error: 'Invalid email or password'});
+    })
+
+    //adding rate limiting test 
+    it('returns 429 when too many requests',async() =>{
+        const requestPromises = Array.from({length: 2}).map(() =>
+        request(app)
+            .post('/api/auth/login')
+            .send({email:"arvinddeshpande@sfsu.edu", password: "iamarvind"})
+        );
+
+        const responses = await Promise.all(requestPromises);
+
+        const lastResponse = responses[responses.length - 1];
+
+        
+
+        expect(lastResponse.statusCode).toBe(429)
+        expect(lastResponse.body).toEqual({error: 'Too many login attemps. Please try again later'});
+    })
 });
 
 //2. SIGNUP
@@ -145,50 +214,25 @@ describe('POST /api/auth/register', () => {
         expect(res.body).toEqual({error: 'Password must be at least 8 characters'});
 
     });
+    //adding rate limiting test 
+    it('returns 429 when too many requests',async() =>{
+        const requestPromises = Array.from({length: 4}).map(() =>
+        request(app)
+            .post('/api/auth/register')
+            .send({email:"arvinddeshpande@sfsu.edu", password: ""})
+        );
 
-});
+        const responses = await Promise.all(requestPromises);
+        const lastResponse = responses[responses.length - 1];
 
-//3. LOGOUT
-describe('POST /api/auth/logout', () =>{
-    //declare setCookieHeader 
-    let setCookieHeader;
-    //register + login a test user
-    beforeAll(async() =>{
-        //register
-        const regRes = await request(app)
-        .post('/api/auth/register')
-        .send({username: "Logout Test", email: "logouttest@sfsu.edu", password: "12345678"});
-
-        //then login 
-        const loginRes = await request(app)
-        .post('/api/auth/login')
-        .send({email: "logouttest@sfsu.edu", password: "12345678"});
-
-        //get the cookie 
-        setCookieHeader = loginRes.header['set-cookie'];
-    });
-
-    //call the endpoint with that cookie attached -- expect 200 
-    it('returns a 200 when session successfully deleted', async () =>{
-        const res = await request(app)
-        .post('/api/auth/logout')
-        .set('Cookie', setCookieHeader);
-
-        expect(res.statusCode).toBe(200)
-        expect(res.body).toEqual({message: "Logged out of account. Login again to match!"});
-
-    });
-
-    //call GET /auth/me using the same coookie -- expect 401 
-    it('returns a 401 when trying to add an expired cookie', async() => {
-        const res = await request(app)
-        .get('/api/auth/me')
-        .set('Cookie', setCookieHeader);
-
-        expect(res.statusCode).toBe(401)
-        expect(res.body).toEqual({error: "Unauthorized login"});
+        expect(lastResponse.statusCode).toBe(429)
+        expect(lastResponse.body).toEqual({error: 'Too many registration attemps. Please try again later'});
     })
 
 });
+
+
+
+
 
 
