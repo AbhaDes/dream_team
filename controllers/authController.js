@@ -139,7 +139,12 @@ const logout = async (req, res) => {
                 });
             }
 
-            res.clearCookie('connect.sid'); //cleaning up the client cookie 
+            res.clearCookie('connect.sid', {
+                path: '/',
+                sameSite: process.env.NODE_ENV === 'production'? 'none' : 'lax',
+                secure: process.env.NODE_ENV === 'production'
+
+            }); //cleaning up the client cookie 
 
             //sending a success response 
             return res.status(200).json({
