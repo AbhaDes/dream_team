@@ -1,6 +1,7 @@
 //Client for the Flask embedding microservice.
 //Inside docker-compose the host is "embeddings"; running node directly it's localhost.
 const EMBEDDING_SERVICE_URL = process.env.EMBEDDING_SERVICE_URL || 'http://localhost:5001';
+const secret = process.env.MY_SECRET_STRING;
 
 //Composes the text that gets embedded from the participant's full profile.
 //Must stay deterministic: the backfill script and the controllers both use it,
@@ -27,7 +28,10 @@ const getProfileEmbedding = async (profile) => {
     try {
         const response = await fetch(`${EMBEDDING_SERVICE_URL}/api/embed`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-Internal-Secret' : secret
+            },
             body: JSON.stringify({ description }),
             signal: AbortSignal.timeout(5000)
         });

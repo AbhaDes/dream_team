@@ -81,7 +81,7 @@ const login = async (req, res)=>{
             });
        } 
 
-       //4.First check if the user exists in the database
+       //4.First check if the user exists in the database -- 401 if doesn't
        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email])
        if(result.rows.length === 0){
            return res.status(401).json({
@@ -96,8 +96,8 @@ const login = async (req, res)=>{
 
        //6. If not a match then return an error
        if(!isMatch){
-           return res.status(404).json({
-               error: 'User not found in the system'
+           return res.status(401).json({
+               error: 'Invalid email or password'
            });
        }
        req.session.user_id = user.user_id;

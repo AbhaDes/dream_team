@@ -55,6 +55,7 @@ app.use(session({
         secret: process.env.SESSION_SECRET, 
         saveUninitialized : false,
         resave: false, 
+        rolling: true,
         cookie: {
             maxAge: 3600000, 
             sameSite: process.env.NODE_ENV === 'production'?'none' : 'lax', 

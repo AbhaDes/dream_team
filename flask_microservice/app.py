@@ -1,10 +1,16 @@
+import os
 from flask import Flask, request, jsonify
+from functools import wraps
 import embeddings
 import matchAlgo
 import openai
+from dotenv import load_dotenv
+
 
 
 app = Flask(__name__)
+
+load_dotenv()
 
 
 #used by docker/deploy platforms to check the service is up
@@ -14,14 +20,22 @@ def health():
 
 
 #this just embeds the description
-
 @app.route('/api/embed', methods=['POST'])
 def embed_desc():
     try:
         #this basically avoids a crash if the data is non-json, flask just assigns none to the variable
         data = request.get_json(silent=True)
+        
+        #check if the headers contain a secret key
+        incoming_secret = request.headers.get("X-Internal-Secret")
+        expected_secret = os.getenv("MY_SECRET_STRING")
 
+        if not incoming_secret:
+            return jsonify({"error" : "Unauthorized request"}), 401
 
+        if incoming_secret!= expected_secret:
+            return jsonify({"error" : "Unauthorized request"}), 401
+        
         #safe extraction; if description missing no error (KeyError - meaning if there no key, error)
         description = data.get("description") if data else None
 
@@ -55,8 +69,19 @@ def embed_desc():
 @app.route('/api/similarity', methods=['POST'])
 def get_similarity():
     try:
+
         ##accepts two descriptions
         data = request.get_json(silent=True)
+
+        #check if the headers contain a secret key
+        incoming_secret = request.headers.get("X-Internal-Secret")
+        expected_secret = os.getenv("MY_SECRET_STRING")
+        
+        if not incoming_secret:
+            return jsonify({"error" : "Unauthorized request"}), 401
+        
+        if incoming_secret!= expected_secret:
+            return jsonify({"error" : "Unauthorized request"}), 401
 
         #safely extract both fields 
         desc_1 = data.get("desc_1") if data else None
