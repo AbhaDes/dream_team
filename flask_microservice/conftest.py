@@ -10,6 +10,8 @@ import sys
 #stops a real key in .env from being picked up during a test run.
 os.environ.setdefault("OPENAI_API_KEY", "test-key-never-used")
 
+os.environ.setdefault("MY_SECRET_STRING", "test-flask-key")
+
 #lets "import app" work no matter which folder pytest was started from
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -21,4 +23,7 @@ from app import app as flask_app
 def client():
     #Flask's built-in fake browser: sends real requests to the app, no server needed
     flask_app.config.update(TESTING=True)
-    return flask_app.test_client()
+    test_client = flask_app.test_client()
+    test_client.environ_base["HTTP_X_INTERNAL_SECRET"] = os.getenv("MY_SECRET_STRING")
+    return test_client
+
