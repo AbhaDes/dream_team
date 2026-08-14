@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/sidebar"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { Check, X } from "lucide-react"
+import {Toaster} from "sonner"
 
 
 
@@ -111,12 +112,6 @@ export default function MatchesPage() {
                       </div>
 
                       <div className="flex gap-2 ml-4">
-                        <button
-                          className="w-9 h-9 rounded-md border border-border flex items-center justify-center hover:bg-secondary transition-colors"
-                          title="Decline"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
                         <button
                           onClick={() => acceptMatch(match.participant_id)}
                           className="w-9 h-9 rounded-md bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"

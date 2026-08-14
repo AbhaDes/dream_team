@@ -3,6 +3,8 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react"
 import { CURRENT_EVENT_ID } from "@/constants"
 const API_URL = process.env.NEXT_PUBLIC_API_URL 
+import {toast} from "sonner"
+import {fetchWithAuth} from "./fetchWrapper"
 
 export type Role = "Frontend Developer" | "Backend Developer" | "Full-stack Developer" | "UI/UX Designer" | "Product Manager";
 
@@ -126,7 +128,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     console.log(url);
 
       try{
-        const response = await fetch(url, {
+        const response = await fetchWithAuth(url, {
           method: 'GET',
           headers: {
             'Content-Type' : 'application/json'
@@ -157,7 +159,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     console.log(url);
 
     try{
-      const response = await fetch(url, {
+      const response = await fetchWithAuth(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -185,7 +187,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     console.log(url) //just checking for the intial stage 
 
     try{
-      const response = await fetch(url, {
+      const response = await fetchWithAuth(url, {
         method: 'GET', 
         headers: {
           'Content-Type': 'application/json'
@@ -215,7 +217,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const getProfileUrl = `/api/events/${CURRENT_EVENT_ID}/participants/me`;
     
     try {
-      const response = await fetch(url, {
+      const response = await fetchWithAuth(url, {
         method: 'POST', // 1. Specify your HTTP method here
         headers: {
           'Content-Type': 'application/json', // 2. Tell server you're sending JSON
@@ -238,7 +240,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         isAuthenticated: true,
       })
 
-      const profileResponse = await fetch(getProfileUrl, {
+      const profileResponse = await fetchWithAuth(getProfileUrl, {
         method: 'GET',
         headers: {
           'Content-Type' : 'application/json'
@@ -271,7 +273,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const url = `/api/auth/register`;
 
     try{
-      const response = await fetch(url, {
+      const response = await fetchWithAuth(url, {
         method: 'POST',
         headers: {
           'Content-Type' : 'application/json',
@@ -310,7 +312,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const url = '/api/auth/logout'
     try{
 
-      const response = await fetch(url, {
+      const response = await fetchWithAuth(url, {
         method: 'POST',
         headers: {
           'Content-Type' : 'application/json',
@@ -356,7 +358,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const url = `/api/events/${CURRENT_EVENT_ID}/like`
 
     try{
-      const response = await fetch(url, {
+      const response = await fetchWithAuth(url, {
         method: 'POST',
         headers: {
           'Content-Type' : 'application/json',
@@ -381,6 +383,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       await Promise.all([fetchPendingMatches(), fetchMutualMatches()])
 
     }catch(error){
+      toast.error("You have already matched with 3 participants. Cannot send requests anymore")
       console.log('Error: ', error);
 
     }

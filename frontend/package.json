@@ -13,11 +13,14 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@sentry/nextjs": "^10.70.0",
     "@vercel/analytics": "^2.0.1",
     "lucide-react": "^1.17.0",
     "next": "^16.2.7",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "sonner": "^2.0.8",
+    "toaster": "^0.1.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.0",

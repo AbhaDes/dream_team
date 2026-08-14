@@ -1,8 +1,11 @@
 require('dotenv').config();
+require('./instrument');
 const { networkInterfaces } = require('os');
 
 var express = require('express');
 var app = express();
+
+Sentry.setupExpressHandler(app);
 
 
 const cors = require('cors');
