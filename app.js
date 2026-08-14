@@ -1,11 +1,11 @@
 require('dotenv').config();
 require('./instrument');
+const Sentry = require("@sentry/node");
 const { networkInterfaces } = require('os');
 
 var express = require('express');
 var app = express();
 
-Sentry.setupExpressHandler(app);
 
 
 const cors = require('cors');
@@ -75,5 +75,7 @@ app.use('/api/events', matchRoutes);
 app.get('/api/test', (req, res) => {
     res.json({ message: 'Server is running!' });
 });
+
+Sentry.setupExpressErrorHandler(app);
 
 module.exports = app;
