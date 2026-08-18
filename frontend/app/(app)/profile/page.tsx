@@ -23,11 +23,11 @@ const roles: { value: Role; label: string; description: string }[] = [
   { value: "Product Manager", label:"Product Manager", description:"Managing the making and planning of products"},
 ]
 
-    // 'Full Time (30+ hours)',
-    // 'Most of the Time (20-30 hours)',
-    // 'Part Time (10-20 hours)',
-    // 'Limited (Less than 10 hours)',
-    // 'Flexible Schedule'
+// 'Full Time (30+ hours)',
+// 'Most of the Time (20-30 hours)',
+// 'Part Time (10-20 hours)',
+// 'Limited (Less than 10 hours)',
+// 'Flexible Schedule'
 const availabilityOptions = [
   { value: "Full Time (30+ hours)" as const, label: "Full-time", description: "30+ hours" },
   { value: "Most of the Time (20-30 hours)" as const, label: "Most of the Time", description: "20 - 30 hours" },
@@ -129,10 +129,8 @@ export default function ProfilePage() {
         })
 
       }
-      console.log("body sent to backend");
       //check if response failed 
       if(!response.ok){
-        console.log("no response from the backend");
         throw new Error(`Response status: ${response.status}`);
         
       }

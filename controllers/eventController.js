@@ -40,9 +40,15 @@ const joinEvent = async(req, res, next) => {
             });
         }
         //4. if exist, check if all feilds are being filled
-        if(!role || !experience || !availability || !skills ||!bio){ //bio required for now till I figure out how to change that
+        if(!role || !experience || !availability || !skills ||!bio){ 
             return res.status(400).json({
                 error: 'Missing required feilds'
+            });
+        }
+        //if bio too long, 400 
+        if(bio.length > 300){
+            return res.status(400).json({
+                error: "Bio too long. Should be less than 300 chars."
             });
         }
         //5. If all feilds are filled, check if they have already joined the event 
@@ -147,7 +153,8 @@ const getMe = async(req, res, next) => {
     try{
         //get the user id from the authMiddleware, and get the eventId from the parameters
         const userId = req.user.user_id;
-        const eventId = req.params.eventId; 
+        const eventId = req.params.eventId;
+        let profileComplete = false; 
         //check if any participant exists with that id for that event
         const check = await pool.query(`
             SELECT 
@@ -165,10 +172,15 @@ const getMe = async(req, res, next) => {
                 error: "Participant not found for this event. Please join this event"
             });
 
-
+        }
+        
+        if (check.rows[0].skills && check.rows[0].bio){
+            profileComplete = true;
+            
         }
         res.status(200).json({
-            profile:check.rows[0]
+            profile:check.rows[0],
+            profileComplete : profileComplete
         });
 
     }catch(error){
@@ -194,10 +206,23 @@ const updateProfile = async(req, res, next) => {
                 error: "No participant found for this user. Please join the event first"
             });
         } 
-        //check if they have send everything 
+        //check if they have sent everything 
         if(!experience || ! role || !availability){
             return res.status(400).json({
                 error: "Please fill out all required feilds"
+            });
+        }
+        if(bio.length > 300){
+            return res.status(400).json({
+                error: "Bio too long. Should be less than 300 chars."
+            })
+        }
+        const validRoles = ['Frontend Developer', 'Backend Developer','Full-stack Developer', 'UI/UX Designer', 'Product Manager'];
+        const validAvailability = ['Full Time (30+ hours)', 'Most of the Time (20-30 hours)', 'Part Time (10-20 hours)', 'Limited (Less than 10 hours)', 'Flexible Schedule'];
+        const validExp = ['Beginner', 'Advanced', 'Intermediate']
+        if(!validRoles.includes(role) || !validAvailability.includes(availability) || !validExp.includes(experience)){
+            return res.status(400).json({
+                error: "Invalid role, experience or availability"
             });
         }
         //re-embed the full profile so similarity matching stays in sync

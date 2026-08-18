@@ -130,8 +130,8 @@ const createMatch = async(req, res, next) => {
         
         //4. Check for 3 matches limit
         const successful_matches = await pool.query(
-            'SELECT * FROM matches WHERE (user1_id = $1 OR user2_id = $1) AND user1_status = $2 AND user2_status = $3', 
-            [user_who_initiated, 'liked', 'liked']
+            'SELECT * FROM matches WHERE (user1_id = $1 OR user2_id = $1) AND user1_status = $2 AND user2_status = $3 AND event_id = $4', 
+            [user_who_initiated, 'liked', 'liked', req.params.eventId]
         );
         if(successful_matches.rows.length >= 3){
             return res.status(401).json({
@@ -140,7 +140,7 @@ const createMatch = async(req, res, next) => {
         }
         
         //5. Check if match already exists
-        const result = await pool.query('SELECT * FROM matches WHERE user1_id = $1 AND user2_id = $2', [user1, user2]);
+        const result = await pool.query('SELECT * FROM matches WHERE user1_id = $1 AND user2_id = $2 AND event_id = $3', [user1, user2, req.params.eventId]);
         
         //6. If match exists - UPDATE
         if(result.rows.length > 0){

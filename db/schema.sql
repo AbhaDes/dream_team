@@ -52,6 +52,8 @@ CREATE TABLE event_participants(
     -- availability, skills, bio). 1536 dims = text-embedding-3-small;
     -- null until the embedding service fills it
     profile_embedding vector(1536)
+    --Constraint:
+    UNIQUE(user_id, event_id)
 );
 
 CREATE TYPE match_type AS ENUM (
