@@ -169,7 +169,7 @@ export default function LandingPage() {
               © 2024 Dream-Team
             </span>
             <div className="flex gap-6">
-              <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Privacy
               </Link>
               <Link href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">

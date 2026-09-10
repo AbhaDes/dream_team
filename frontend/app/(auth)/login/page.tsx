@@ -48,9 +48,15 @@ export default function LoginPage() {
           <h1 className="text-2xl font-semibold tracking-tight mb-2">
             Welcome back
           </h1>
-          <p className="text-sm text-muted-foreground mb-8">
+          <p className="text-sm text-muted-foreground mb-6">
             Log in to your account to continue
           </p>
+
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
+            <p className="text-sm text-blue-900">
+              <span className="font-medium">Privacy Notice:</span> When you match with someone, your email will be shared with them.
+            </p>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

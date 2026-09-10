@@ -52,6 +52,12 @@ export default function SignupPage() {
             Get started finding your dream team
           </p>
 
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
+            <p className="text-sm text-blue-900">
+              <span className="font-medium">Privacy Notice:</span> When you match with someone, your email will be shared with them. By creating an account, you agree to this.
+            </p>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium mb-2">
