@@ -20,4 +20,10 @@ router.get('/:eventId/matches/mutual', authMiddleware, matchController.getMutual
 //4. GIVES PENDING MATCHES
 router.get('/:eventId/matches/pending', authMiddleware, matchController.getPendingMatches);
 
+//5. DELETE A MATCH (UNDO)
+router.delete('/:eventId/matches/:matchId', authMiddleware, matchController.deleteMatch);
+
+//6. REPORT A MATCH
+router.post('/:eventId/matches/:matchId/report', authMiddleware, matchController.reportMatch);
+
 module.exports = router;

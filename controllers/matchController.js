@@ -372,6 +372,126 @@ const getPendingMatches = async (req, res) => {
 
 //FUNCTION TO NORMALIZE IDS
 
+//5. DELETE A MATCH (UNDO)
+const deleteMatch = async(req, res) => {
+    try {
+        const userId = req.user.user_id;
+        const eventId = req.params.eventId;
+        const matchId = req.params.matchId;
+
+        // Get the match to verify ownership
+        const matchResult = await pool.query(
+            'SELECT * FROM matches WHERE match_id = $1 AND event_id = $2',
+            [matchId, eventId]
+        );
+
+        if (matchResult.rows.length === 0) {
+            return res.status(404).json({
+                error: "Match not found"
+            });
+        }
+
+        const match = matchResult.rows[0];
+
+        // Check if current user is one of the match participants
+        if (match.user1_id !== userId && match.user2_id !== userId) {
+            return res.status(403).json({
+                error: "You can only delete matches you are part of"
+            });
+        }
+
+        // Delete the match
+        await pool.query(
+            'DELETE FROM matches WHERE match_id = $1',
+            [matchId]
+        );
+
+        return res.status(200).json({
+            message: "Match deleted successfully"
+        });
+
+    } catch (error) {
+        console.error('Delete match error:', error);
+        return res.status(500).json({
+            error: "Internal Server Error. Please try again later"
+        });
+    }
+};
+
+//6. REPORT A MATCH
+const reportMatch = async(req, res) => {
+    try {
+        const userId = req.user.user_id;
+        const eventId = req.params.eventId;
+        const matchId = req.params.matchId;
+        const { reason } = req.body;
+
+        if (!reason || reason.trim().length === 0) {
+            return res.status(400).json({
+                error: "Report reason is required"
+            });
+        }
+
+        // Get the match to verify ownership and get other user details
+        const matchResult = await pool.query(
+            'SELECT m.*, u1.username as user1_username, u1.email as user1_email, u2.username as user2_username, u2.email as user2_email FROM matches m LEFT JOIN users u1 ON m.user1_id = u1.user_id LEFT JOIN users u2 ON m.user2_id = u2.user_id WHERE m.match_id = $1 AND m.event_id = $2',
+            [matchId, eventId]
+        );
+
+        if (matchResult.rows.length === 0) {
+            return res.status(404).json({
+                error: "Match not found"
+            });
+        }
+
+        const match = matchResult.rows[0];
+
+        // Check if current user is one of the match participants
+        if (match.user1_id !== userId && match.user2_id !== userId) {
+            return res.status(403).json({
+                error: "You can only report matches you are part of"
+            });
+        }
+
+        // Get the reporter's info
+        const reporterResult = await pool.query(
+            'SELECT username, email FROM users WHERE user_id = $1',
+            [userId]
+        );
+        const reporter = reporterResult.rows[0];
+
+        // Determine the reported user
+        const reportedUserId = match.user1_id === userId ? match.user2_id : match.user1_id;
+        const reportedUserName = match.user1_id === userId ? match.user2_username : match.user1_username;
+        const reportedUserEmail = match.user1_id === userId ? match.user2_email : match.user1_email;
+
+        // Email report to admin
+        // Note: In production, configure SMTP or use a service like SendGrid
+        // For now, we'll log it and return success
+        console.log(`
+            REPORT SUBMITTED
+            ================
+            Match ID: ${matchId}
+            Reported By: ${reporter.username} (${reporter.email})
+            Reported User: ${reportedUserName} (${reportedUserEmail})
+            Reason: ${reason}
+            Timestamp: ${new Date().toISOString()}
+        `);
+
+        // TODO: Integrate email service here to send to abhadeshpande5@gmail.com
+
+        return res.status(200).json({
+            message: "Report submitted successfully"
+        });
+
+    } catch (error) {
+        console.error('Report match error:', error);
+        return res.status(500).json({
+            error: "Internal Server Error. Please try again later"
+        });
+    }
+};
+
 function normalizeIds(val1, val2){
     const array = [val1, val2];
     array.sort();
@@ -379,4 +499,4 @@ function normalizeIds(val1, val2){
     return {user1: first, user2: second};
 }
 
-module.exports = {findMatch, createMatch, getMutualMatches, getPendingMatches};
+module.exports = {findMatch, createMatch, getMutualMatches, getPendingMatches, deleteMatch, reportMatch};

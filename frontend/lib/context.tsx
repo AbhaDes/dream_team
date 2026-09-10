@@ -83,6 +83,8 @@ interface AppContextType extends AppState {
   fetchPendingMatches: () => void
   fetchMutualMatches: () => void
   acceptMatch: (matchId: string) => void
+  deleteMatch: (matchId: string) => Promise<void>
+  reportMatch: (matchId: string, reason: string) => Promise<void>
 
   isLoading: boolean
 }
@@ -385,6 +387,52 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     }
   }
+
+  // DELETE A MATCH (UNDO)
+  const deleteMatch = async (matchId: string) => {
+    const url = `/api/events/${CURRENT_EVENT_ID}/matches/${matchId}`
+
+    try {
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      })
+      if (!response.ok) {
+        throw new Error(`Response Status: ${response.status}`);
+      }
+
+      // Refresh both lists to reflect the deletion
+      await Promise.all([fetchPendingMatches(), fetchMutualMatches()])
+    } catch (error) {
+      console.log('Error deleting match:', error);
+      throw error;
+    }
+  }
+
+  // REPORT A MATCH
+  const reportMatch = async (matchId: string, reason: string) => {
+    const url = `/api/events/${CURRENT_EVENT_ID}/matches/${matchId}/report`
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reason }),
+        credentials: 'include',
+      })
+      if (!response.ok) {
+        throw new Error(`Response Status: ${response.status}`);
+      }
+    } catch (error) {
+      console.log('Error reporting match:', error);
+      throw error;
+    }
+  }
   
   return (
     <AppContext.Provider value={{
@@ -396,6 +444,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       fetchMatches,
       fetchPendingMatches,
       acceptMatch,
+      deleteMatch,
+      reportMatch,
       fetchMutualMatches,
       isLoading,
     }}>

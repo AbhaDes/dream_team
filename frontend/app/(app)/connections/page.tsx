@@ -3,13 +3,20 @@
 import { useApp } from "@/lib/context"
 import { Sidebar } from "@/components/sidebar"
 import { useRouter } from "next/navigation"
-import { useEffect } from "react"
-import { MessageSquare, Clock, Heart } from "lucide-react"
+import { useEffect, useState } from "react"
+import { MessageSquare, Clock, Heart, AlertTriangle } from "lucide-react"
 import { PendingMatch, Connection } from "@/lib/context"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
 
 export default function ConnectionsPage() {
-  const { user, connections, pendingMatches, isAuthenticated, fetchPendingMatches, fetchMutualMatches, acceptMatch } = useApp()
+  const { user, connections, pendingMatches, isAuthenticated, fetchPendingMatches, fetchMutualMatches, acceptMatch, deleteMatch, reportMatch } = useApp()
   const router = useRouter()
+  const [reportDialogOpen, setReportDialogOpen] = useState(false)
+  const [reportingMatchId, setReportingMatchId] = useState<string | null>(null)
+  const [reportReason, setReportReason] = useState("")
+  const [isSubmittingReport, setIsSubmittingReport] = useState(false)
 
   useEffect(() => {
     if (!isAuthenticated) router.push("/login")
@@ -24,6 +31,43 @@ export default function ConnectionsPage() {
 
   const handleLikeBack = async (p: PendingMatch) => {
     await acceptMatch(p.other_participant_id)
+  }
+
+  const handleUndoMatch = async (matchId: string) => {
+    if (confirm("Are you sure you want to undo this match?")) {
+      try {
+        await deleteMatch(matchId)
+      } catch (error) {
+        console.error("Error undoing match:", error)
+        alert("Failed to undo match. Please try again.")
+      }
+    }
+  }
+
+  const openReportDialog = (matchId: string) => {
+    setReportingMatchId(matchId)
+    setReportDialogOpen(true)
+  }
+
+  const handleSubmitReport = async () => {
+    if (!reportingMatchId || !reportReason.trim()) {
+      alert("Please provide a reason for the report")
+      return
+    }
+
+    setIsSubmittingReport(true)
+    try {
+      await reportMatch(reportingMatchId, reportReason)
+      alert("Report submitted successfully. Thank you for helping keep our community safe.")
+      setReportDialogOpen(false)
+      setReportReason("")
+      setReportingMatchId(null)
+    } catch (error) {
+      console.error("Error submitting report:", error)
+      alert("Failed to submit report. Please try again.")
+    } finally {
+      setIsSubmittingReport(false)
+    }
   }
 
   if (!isAuthenticated || !user) return null
@@ -52,15 +96,31 @@ export default function ConnectionsPage() {
           </div>
           <p className="text-xs text-muted-foreground capitalize">{p.other_availability}</p>
         </div>
-        {onLikeBack && (
-          <button
-            onClick={() => onLikeBack(p)}
-            className="flex items-center gap-2 h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm hover:bg-primary/90 transition-colors shrink-0"
-          >
-            <Heart className="w-4 h-4" />
-            Like back
-          </button>
-        )}
+        <div className="flex gap-2 shrink-0 flex-col">
+          {onLikeBack && (
+            <button
+              onClick={() => onLikeBack(p)}
+              className="flex items-center gap-2 h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm hover:bg-primary/90 transition-colors"
+            >
+              <Heart className="w-4 h-4" />
+              Like back
+            </button>
+          )}
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleUndoMatch(p.match_id)}
+              className="flex items-center gap-2 h-9 px-3 rounded-md border border-red-200 text-sm hover:bg-red-50 transition-colors text-red-600"
+            >
+              Undo
+            </button>
+            <button
+              onClick={() => openReportDialog(p.match_id)}
+              className="flex items-center gap-2 h-9 px-3 rounded-md border border-orange-200 text-sm hover:bg-orange-50 transition-colors text-orange-600"
+            >
+              <AlertTriangle className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -68,11 +128,11 @@ export default function ConnectionsPage() {
   const MatchedCard = ({ c }: { c: Connection }) => (
     <div className="bg-card border border-border rounded-md p-5">
       <div className="flex items-start justify-between gap-4">
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-1">
           <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-base font-medium shrink-0">
             {c.other_username.charAt(0)}
           </div>
-          <div>
+          <div className="flex-1">
             <p className="font-medium">{c.other_username}</p>
             <p className="text-sm text-muted-foreground capitalize mb-2">{c.other_role}</p>
             {c.other_bio && <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{c.other_bio}</p>}
@@ -88,10 +148,26 @@ export default function ConnectionsPage() {
             </div>
           </div>
         </div>
-        <button className="flex items-center gap-2 h-9 px-4 rounded-md border border-border text-sm hover:bg-secondary transition-colors shrink-0">
-          <MessageSquare className="w-4 h-4" />
-          Message
-        </button>
+        <div className="flex gap-2 shrink-0 flex-col">
+          <button className="flex items-center gap-2 h-9 px-4 rounded-md border border-border text-sm hover:bg-secondary transition-colors">
+            <MessageSquare className="w-4 h-4" />
+            Message
+          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleUndoMatch(c.match_id)}
+              className="flex items-center gap-2 h-9 px-3 rounded-md border border-red-200 text-sm hover:bg-red-50 transition-colors text-red-600"
+            >
+              Undo
+            </button>
+            <button
+              onClick={() => openReportDialog(c.match_id)}
+              className="flex items-center gap-2 h-9 px-3 rounded-md border border-orange-200 text-sm hover:bg-orange-50 transition-colors text-orange-600"
+            >
+              <AlertTriangle className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -140,6 +216,51 @@ export default function ConnectionsPage() {
           </Section>
         </div>
       </main>
+
+      <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Report Profile</DialogTitle>
+            <DialogDescription>
+              Please let us know why you're reporting this user. We take these reports seriously.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <label htmlFor="reason" className="text-sm font-medium">
+                Reason for report
+              </label>
+              <Textarea
+                id="reason"
+                placeholder="Please describe the issue..."
+                value={reportReason}
+                onChange={(e) => setReportReason(e.target.value)}
+                rows={4}
+              />
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setReportDialogOpen(false)
+                setReportReason("")
+              }}
+              disabled={isSubmittingReport}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleSubmitReport}
+              disabled={isSubmittingReport || !reportReason.trim()}
+            >
+              {isSubmittingReport ? "Submitting..." : "Submit Report"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

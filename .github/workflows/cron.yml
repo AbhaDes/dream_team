@@ -1,0 +1,12 @@
+name: Keep Flask Warm
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+
+jobs:
+  keep-warm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Flask health endpoint
+        run: curl -f https://dream-team-1.onrender.com/health

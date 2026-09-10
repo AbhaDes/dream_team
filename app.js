@@ -8,6 +8,7 @@ var app = express();
 const cors = require('cors');
 // FRONTEND_URL lets production point at any domain without a code change;
 // localhost is always allowed so local dev works against a deployed backend too.
+// Vercel preview deployments use *.vercel.app URLs for testing
 const allowedOrigins = [
     'http://localhost:3000',
     'https://dream-team-nine.vercel.app',
@@ -15,10 +16,30 @@ const allowedOrigins = [
 if (process.env.FRONTEND_URL) {
     allowedOrigins.push(process.env.FRONTEND_URL);
 }
-app.use(cors({
-    origin: allowedOrigins,
+
+// CORS configuration with regex support for Vercel previews
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (e.g., mobile apps, curl requests)
+        if (!origin) return callback(null, true);
+
+        // Check exact matches
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        // Check if origin matches Vercel preview pattern (*.vercel.app)
+        if (/^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(origin)) {
+            return callback(null, true);
+        }
+
+        // Origin not allowed
+        callback(new Error('Not allowed by CORS'));
+    },
     credentials: true
-}))
+};
+
+app.use(cors(corsOptions))
 
 const pool = require('./config/database');  
 const authRoutes = require('./routes/auth');
