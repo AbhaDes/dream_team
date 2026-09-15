@@ -100,42 +100,38 @@ export default function ProfilePage() {
   }
 
   const handleSave = async() => {
-    const updateUrl = `/api/events/${CURRENT_EVENT_ID}/participants/me` 
     const joinUrl = `/api/events/${CURRENT_EVENT_ID}/join`
+    const updateUrl = `/api/events/${CURRENT_EVENT_ID}/participants/me` 
     const body = JSON.stringify({role, experience, availability, skills, bio})
-    console.log(updateUrl);
-
-    try{
-      console.log("Sending data to:  ", updateUrl);
-      let response = await fetch(updateUrl, {
-        method: 'PUT',
-        headers: {
-          'Content-type' : 'application/json'
-        },
+    
+    try {
+      // 1. Join first
+      console.log("Joining event at:", joinUrl);
+      let joinResponse = await fetch(joinUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body,
       })
-
-      //if not found, join the event
-      if(response.status == 404){
-        console.log("Sending data to: ", joinUrl);
-        response = await fetch(joinUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type' : 'application/json'
-          },
-          credentials : 'include',
-          body,
-        })
-
+      
+      if (!joinResponse.ok) {
+        throw new Error(`Join failed: ${joinResponse.status}`);
       }
-      console.log("body sent to backend");
-      //check if response failed 
-      if(!response.ok){
-        console.log("no response from the backend");
-        throw new Error(`Response status: ${response.status}`);
-        
+      
+      // 2. Then update profile
+      console.log("Updating profile at:", updateUrl);
+      let updateResponse = await fetch(updateUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body,
+      })
+      
+      if (!updateResponse.ok) {
+        throw new Error(`Update failed: ${updateResponse.status}`);
       }
+      
+      // Success
       const profileComplete = !!role && skills.length > 0
       updateProfile({
         username,
@@ -148,10 +144,8 @@ export default function ProfilePage() {
       })
       setSaved(true)
       
-
-    }catch(error){
-      console.log("Error: ", error);
-
+    } catch(error) {
+      console.log("Error:", error);
     }
     setTimeout(() => setSaved(false), 2000)
   }
