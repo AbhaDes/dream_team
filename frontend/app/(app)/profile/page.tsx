@@ -101,11 +101,11 @@ export default function ProfilePage() {
 
   const handleSave = async() => {
     const joinUrl = `/api/events/${CURRENT_EVENT_ID}/join`
-    const updateUrl = `/api/events/${CURRENT_EVENT_ID}/participants/me` 
+    const updateUrl = `/api/events/${CURRENT_EVENT_ID}/participants/me`
     const body = JSON.stringify({role, experience, availability, skills, bio})
-    
+
     try {
-      // 1. Join first
+      // 1. Join first 
       console.log("Joining event at:", joinUrl);
       let joinResponse = await fetch(joinUrl, {
         method: 'POST',
@@ -113,12 +113,13 @@ export default function ProfilePage() {
         credentials: 'include',
         body,
       })
-      
-      if (!joinResponse.ok) {
+
+      // 409 Conflict = already joined. Proceed anyway
+      if (!joinResponse.ok && joinResponse.status !== 409) {
         throw new Error(`Join failed: ${joinResponse.status}`);
       }
-      
-      // 2. Then update profile
+
+      // 2. Then update profile 
       console.log("Updating profile at:", updateUrl);
       let updateResponse = await fetch(updateUrl, {
         method: 'PUT',
@@ -126,11 +127,11 @@ export default function ProfilePage() {
         credentials: 'include',
         body,
       })
-      
+
       if (!updateResponse.ok) {
         throw new Error(`Update failed: ${updateResponse.status}`);
       }
-      
+
       // Success
       const profileComplete = !!role && skills.length > 0
       updateProfile({
@@ -143,7 +144,7 @@ export default function ProfilePage() {
         experience
       })
       setSaved(true)
-      
+
     } catch(error) {
       console.log("Error:", error);
     }
