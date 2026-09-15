@@ -1,1 +1,1 @@
-export const CURRENT_EVENT_ID = "19848c8a-790b-4059-aea4-b3c97c6a4e02";
+export const CURRENT_EVENT_ID = "234f12e9-5ac9-4ecd-8f19-a8e6c5a9c462";
