@@ -67,7 +67,7 @@ Do these in order:
    ```
    (Run 003's pre-check query first; see below.) If the new backend is deployed before 003, the `email_verified` column doesn't exist yet, so every user looks unverified and **every login returns 403 "Please verify your email"**.
 2. **Check `NODE_ENV=production`** in the Render backend's environment. Without it the server prints codes to the log instead of failing, and cookies aren't marked Secure.
-3. **Email sending.** Set `RESEND_API_KEY` and `EMAIL_FROM` only after a sending domain shows as Verified in Resend (see "Sending verification emails" below). Until both are set, production signup returns 500 "Could not send the verification email", so new users can't join. Existing (grandfathered) users can still log in.
+3. **Email sending.** Set `GMAIL_USER` and `GMAIL_APP_PASSWORD` (see "Sending verification emails" below; `EMAIL_FROM_NAME` is optional). Until both are set, production signup returns 500 "Could not send the verification email", so new users can't join. Existing (grandfathered) users can still log in.
 4. **Deploy the backend**, then the frontend.
 5. **Check client IPs.** Set `LOG_CLIENT_IP=true`, log in once, and read the logged IP. If it's your real IP, the per-IP rate limits can be tightened (`RATE_LIMIT_LOGIN_PER_15MIN`, `RATE_LIMIT_REGISTER_PER_HOUR`, `RATE_LIMIT_VERIFY_PER_15MIN`, `RATE_LIMIT_RESEND_PER_15MIN`). If it's a proxy/Vercel IP, every user shares one bucket, so leave the generous defaults (500 / 200 / 300 / 200). **Remove `LOG_CLIENT_IP` afterwards.**
 
@@ -159,28 +159,28 @@ DROP INDEX users_email_lower_key;
 ALTER TABLE users DROP COLUMN email_verified;
 ```
 
-## Sending verification emails (Resend)
+## Sending verification emails (Gmail)
 
-Signup emails a 6-digit code through [Resend](https://resend.com). The backend reads two env vars:
+Signup emails a 6-digit code through Gmail SMTP (Nodemailer). The backend reads these env vars:
 
 | Variable | Example | Purpose |
 | --- | --- | --- |
-| `RESEND_API_KEY` | `re_...` | API key from Resend dashboard -> API Keys (sending access is enough) |
-| `EMAIL_FROM` | `Dream-Team <noreply@mail.yourdomain.com>` | Sender. Must be on a domain verified in Resend |
+| `GMAIL_USER` | `your-app@gmail.com` | The Gmail address that sends the emails. It is also the From address (Gmail rewrites any other) |
+| `GMAIL_APP_PASSWORD` | `abcd efgh ijkl mnop` | 16-character Google App Password for that account (not the normal Gmail password) |
+| `EMAIL_FROM_NAME` | `Dream Team` | Optional display name in the From header. Defaults to `Dream Team` |
 
 Behavior:
-- **Both set**: codes are emailed through Resend.
+- **`GMAIL_USER` and `GMAIL_APP_PASSWORD` both set**: codes are emailed through Gmail.
 - **Not set, `NODE_ENV` is not `production`** (local dev): nothing is emailed; the server console prints `verification code for <user_id>: <code>` so you can sign up locally.
 - **Not set in production**: signup returns 500 "Could not send the verification email" and nobody can verify. Set both before deploying.
 
-Setting up the sending domain (one time):
-1. In Resend -> Domains -> Add Domain, enter a domain you own (a subdomain like `mail.yourdomain.com` keeps it separate from your main mail).
-2. Resend shows DNS records (an MX + TXT for SPF on a `send` subdomain, and a DKIM TXT record `resend._domainkey`). Add them at your DNS provider exactly as shown.
-3. Optionally add a DMARC TXT record on `_dmarc.yourdomain.com` (e.g. `v=DMARC1; p=none;`) -- improves deliverability.
-4. Wait for Resend to show the domain as **Verified** (minutes to a few hours).
-5. Create an API key, then set `RESEND_API_KEY` and `EMAIL_FROM` (an address on that domain) in the Render backend's environment and redeploy.
+Setting up the App Password (one time):
+1. Use (or create) a Gmail account for the app.
+2. Google Account -> Security -> turn on **2-Step Verification**.
+3. Google Account -> Security -> 2-Step Verification -> **App passwords**, create one (name it e.g. "Dream Team"), and copy the 16-character password.
+4. Set `GMAIL_USER` and `GMAIL_APP_PASSWORD` in the Render backend's environment and redeploy.
 
-Until a domain is verified, Resend only delivers to the email address of the Resend account owner (sending from `onboarding@resend.dev`), which is fine for testing but not for real users.
+Limits: a regular Gmail account can send about 500 emails per day. Past that, Google blocks sending for a while and signup returns the 500 above.
 
 ## Initial Schema Creation
 
