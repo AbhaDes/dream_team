@@ -2,7 +2,7 @@
 const pool = require('../config/database');
 //import embedding service client
 const { getProfileEmbedding } = require('../utils/embeddingService');
-const { ROLES, EXPERIENCE_LEVELS, AVAILABILITY_OPTIONS, BIO_MAX_LENGTH } = require('../config/constants');
+const { ROLES, EXPERIENCE_LEVELS, AVAILABILITY_OPTIONS, BIO_MAX_LENGTH, MAX_SKILLS, SKILL_MAX_LENGTH } = require('../config/constants');
 
 //Validates the profile fields shared by join and update.
 //Returns an error message, or null if the profile is valid.
@@ -22,6 +22,12 @@ const validateProfile = ({role, experience, availability, skills, bio}) => {
     }
     if(skills !== undefined && skills !== null && (!Array.isArray(skills) || !skills.every(skill => typeof skill === 'string'))){
         return 'Skills must be a list of strings';
+    }
+    if(skills && skills.length > MAX_SKILLS){
+        return `You can list at most ${MAX_SKILLS} skills`;
+    }
+    if(skills && !skills.every(skill => skill.trim().length > 0 && skill.length <= SKILL_MAX_LENGTH)){
+        return `Each skill must be 1-${SKILL_MAX_LENGTH} characters`;
     }
     if(bio !== undefined && bio !== null && typeof bio !== 'string'){
         return 'Bio must be text';
@@ -56,7 +62,8 @@ const joinEvent = async(req, res, next) => {
         const eventId = req.params.eventId;
         const userId = req.user.user_id;
         //2. Get all the other info from the request body
-        const {role, experience, availability, skills, bio} = req.body;
+        const body = req.body ?? {};
+        const {role, experience, availability, skills, bio} = body;
         //3. check if the event exists
         const result = await pool.query('SELECT * FROM events WHERE event_id = $1', [eventId]);
         if(result.rows.length === 0){
@@ -218,7 +225,8 @@ const updateProfile = async(req, res, next) => {
     try{
         //function to update the profile
         //get all the things you need to update their profile
-        const {role, experience, availability, skills, bio} = req.body;
+        const body = req.body ?? {};
+        const {role, experience, availability, skills, bio} = body;
         const eventId = req.params.eventId;
         const userId = req.user.user_id;
         //check if they have joined the event

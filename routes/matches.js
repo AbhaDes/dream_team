@@ -1,6 +1,8 @@
 //IMPORT EXPRESS ROUTER
 const express = require('express');
 const router = express.Router();
+const validateIds = require('../middleware/validateIds');
+validateIds(router);
 //IMPORT AUTHMIDDLEWARE
 const authMiddleware = require('../middleware/auth');
 //IMPORT MATCHCONTROLLER 

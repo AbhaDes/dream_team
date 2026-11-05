@@ -15,5 +15,7 @@ module.exports = {
         'Flexible Schedule'
     ],
     BIO_MAX_LENGTH : 300, //bio is VARCHAR(300)
-    MAX_TEAMMATES : 3
+    MAX_TEAMMATES : 3,
+    MAX_SKILLS : 20,
+    SKILL_MAX_LENGTH : 50
 };
