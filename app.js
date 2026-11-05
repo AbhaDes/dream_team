@@ -1,5 +1,4 @@
 require('dotenv').config();
-const { networkInterfaces } = require('os');
 
 var express = require('express');
 var app = express();

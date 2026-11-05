@@ -53,7 +53,7 @@ export function Sidebar() {
 
       <div className="p-3 border-t border-border">
         <div className="px-3 py-2 mb-2">
-          <p className="text-sm font-medium truncate">{user?.name || "User"}</p>
+          <p className="text-sm font-medium truncate">{user?.username || "User"}</p>
           <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
         </div>
         <button

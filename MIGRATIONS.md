@@ -81,6 +81,32 @@ WHERE table_name = 'event_participants' AND column_name = 'profile_embedding';
 
 Should return: `profile_embedding | vector`
 
+### 002_participant_uniqueness_and_reports.sql
+
+**Purpose**: Stops duplicate event profiles and self-matches, and stores match reports
+
+**What it does**:
+- Adds `UNIQUE (user_id, event_id)` to `event_participants`
+- Adds `CHECK (user1_id <> user2_id)` to `matches`
+- Creates the `reports` table that `POST /matches/:matchId/report` writes to
+
+**Before running**: the UNIQUE constraint fails if a user already has two rows for one event. Check with:
+```sql
+SELECT user_id, event_id, COUNT(*) FROM event_participants
+GROUP BY user_id, event_id HAVING COUNT(*) > 1;
+```
+
+**Command**:
+```bash
+psql $DATABASE_URL -f db/migrations/002_participant_uniqueness_and_reports.sql
+```
+
+**Verification**:
+```sql
+SELECT conname FROM pg_constraint WHERE conname IN ('event_participants_user_event_unique', 'matches_not_self');
+SELECT COUNT(*) FROM reports;
+```
+
 ## Initial Schema Creation
 
 If setting up a fresh database from scratch, run:

@@ -112,29 +112,34 @@ describe('POST /api/auth/login', () =>{
     //adding check for invalid password
     it('returns 401 when password is invalid', async() =>{
         const res = await request(app)
-        .post('/api/auth/login ')
-        .send({email: "arvindeshpande@sfsu.edu", password: "iamarvind"});
+        .post('/api/auth/login')
+        .send({email: "arvinddeshpande@sfsu.edu", password: "iamarvind"});
 
         expect(res.statusCode).toBe(401)
         expect(res.body).toEqual({error: 'Invalid email or password'});
     })
 
-    //adding rate limiting test 
+    //adding rate limiting test -- the limiter is keyed per email, so keep
+    //guessing one account's password until it locks (5 failures per 15 min)
     it('returns 429 when too many requests',async() =>{
-        const requestPromises = Array.from({length: 2}).map(() =>
-        request(app)
-            .post('/api/auth/login')
-            .send({email:"arvinddeshpande@sfsu.edu", password: "iamarvind"})
-        );
-
-        const responses = await Promise.all(requestPromises);
-
-        const lastResponse = responses[responses.length - 1];
-
-        
+        let lastResponse;
+        for(let i = 0; i < 6; i++){
+            lastResponse = await request(app)
+                .post('/api/auth/login')
+                .send({email:"ratelimit@sfsu.edu", password: "wrongpassword"});
+        }
 
         expect(lastResponse.statusCode).toBe(429)
         expect(lastResponse.body).toEqual({error: 'Too many login attemps. Please try again later'});
+    })
+
+    //a locked-out account must not lock out everyone else behind the same IP
+    it('still lets a different account log in after another is rate limited', async() =>{
+        const res = await request(app)
+            .post('/api/auth/login')
+            .send({email: "ARVINDDESHPANDE@sfsu.edu", password: "12345678"});
+
+        expect(res.statusCode).toBe(200)
     })
 });
 

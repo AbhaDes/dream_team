@@ -1,11 +1,36 @@
-//import event_id 
-const {CURRENT_EVENT_ID} = require('../config/constants');
 //import database pool
 const pool = require('../config/database');
 //import embedding service client
 const { getProfileEmbedding } = require('../utils/embeddingService');
+const { ROLES, EXPERIENCE_LEVELS, AVAILABILITY_OPTIONS, BIO_MAX_LENGTH } = require('../config/constants');
 
-const event_id = CURRENT_EVENT_ID;
+//Validates the profile fields shared by join and update.
+//Returns an error message, or null if the profile is valid.
+//role/experience/availability are required; skills and bio are optional.
+const validateProfile = ({role, experience, availability, skills, bio}) => {
+    if(!role || !experience || !availability){
+        return 'Please fill out all required fields';
+    }
+    if(!ROLES.includes(role)){
+        return 'Invalid role';
+    }
+    if(!EXPERIENCE_LEVELS.includes(experience)){
+        return 'Invalid experience level';
+    }
+    if(!AVAILABILITY_OPTIONS.includes(availability)){
+        return 'Invalid availability';
+    }
+    if(skills !== undefined && skills !== null && (!Array.isArray(skills) || !skills.every(skill => typeof skill === 'string'))){
+        return 'Skills must be a list of strings';
+    }
+    if(bio !== undefined && bio !== null && typeof bio !== 'string'){
+        return 'Bio must be text';
+    }
+    if(bio && bio.length > BIO_MAX_LENGTH){
+        return `Bio must be ${BIO_MAX_LENGTH} characters or fewer`;
+    }
+    return null;
+}
 
 //EVENT HANDLING LOGIC
 
@@ -39,10 +64,11 @@ const joinEvent = async(req, res, next) => {
                 error: 'This event does not exist'
             });
         }
-        //4. if exist, check if all feilds are being filled
-        if(!role || !experience || !availability || !skills ||!bio){ //bio required for now till I figure out how to change that
+        //4. if exist, check the required fields are filled and valid (bio is optional)
+        const validationError = validateProfile({role, experience, availability, skills, bio});
+        if(validationError){
             return res.status(400).json({
-                error: 'Missing required feilds'
+                error: validationError
             });
         }
         //5. If all feilds are filled, check if they have already joined the event 
@@ -59,7 +85,7 @@ const joinEvent = async(req, res, next) => {
 
         //7. if not, then insert into table and return profile info
         const insert = await pool.query('INSERT INTO event_participants(user_id, event_id, role, experience, availability, skills, bio, profile_embedding) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-            [userId, eventId, role, experience, availability, skills, bio, profileEmbedding]
+            [userId, eventId, role, experience, availability, skills || [], bio || null, profileEmbedding]
         );
         const newEvent_participant = insert.rows[0];
         return res.status(200).json({
@@ -76,6 +102,12 @@ const joinEvent = async(req, res, next) => {
             message: 'Joined Event successfully'
         });
     }catch(error){
+        //23505 = unique violation: a second join raced past the check above (e.g. a double-click)
+        if(error.code === '23505'){
+            return res.status(409).json({
+                error: 'You have already joined this event'
+            });
+        }
         console.error('Join Event error: ', error);
         res.status(500).json({ 
             error: 'Failed to join event. Please try again.' 
@@ -167,8 +199,10 @@ const getMe = async(req, res, next) => {
 
 
         }
+        //the embedding is internal to matching and ~1536 numbers -- don't send it to the browser
+        const { profile_embedding, ...profile } = check.rows[0];
         res.status(200).json({
-            profile:check.rows[0]
+            profile
         });
 
     }catch(error){
@@ -194,10 +228,11 @@ const updateProfile = async(req, res, next) => {
                 error: "No participant found for this user. Please join the event first"
             });
         } 
-        //check if they have send everything 
-        if(!experience || ! role || !availability){
+        //check if they have sent everything, and that it's valid
+        const validationError = validateProfile({role, experience, availability, skills, bio});
+        if(validationError){
             return res.status(400).json({
-                error: "Please fill out all required feilds"
+                error: validationError
             });
         }
         //re-embed the full profile so similarity matching stays in sync
@@ -216,7 +251,7 @@ const updateProfile = async(req, res, next) => {
                 WHERE user_id = $7
                 AND event_id = $8
                 RETURNING *`,
-            [role, experience, availability, skills, bio, profileEmbedding, userId, eventId]
+            [role, experience, availability, skills || [], bio || null, profileEmbedding, userId, eventId]
         );
         const updated = update.rows[0];
         res.status(200).json({

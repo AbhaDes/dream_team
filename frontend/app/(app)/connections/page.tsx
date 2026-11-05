@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 
 export default function ConnectionsPage() {
-  const { user, connections, pendingMatches, isAuthenticated, fetchPendingMatches, fetchMutualMatches, acceptMatch, deleteMatch, reportMatch } = useApp()
+  const { user, connections, pendingMatches, isAuthenticated, isLoading, fetchPendingMatches, fetchMutualMatches, acceptMatch, deleteMatch, reportMatch } = useApp()
   const router = useRouter()
   const [reportDialogOpen, setReportDialogOpen] = useState(false)
   const [reportingMatchId, setReportingMatchId] = useState<string | null>(null)
@@ -19,8 +19,9 @@ export default function ConnectionsPage() {
   const [isSubmittingReport, setIsSubmittingReport] = useState(false)
 
   useEffect(() => {
-    if (!isAuthenticated) router.push("/login")
-  }, [isAuthenticated, router])
+    //wait for the saved session to load, or a page refresh bounces to /login
+    if (!isLoading && !isAuthenticated) router.push("/login")
+  }, [isAuthenticated, isLoading, router])
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -30,7 +31,8 @@ export default function ConnectionsPage() {
   }, [isAuthenticated])
 
   const handleLikeBack = async (p: PendingMatch) => {
-    await acceptMatch(p.other_participant_id)
+    const error = await acceptMatch(p.other_participant_id)
+    if (error) alert(error)
   }
 
   const handleUndoMatch = async (matchId: string) => {
@@ -90,7 +92,7 @@ export default function ConnectionsPage() {
           <p className="text-sm text-muted-foreground capitalize mb-2">{p.other_role}</p>
           {p.other_bio && <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{p.other_bio}</p>}
           <div className="flex flex-wrap gap-1.5 mb-3">
-            {p.other_skills.map(skill => (
+            {(p.other_skills ?? []).map(skill => (
               <span key={skill} className="px-2 py-0.5 rounded bg-secondary text-xs">{skill}</span>
             ))}
           </div>
@@ -137,7 +139,7 @@ export default function ConnectionsPage() {
             <p className="text-sm text-muted-foreground capitalize mb-2">{c.other_role}</p>
             {c.other_bio && <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{c.other_bio}</p>}
             <div className="flex flex-wrap gap-1.5 mb-3">
-              {c.other_skills.map(skill => (
+              {(c.other_skills ?? []).map(skill => (
                 <span key={skill} className="px-2 py-0.5 rounded bg-secondary text-xs">{skill}</span>
               ))}
             </div>

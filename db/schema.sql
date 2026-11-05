@@ -51,7 +51,10 @@ CREATE TABLE event_participants(
     -- embedding of the composed profile description (role, experience,
     -- availability, skills, bio). 1536 dims = text-embedding-3-small;
     -- null until the embedding service fills it
-    profile_embedding vector(1536)
+    profile_embedding vector(1536),
+
+    -- one profile per user per event
+    UNIQUE(user_id, event_id)
 );
 
 CREATE TYPE match_type AS ENUM (
@@ -71,7 +74,20 @@ CREATE TABLE matches (
   matched_at TIMESTAMP, 
   
   -- Constraint:
-  UNIQUE(user1_id, user2_id, event_id)
+  UNIQUE(user1_id, user2_id, event_id),
+  CHECK (user1_id <> user2_id)
+);
+
+-- Reports filed against a match; kept so they can be reviewed
+-- (deleting the match afterwards shouldn't lose the report)
+CREATE TABLE reports (
+  report_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  match_id UUID REFERENCES matches(match_id) ON DELETE SET NULL,
+  event_id UUID REFERENCES events(event_id),
+  reporter_id UUID REFERENCES users(user_id),
+  reported_user_id UUID REFERENCES users(user_id),
+  reason VARCHAR(1000) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 -- Session storage for express-session via connect-pg-simple
 -- (also auto-created at runtime by createTableIfMissing in server.js)

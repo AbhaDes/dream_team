@@ -82,9 +82,10 @@ interface AppContextType extends AppState {
   fetchMatches: () => void
   fetchPendingMatches: () => void
   fetchMutualMatches: () => void
-  acceptMatch: (matchId: string) => void
+  acceptMatch: (participantId: string) => Promise<string | null>
   deleteMatch: (matchId: string) => Promise<void>
   reportMatch: (matchId: string, reason: string) => Promise<void>
+  authFetch: (url: string, init?: RequestInit) => Promise<Response>
 
   isLoading: boolean
 }
@@ -120,6 +121,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("dreamteam-state", JSON.stringify(state))
     }
   }, [state])
+
+  //The session cookie expires after an hour idle, but the saved state above still
+  //says "logged in". Drop it so the pages redirect to /login instead of silently
+  //showing empty lists.
+  const clearSession = () => {
+    localStorage.removeItem("dreamteam-state")
+    setState({
+      user: null,
+      matches: [],
+      pendingMatches: [],
+      connections: [],
+      isAuthenticated: false,
+    })
+  }
+
+  //fetch for logged-in endpoints: sends the cookie and logs out locally on a 401
+  const authFetch = async (url: string, init: RequestInit = {}) => {
+    const response = await fetch(url, {
+      ...init,
+      headers: { 'Content-Type': 'application/json', ...init.headers },
+      credentials: 'include',
+    })
+    if (response.status === 401) {
+      clearSession()
+    }
+    return response
+  }
+
+  //on load, check the saved session is still alive on the server
+  useEffect(() => {
+    if (state.isAuthenticated) {
+      authFetch('/api/auth/me').catch(() => {})
+    }
+  }, [state.isAuthenticated])
   
   //GETS THE TOP 10 MATCHES ON THE MATCHES PAGE
   const fetchMatches = async() => {
@@ -128,7 +163,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     console.log(url);
 
       try{
-        const response = await fetch(url, {
+        const response = await authFetch(url, {
           method: 'GET',
           headers: {
             'Content-Type' : 'application/json'
@@ -159,7 +194,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     console.log(url);
 
     try{
-      const response = await fetch(url, {
+      const response = await authFetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -187,7 +222,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     console.log(url) //just checking for the intial stage 
 
     try{
-      const response = await fetch(url, {
+      const response = await authFetch(url, {
         method: 'GET', 
         headers: {
           'Content-Type': 'application/json'
@@ -256,7 +291,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           ...prev, 
           user: {
            ...prev.user,
-            ...profileResult.profile
+            ...profileResult.profile,
+            profileComplete: !!profileResult.profile.role
           }
         }))
       }
@@ -320,26 +356,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
         credentials: "include" //tells the browser to include cookies in the request
       })
 
-      //check if response failed 
-      if(!response.ok){
+      //check if response failed (a 401 just means the session already expired)
+      if(!response.ok && response.status !== 401){
         throw new Error(`Response status: ${response.status}`);
       }
 
-      setState({
-        user: null,
-        matches: [],
-        pendingMatches: [],
-        connections: [],
-        isAuthenticated: false,
-      })
-
-      localStorage.removeItem("dreamteam-state");
-
     }catch(error){
       console.error('Error', error);
-      return false;
-
     }
+    //log out locally either way, so a dead session can't leave the user stuck "logged in"
+    clearSession();
   }
 
   const updateProfile = (updates: Partial<User>) => {
@@ -354,22 +380,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
   
   //FOR LIKING MATCH PURPOSES ONLY
-  const acceptMatch = async (participantId: string) => {
+  const acceptMatch = async (participantId: string): Promise<string | null> => {
     const url = `/api/events/${CURRENT_EVENT_ID}/like`
 
     try{
-      const response = await fetch(url, {
+      const response = await authFetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type' : 'application/json',
-        },
         body : JSON.stringify({
           participant_id : participantId
         }),
-        credentials: 'include',
       })
       if(!response.ok){
-        throw new Error(`Response Status: ${response.status}`);
+        //e.g. 409 "team is already full" -- the user needs to see why nothing happened
+        const result = await response.json().catch(() => ({}))
+        return result.error || `Could not like this teammate (status ${response.status})`
       }
 
       //remove the liked person from the matches list right away
@@ -381,10 +405,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       //refresh pending + mutual so the connections page sections are current
       //(a like can create a pending match or complete a mutual one)
       await Promise.all([fetchPendingMatches(), fetchMutualMatches()])
+      return null
 
     }catch(error){
       console.log('Error: ', error);
-
+      return "Could not reach the server. Please try again."
     }
   }
 
@@ -393,7 +418,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const url = `/api/events/${CURRENT_EVENT_ID}/matches/${matchId}`
 
     try {
-      const response = await fetch(url, {
+      const response = await authFetch(url, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -417,7 +442,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const url = `/api/events/${CURRENT_EVENT_ID}/matches/${matchId}/report`
 
     try {
-      const response = await fetch(url, {
+      const response = await authFetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -447,6 +472,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       deleteMatch,
       reportMatch,
       fetchMutualMatches,
+      authFetch,
       isLoading,
     }}>
       {children}

@@ -1,17 +1,20 @@
 //import the user pool from database.js
-const { CURRENT_EVENT_ID } = require('../config/constants');
 const pool = require('../config/database');
 //import bcrypt for use
 const bcrypt = require ('bcrypt');
-const eventid = CURRENT_EVENT_ID;
+
+//Emails are case-insensitive: "Foo@SFSU.edu" and "foo@sfsu.edu" are one account.
+//Returns null for anything that isn't a string so .endsWith() can't throw.
+const normalizeEmail = (email) => typeof email === 'string' ? email.trim().toLowerCase() : null;
 
 //establishing registration logic 
 const register = async (req, res) => {
     try {
         // 1. Get data
-        const { username, email, password } = req.body;
+        const { username, password } = req.body;
+        const email = normalizeEmail(req.body.email);
         // 2. Validate fields
-        if (!username || !password || !email) {
+        if (typeof username !== 'string' || !username.trim() || typeof password !== 'string' || !password || !email) {
             return res.status(400).json({
                 error: 'Username, email, and password are required'
             });
@@ -26,6 +29,17 @@ const register = async (req, res) => {
         if (password.length < 8) {
             return res.status(400).json({
                 error: 'Password must be at least 8 characters'
+            });
+        }
+        // bcrypt silently ignores everything past 72 bytes, so reject longer passwords
+        if (Buffer.byteLength(password) > 72) {
+            return res.status(400).json({
+                error: 'Password must be 72 characters or fewer'
+            });
+        }
+        if (username.trim().length > 100) {
+            return res.status(400).json({
+                error: 'Username must be 100 characters or fewer'
             });
         }
         // 5. Check database (AFTER validation!)
@@ -43,7 +57,7 @@ const register = async (req, res) => {
         // 7. Insert into database
         const insertResult = await pool.query(
             'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING *',
-            [username, email, hashedPassword]
+            [username.trim(), email, hashedPassword]
         );
         const newUser = insertResult.rows[0];
         // 8. Return success
@@ -56,6 +70,12 @@ const register = async (req, res) => {
             message: 'Account created successfully'
         }); 
     } catch (error) {
+        // 23505 = unique violation: two registrations for one email raced past the check
+        if (error.code === '23505') {
+            return res.status(409).json({
+                error: 'An account with this email already exists'
+            });
+        }
         console.error('Registration error:', error);
         res.status(500).json({ 
             error: 'Failed to create account. Please try again.' 
@@ -67,9 +87,10 @@ const register = async (req, res) => {
 const login = async (req, res)=>{
    try{
        //1. Get data from req block
-       const {email, password } = req.body;
+       const { password } = req.body;
+       const email = normalizeEmail(req.body.email);
        //2. Check if any feilds are missing
-       if(!email || !password){
+       if(!email || typeof password !== 'string' || !password){
            return res.status(400).json({
                error: 'Email and password are required'
            });
@@ -100,7 +121,14 @@ const login = async (req, res)=>{
                error: 'Invalid email or password'
            });
        }
-       req.session.user_id = user.user_id;
+        //start a fresh session id on login so a pre-login session id can't be reused (session fixation)
+        await new Promise((resolve, reject) => {
+            req.session.regenerate((err) => {
+                if(err) reject(err);
+                else resolve();
+            });
+        });
+        req.session.user_id = user.user_id;
 
         await new Promise((resolve, reject) => {
             req.session.save((err) => {
@@ -169,6 +197,7 @@ const me = async(req, res, next)=>{
             user: {
                 user_id : req.user.user_id,
                 email: req.user.email,
+                username : req.user.username,
                 name : req.user.username
             }
         });

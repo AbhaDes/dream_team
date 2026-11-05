@@ -7,7 +7,7 @@ import { useEffect, useState } from "react"
 import { Hash, Users, UserCheck, Clock } from "lucide-react"
 
 export default function DashboardPage() {
-  const { user, matches, connections, isAuthenticated, isLoading, updateProfile } = useApp()
+  const { user, pendingMatches: pending, connections, isAuthenticated, isLoading, updateProfile, fetchPendingMatches, fetchMutualMatches } = useApp()
   const router = useRouter()
   const [eventCode, setEventCode] = useState("")
   const [showEventInput, setShowEventInput] = useState(false)
@@ -18,12 +18,20 @@ export default function DashboardPage() {
     }
   }, [isAuthenticated, isLoading, router])
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchPendingMatches()
+      fetchMutualMatches()
+    }
+  }, [isAuthenticated])
+
   if (isLoading || !isAuthenticated || !user) {
     return null
   }
 
-  const pendingMatches = matches.filter(m => m.status === "pending").length
-  const acceptedMatches = matches.filter(m => m.status === "accepted").length
+  //likes waiting on this user to like back, and mutual matches
+  const pendingMatches = pending.filter(p => p.needs_my_response).length
+  const acceptedMatches = connections.length
 
   const handleJoinEvent = () => {
     if (eventCode.trim()) {
@@ -155,7 +163,7 @@ export default function DashboardPage() {
             <div className="mt-8">
               <h2 className="font-medium mb-4">Quick actions</h2>
               <button
-                onClick={() => router.push("/matches")}
+                onClick={() => router.push("/connections")}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Review {pendingMatches} pending {pendingMatches === 1 ? "match" : "matches"} →

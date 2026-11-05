@@ -1,5 +1,6 @@
 const pool = require('../config/database');
 const { getCompatibilityScore } = require('../utils/matchingAlgorithm');
+const { MAX_TEAMMATES } = require('../config/constants');
 
 //1. FUNCTION THAT RETURNS THE TOP 10 MATCHES IN THE SYSTEM
 
@@ -114,9 +115,24 @@ const createMatch = async(req, res, next) => {
         //1. Get user_ids
         const user_who_initiated = req.user.user_id;
         const user_who_got_liked = req.body.participant_id;
-        
-        //2. Check if participant exists 
-        const exists = await pool.query('SELECT * FROM event_participants WHERE participant_id = $1', [user_who_got_liked]);
+        const eventId = req.params.eventId;
+
+        if(!user_who_got_liked){
+            return res.status(400).json({
+                error: "participant_id is required"
+            });
+        }
+
+        //2. The liker must have joined this event
+        const me = await pool.query('SELECT 1 FROM event_participants WHERE user_id = $1 AND event_id = $2', [user_who_initiated, eventId]);
+        if(me.rows.length === 0){
+            return res.status(403).json({
+                error: "You must join the event to continue"
+            });
+        }
+
+        //3. Check the participant exists IN THIS EVENT
+        const exists = await pool.query('SELECT * FROM event_participants WHERE participant_id = $1 AND event_id = $2', [user_who_got_liked, eventId]);
         if(exists.rows.length === 0){
             return res.status(404).json({
                 error: "Participant not found. Please select another candidate."
@@ -124,110 +140,100 @@ const createMatch = async(req, res, next) => {
         }
         //4. If exists, get the user_id of the participant 
         const target_user_id = exists.rows[0].user_id;
+        if(target_user_id === user_who_initiated){
+            return res.status(400).json({
+                error: "You cannot like yourself"
+            });
+        }
         
-        //3. Normalize IDs
+        //5. Normalize IDs
         const {user1, user2} = normalizeIds(user_who_initiated, target_user_id);
         
-        //4. Check for 3 matches limit
-        const successful_matches = await pool.query(
-            'SELECT * FROM matches WHERE (user1_id = $1 OR user2_id = $1) AND user1_status = $2 AND user2_status = $3', 
-            [user_who_initiated, 'liked', 'liked']
-        );
-        if(successful_matches.rows.length >= 3){
-            return res.status(401).json({
-                error: "This request is unauthorized. The user has already selected 3 participants"
+        //6. Check the teammate limit for this event
+        //409, not 401: the request is authenticated, it just conflicts with the
+        //team-size rule. A 401 here makes the frontend treat it as a dead session.
+        if(await countTeammates(user_who_initiated, eventId) >= MAX_TEAMMATES){
+            return res.status(409).json({
+                error: `You have already matched with ${MAX_TEAMMATES} teammates`
             });
         }
         
-        //5. Check if match already exists
-        const result = await pool.query('SELECT * FROM matches WHERE user1_id = $1 AND user2_id = $2', [user1, user2]);
+        //7. Check if match already exists for this event
+        const result = await pool.query('SELECT * FROM matches WHERE user1_id = $1 AND user2_id = $2 AND event_id = $3', [user1, user2, eventId]);
         
-        //6. If match exists - UPDATE
+        //8. If match exists - UPDATE
         if(result.rows.length > 0){
             const match = result.rows[0];
-            if(match.initiated_by === user_who_initiated){ 
-                return res.status(404).json({
+            if(match.initiated_by === user_who_initiated){
+                //409: the like exists already, nothing is missing
+                return res.status(409).json({
                     error: "Cannot like the same participant twice"
                 });
-            } else {
-                if(user_who_initiated === user1){
-                    const match1 = await pool.query(
-                        'UPDATE matches SET user1_status = $1, matched_at = CURRENT_TIMESTAMP WHERE user1_id = $2 AND user2_id = $3 RETURNING *', 
-                        ['liked', user1, user2]
-                    );
-                    const matched1 = match1.rows[0];
-                    return res.status(200).json({
-                        match: {
-                            match_id: matched1.match_id, 
-                            user1_id: matched1.user1_id, 
-                            user2_id: matched1.user2_id, 
-                            event_id: matched1.event_id,  
-                            initiated_by: matched1.initiated_by,
-                            user1_status: matched1.user1_status, 
-                            user2_status: matched1.user2_status, 
-                            created_at: matched1.created_at, 
-                            matched_at: matched1.matched_at
-                        },
-                        message: "You are now matched with this candidate"
-                    });
-                } else {
-                    const match2 = await pool.query(
-                        'UPDATE matches SET user2_status = $1, matched_at = CURRENT_TIMESTAMP WHERE user1_id = $2 AND user2_id = $3 RETURNING *', 
-                        ['liked', user1, user2]
-                    );
-                    const matched2 = match2.rows[0];
-                    return res.status(200).json({
-                        match: {
-                            match_id: matched2.match_id, 
-                            user1_id: matched2.user1_id, 
-                            user2_id: matched2.user2_id, 
-                            event_id: matched2.event_id,  
-                            initiated_by: matched2.initiated_by,
-                            user1_status: matched2.user1_status, 
-                            user2_status: matched2.user2_status, 
-                            created_at: matched2.created_at, 
-                            matched_at: matched2.matched_at
-                        },
-                        message: "You are now matched with this candidate"
-                    });
-                }
             }
+            if(match.user1_status === 'liked' && match.user2_status === 'liked'){
+                return res.status(409).json({
+                    error: "You are already matched with this candidate"
+                });
+            }
+            //liking back completes the match, so it fills a slot on THEIR team too
+            if(await countTeammates(target_user_id, eventId) >= MAX_TEAMMATES){
+                return res.status(409).json({
+                    error: "This participant's team is already full"
+                });
+            }
+            //which column is mine depends on the normalized order (never user input)
+            const myStatusColumn = user_who_initiated === user1 ? 'user1_status' : 'user2_status';
+            const updated = await pool.query(
+                `UPDATE matches SET ${myStatusColumn} = $1, matched_at = CURRENT_TIMESTAMP WHERE match_id = $2 RETURNING *`, 
+                ['liked', match.match_id]
+            );
+            const matched = updated.rows[0];
+            return res.status(200).json({
+                match: {
+                    match_id: matched.match_id, 
+                    user1_id: matched.user1_id, 
+                    user2_id: matched.user2_id, 
+                    event_id: matched.event_id,  
+                    initiated_by: matched.initiated_by,
+                    user1_status: matched.user1_status, 
+                    user2_status: matched.user2_status, 
+                    created_at: matched.created_at, 
+                    matched_at: matched.matched_at
+                },
+                message: "You are now matched with this candidate"
+            });
         }
         
-        //7. If match doesn't exist - CREATE
-        if(user1 === user_who_initiated){
-            const new_match = await pool.query(
-                'INSERT INTO matches(user1_id, user2_id, event_id, initiated_by, user1_status, user2_status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *', 
-                [user1, user2, req.params.eventId, req.user.user_id, 'liked', 'pending']
-            ); 
-            const new_match_created = new_match.rows[0];
-            return res.status(200).json({
-                new_match: {
-                    match_id: new_match_created.match_id,
-                    initiated_by: new_match_created.initiated_by,
-                    user1_status: new_match_created.user1_status,
-                    user2_status: new_match_created.user2_status,
-                    created_at: new_match_created.created_at,
-                }
-            });
-        } else {
-            const new_match1 = await pool.query(
-                'INSERT INTO matches(user1_id, user2_id, event_id, initiated_by, user1_status, user2_status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *', 
-                [user1, user2, req.params.eventId, req.user.user_id, 'pending', 'liked']
-            ); 
-            const new_match_created1 = new_match1.rows[0];
-            return res.status(200).json({
-                new_match: {
-                    match_id: new_match_created1.match_id,
-                    initiated_by: new_match_created1.initiated_by,
-                    user1_status: new_match_created1.user1_status,
-                    user2_status: new_match_created1.user2_status,
-                    created_at: new_match_created1.created_at,
-                }
-            });
-        }
+        //9. If match doesn't exist - CREATE (the initiator's side starts as liked)
+        const [user1_status, user2_status] = user1 === user_who_initiated ? ['liked', 'pending'] : ['pending', 'liked'];
+        const new_match = await pool.query(
+            'INSERT INTO matches(user1_id, user2_id, event_id, initiated_by, user1_status, user2_status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *', 
+            [user1, user2, eventId, user_who_initiated, user1_status, user2_status]
+        ); 
+        const new_match_created = new_match.rows[0];
+        return res.status(200).json({
+            new_match: {
+                match_id: new_match_created.match_id,
+                initiated_by: new_match_created.initiated_by,
+                user1_status: new_match_created.user1_status,
+                user2_status: new_match_created.user2_status,
+                created_at: new_match_created.created_at,
+            }
+        });
 
     } catch(error){
+        //23505 = unique violation: both people liked each other at the same moment
+        if(error.code === '23505'){
+            return res.status(409).json({
+                error: "This like was already recorded. Refresh to see your matches."
+            });
+        }
+        //22P02 = malformed UUID in participant_id
+        if(error.code === '22P02'){
+            return res.status(400).json({
+                error: "Invalid participant_id"
+            });
+        }
         console.log('Liking Match error', error);
         res.status(500).json({
             error: "Internal Server Error. Please try again later."
@@ -277,12 +283,13 @@ const getMutualMatches = async(req, res) => {
             FROM matches m
             LEFT JOIN users u1 ON m.user1_id = u1.user_id
             LEFT JOIN users u2 ON m.user2_id = u2.user_id
-            LEFT JOIN event_participants ep1 ON m.user1_id = ep1.user_id
-            LEFT JOIN event_participants ep2 ON m.user2_id = ep2.user_id
+            LEFT JOIN event_participants ep1 ON m.user1_id = ep1.user_id AND ep1.event_id = $4
+            LEFT JOIN event_participants ep2 ON m.user2_id = ep2.user_id AND ep2.event_id = $4
             WHERE (m.user1_id = $1 OR m.user2_id = $1)
+            AND m.event_id = $4
             AND m.user1_status = $2
             AND m.user2_status = $3`
-        , [userId, 'liked', 'liked']);
+        , [userId, 'liked', 'liked', eventId]);
         // 4. Return results
         return res.status(200).json({
             mutual: matches.rows
@@ -426,7 +433,7 @@ const reportMatch = async(req, res) => {
         const matchId = req.params.matchId;
         const { reason } = req.body;
 
-        if (!reason || reason.trim().length === 0) {
+        if (typeof reason !== 'string' || reason.trim().length === 0) {
             return res.status(400).json({
                 error: "Report reason is required"
             });
@@ -465,9 +472,14 @@ const reportMatch = async(req, res) => {
         const reportedUserName = match.user1_id === userId ? match.user2_username : match.user1_username;
         const reportedUserEmail = match.user1_id === userId ? match.user2_email : match.user1_email;
 
-        // Email report to admin
-        // Note: In production, configure SMTP or use a service like SendGrid
-        // For now, we'll log it and return success
+        // Save the report so it survives restarts and can be reviewed
+        await pool.query(
+            'INSERT INTO reports(match_id, event_id, reporter_id, reported_user_id, reason) VALUES ($1, $2, $3, $4, $5)',
+            [matchId, eventId, userId, reportedUserId, reason.trim().slice(0, 1000)]
+        );
+
+        // Also log it so it shows up in the server logs right away
+        // TODO: email the admin too (SMTP or a service like SendGrid)
         console.log(`
             REPORT SUBMITTED
             ================
@@ -477,8 +489,6 @@ const reportMatch = async(req, res) => {
             Reason: ${reason}
             Timestamp: ${new Date().toISOString()}
         `);
-
-        // TODO: Integrate email service here to send to abhadeshpande5@gmail.com
 
         return res.status(200).json({
             message: "Report submitted successfully"
@@ -491,6 +501,15 @@ const reportMatch = async(req, res) => {
         });
     }
 };
+
+//Number of mutual matches (teammates) a user has in one event
+async function countTeammates(userId, eventId){
+    const result = await pool.query(
+        "SELECT COUNT(*)::int AS count FROM matches WHERE (user1_id = $1 OR user2_id = $1) AND event_id = $2 AND user1_status = 'liked' AND user2_status = 'liked'",
+        [userId, eventId]
+    );
+    return result.rows[0].count;
+}
 
 function normalizeIds(val1, val2){
     const array = [val1, val2];
