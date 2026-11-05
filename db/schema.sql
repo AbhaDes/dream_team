@@ -5,9 +5,27 @@ CREATE EXTENSION IF NOT EXISTS vector;
 CREATE TABLE users (
     user_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     username VARCHAR(100) NOT NULL,
+    -- the API stores emails trimmed + lowercased
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(60) NOT NULL,
+    -- false until the user enters the code emailed at signup; login requires true
+    email_verified BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- one account per address regardless of case
+CREATE UNIQUE INDEX users_email_lower_key ON users (lower(email));
+
+-- the pending 6-digit verification code for an unverified user (at most one).
+-- Only an HMAC-SHA256 of the code is stored; the row is deleted once verified.
+CREATE TABLE email_verification_codes (
+    user_id UUID PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
+    code_hash CHAR(64),              -- NULL = no live code (used up / too many tries)
+    expires_at TIMESTAMPTZ,
+    attempts INTEGER NOT NULL DEFAULT 0,
+    last_sent_at TIMESTAMPTZ,        -- 60s resend cooldown
+    send_count INTEGER NOT NULL DEFAULT 0,
+    send_window_start TIMESTAMPTZ    -- max 5 sends per hour
 );
 
 CREATE TABLE events (
@@ -53,8 +71,8 @@ CREATE TABLE event_participants(
     -- null until the embedding service fills it
     profile_embedding vector(1536),
 
-    -- one profile per user per event
-    UNIQUE(user_id, event_id)
+    -- one profile per user per event (same name as in migration 002)
+    CONSTRAINT event_participants_user_event_unique UNIQUE (user_id, event_id)
 );
 
 CREATE TYPE match_type AS ENUM (
@@ -75,7 +93,8 @@ CREATE TABLE matches (
   
   -- Constraint:
   UNIQUE(user1_id, user2_id, event_id),
-  CHECK (user1_id <> user2_id)
+  -- same name as in migration 002
+  CONSTRAINT matches_not_self CHECK (user1_id <> user2_id)
 );
 
 -- Reports filed against a match; kept so they can be reviewed
@@ -87,7 +106,10 @@ CREATE TABLE reports (
   reporter_id UUID REFERENCES users(user_id),
   reported_user_id UUID REFERENCES users(user_id),
   reason VARCHAR(1000) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  -- one report per reporter per match (same name as in migration 002)
+  CONSTRAINT reports_reporter_match_unique UNIQUE (match_id, reporter_id)
 );
 -- Session storage for express-session via connect-pg-simple
 -- (also auto-created at runtime by createTableIfMissing in server.js)
