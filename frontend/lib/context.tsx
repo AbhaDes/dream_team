@@ -74,9 +74,18 @@ interface AppState {
   isAuthenticated: boolean
 }
 
+//result of login / signup / verifyEmail / resendCode
+export interface AuthResult {
+  ok: boolean
+  error?: string
+  needsVerification?: boolean //login: right password, email not verified yet
+}
+
 interface AppContextType extends AppState {
-  login: (email: string, password: string) => Promise<boolean>
-  signup: (email: string, password: string, username: string) => Promise<boolean>
+  login: (email: string, password: string) => Promise<AuthResult>
+  signup: (email: string, password: string, username: string) => Promise<AuthResult>
+  verifyEmail: (email: string, code: string, password: string) => Promise<AuthResult>
+  resendCode: (email: string) => Promise<AuthResult>
   logout: () => void
   updateProfile: (updates: Partial<User>) => void
   fetchMatches: () => void
@@ -104,16 +113,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem("dreamteam-state")
-    if (saved) {
-      try {
+    let authenticated = false
+    try {
+      const saved = localStorage.getItem("dreamteam-state")
+      if (saved) {
         const parsed = JSON.parse(saved)
-        setState(parsed)
-      } catch {
-        // ignore
+        //merge over the defaults so a stale saved shape (older app version) can't
+        //leave a list undefined
+        setState(prev => ({
+          ...prev,
+          ...parsed,
+          matches: Array.isArray(parsed.matches) ? parsed.matches : [],
+          pendingMatches: Array.isArray(parsed.pendingMatches) ? parsed.pendingMatches : [],
+          connections: Array.isArray(parsed.connections) ? parsed.connections : [],
+        }))
+        authenticated = !!parsed.isAuthenticated
       }
+    } catch {
+      // ignore
     }
-    setIsLoading(false);
+    //if the saved state says logged in, stay loading until /api/auth/me answers
+    //(below) so pages don't render stale data and then bounce on a 401
+    if (!authenticated) {
+      setIsLoading(false)
+    }
   }, [])
 
   useEffect(() => {
@@ -138,9 +161,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   //fetch for logged-in endpoints: sends the cookie and logs out locally on a 401
   const authFetch = async (url: string, init: RequestInit = {}) => {
+    //init.headers may be a plain object, an array of pairs or a Headers object
+    const headers = new Headers(init.headers)
+    if (!headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json')
+    }
     const response = await fetch(url, {
       ...init,
-      headers: { 'Content-Type': 'application/json', ...init.headers },
+      headers,
       credentials: 'include',
     })
     if (response.status === 401) {
@@ -150,11 +178,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   //on load, check the saved session is still alive on the server
+  //(isLoading stays true until this resolves when the saved state says authenticated)
+  const [sessionChecked, setSessionChecked] = useState(false)
   useEffect(() => {
-    if (state.isAuthenticated) {
-      authFetch('/api/auth/me').catch(() => {})
+    if (state.isAuthenticated && !sessionChecked) {
+      //the timeout keeps a stalled request from leaving isLoading true forever;
+      //an abort rejects, which takes the same path as any failed request below
+      authFetch('/api/auth/me', { signal: AbortSignal.timeout(8000) })
+        .catch(() => {})
+        .finally(() => {
+          setSessionChecked(true)
+          setIsLoading(false)
+        })
     }
-  }, [state.isAuthenticated])
+  }, [state.isAuthenticated, sessionChecked])
   
   //GETS THE TOP 10 MATCHES ON THE MATCHES PAGE
   const fetchMatches = async() => {
@@ -246,11 +283,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  //FOR LOGIN PURPOSES ONLY 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    const url = `/api/auth/login`;
+  //After the server has started a session (login or email verification):
+  //store the user, then merge in their event profile
+  const finishLogin = async (user: User) => {
     const getProfileUrl = `/api/events/${CURRENT_EVENT_ID}/participants/me`;
-    
+    setState({
+      user,
+      matches: [],
+      pendingMatches: [],
+      connections: [],
+      isAuthenticated: true,
+    })
+
+    const profileResponse = await fetch(getProfileUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type' : 'application/json'
+      },
+      credentials: "include"
+    });
+
+    if(profileResponse.ok){
+      const profileResult = await profileResponse.json();
+      //merge profile into user state
+      setState(prev => ({
+        ...prev,
+        user: {
+         ...prev.user,
+          ...profileResult.profile,
+          profileComplete: !!profileResult.profile.role
+        }
+      }))
+    }
+  }
+
+  //FOR LOGIN PURPOSES ONLY
+  //needsVerification = right password, but the email isn't verified yet
+  const login = async (email: string, password: string): Promise<AuthResult> => {
+    const url = `/api/auth/login`;
+
     try {
       const response = await fetch(url, {
         method: 'POST', // 1. Specify your HTTP method here
@@ -260,52 +331,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
         credentials: "include", //tells the browser to include cookies in the request
         body: JSON.stringify({email, password}), // 3. Convert your data payload to a string
       });
+      //parse the response body with response.json()
+      const result = await response.json().catch(() => ({}));
       //check if the response failed
       if(!response.ok){
-        throw new Error(`Reponse status: ${response.status}`);
+        return {
+          ok: false,
+          error: result.error || `Login failed (status ${response.status})`,
+          needsVerification: !!result.needs_verification,
+        };
       }
-      //parse the response body with response.json()
-      const result = await response.json();
       //use setState() to update the app state with real user data
-      setState({
-        user: result.user,
-        matches: [],
-        pendingMatches: [],
-        connections: [],
-        isAuthenticated: true,
-      })
-
-      const profileResponse = await fetch(getProfileUrl, {
-        method: 'GET',
-        headers: {
-          'Content-Type' : 'application/json'
-        },
-        credentials: "include"
-      });
-
-      if(profileResponse.ok){
-        const profileResult = await profileResponse.json();
-        console.log('Profile Result: ' , profileResult);
-        //merge profile into user state 
-        setState(prev => ({
-          ...prev, 
-          user: {
-           ...prev.user,
-            ...profileResult.profile,
-            profileComplete: !!profileResult.profile.role
-          }
-        }))
-      }
-    return true
+      await finishLogin(result.user);
+      return { ok: true }
     }catch(error){
       console.error('Error', error);
-      return false;
+      return { ok: false, error: 'Something went wrong. Please try again.' };
 
     }
   }
 
   //FOR SIGNUP PURPOSES ONLY
-  const signup = async (email: string, password: string, username: string): Promise<boolean> => {
+  //Creates the account and emails a code -- the user is NOT logged in until verifyEmail
+  const signup = async (email: string, password: string, username: string): Promise<AuthResult> => {
     const url = `/api/auth/register`;
 
     try{
@@ -318,28 +366,66 @@ export function AppProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({email, password, username}),
       });
 
-      //check if response failed 
+      const result = await response.json().catch(() => ({}));
+      //check if response failed
       if(!response.ok){
-        throw new Error(`Response status: ${response.status}`);
+        return { ok: false, error: result.error || `Could not create account (status ${response.status})` };
       }
-
-      const result = await response.json();
-      setState({
-        user: result.user,
-        matches: [],
-        connections: [],
-        pendingMatches: [],
-        isAuthenticated: true,
-
-      })
-      
-      return true;
+      return { ok: true, needsVerification: true };
     }catch(error){
       console.error("Error: ", error);
-      return false;
+      return { ok: false, error: 'Something went wrong. Please try again.' };
 
     }
-    
+
+  }
+
+  //FOR EMAIL VERIFICATION ONLY -- a correct code + the account's password logs the user in.
+  //The password is only sent, never stored here or in localStorage.
+  const verifyEmail = async (email: string, code: string, password: string): Promise<AuthResult> => {
+    try{
+      const response = await fetch('/api/auth/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type' : 'application/json',
+        },
+        credentials: "include",
+        body: JSON.stringify({email, code, password}),
+      });
+
+      const result = await response.json().catch(() => ({}));
+      if(!response.ok){
+        return { ok: false, error: result.error || `Could not verify (status ${response.status})` };
+      }
+      await finishLogin(result.user);
+      return { ok: true };
+    }catch(error){
+      console.error("Error: ", error);
+      return { ok: false, error: 'Something went wrong. Please try again.' };
+    }
+  }
+
+  //asks for a new verification code (the server answers the same whether or not one is sent)
+  const resendCode = async (email: string): Promise<AuthResult> => {
+    try{
+      const response = await fetch('/api/auth/resend-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type' : 'application/json',
+        },
+        credentials: "include",
+        body: JSON.stringify({email}),
+      });
+
+      const result = await response.json().catch(() => ({}));
+      if(!response.ok){
+        return { ok: false, error: result.error || `Could not send a new code (status ${response.status})` };
+      }
+      return { ok: true };
+    }catch(error){
+      console.error("Error: ", error);
+      return { ok: false, error: 'Something went wrong. Please try again.' };
+    }
   }
 
   const logout = async() => {
@@ -464,6 +550,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       ...state,
       login,
       signup,
+      verifyEmail,
+      resendCode,
       logout,
       updateProfile,
       fetchMatches,
