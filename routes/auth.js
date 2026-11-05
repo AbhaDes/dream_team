@@ -10,7 +10,14 @@ const limiter = require('../middleware/rateLimiter');
 router.post('/register', limiter.registerLimiter, authController.register);
 
 //Define route 'login'
-router.post('/login', limiter.loginLimiter, authController.login);
+router.post('/login', limiter.loginIpLimiter, limiter.loginLimiter, authController.login);
+
+//EMAIL VERIFICATION ENDPOINTS
+//Define route 'verify' -- checks the emailed code and logs the user in
+router.post('/verify', limiter.verifyLimiter, authController.verify);
+
+//Define route 'resend-code' -- emails a fresh code
+router.post('/resend-code', limiter.resendIpLimiter, limiter.resendCooldownLimiter, limiter.resendHourlyLimiter, authController.resendCode);
 
 //Define route "me"
 router.get('/me', authMiddleware, authController.me);

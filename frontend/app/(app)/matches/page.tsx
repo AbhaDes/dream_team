@@ -1,35 +1,42 @@
 "use client"
 
-import { useApp, Match} from "@/lib/context"
+import { useApp } from "@/lib/context"
 import { Sidebar } from "@/components/sidebar"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
-import { Check, X } from "lucide-react"
+import { Check } from "lucide-react"
 
 
 
 export default function MatchesPage() {
-  const { user, matches, isAuthenticated, fetchMatches, acceptMatch} = useApp()
+  const { user, matches, isAuthenticated, isLoading, fetchMatches, acceptMatch} = useApp()
   const router = useRouter()
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    //wait for the saved session to load, or a page refresh bounces to /login
+    if (!isLoading && !isAuthenticated) {
       router.push("/login")
     }
-  }, [isAuthenticated, router])
+  }, [isAuthenticated, isLoading, router])
 
   useEffect(() => {
-    fetchMatches();
-  },[])
+    if (isAuthenticated) {
+      fetchMatches();
+    }
+  },[isAuthenticated])
+
+  const handleLike = async (participantId: string) => {
+    const error = await acceptMatch(participantId)
+    if (error) alert(error)
+  }
 
   if (!isAuthenticated || !user) {
     return null
   }
 
-  const pendingMatches = matches //here, matches endpoint getPendingMatches can be call
-  const mutualMatches = [] as Match[]//here, match controller endpoint getMutualMatches can be called
-
-
+  //suggested teammates from the matching endpoint — liking one moves it to
+  //the connections page, which is where pending and mutual matches live
+  const pendingMatches = matches
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -93,7 +100,7 @@ export default function MatchesPage() {
                         )}
 
                         <div className="flex flex-wrap gap-1.5 ml-13">
-                          {match.skills.map((skill) => (
+                          {(match.skills ?? []).map((skill) => (
                             <span
                               key={skill}
                               className="px-2 py-0.5 rounded bg-secondary text-xs"
@@ -112,13 +119,7 @@ export default function MatchesPage() {
 
                       <div className="flex gap-2 ml-4">
                         <button
-                          className="w-9 h-9 rounded-md border border-border flex items-center justify-center hover:bg-secondary transition-colors"
-                          title="Decline"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => acceptMatch(match.participant_id)}
+                          onClick={() => handleLike(match.participant_id)}
                           className="w-9 h-9 rounded-md bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors"
                           title="Accept"
                         >
@@ -131,39 +132,6 @@ export default function MatchesPage() {
               </div>
             )}
           </section>
-
-          {/* Mutual Matches */}
-          {mutualMatches.length > 0 && (
-            <section>
-              <h2 className="text-sm font-medium text-muted-foreground mb-4">
-                Decided ({mutualMatches.length})
-              </h2>
-              
-              <div className="space-y-2">
-                {mutualMatches.map((match) => (
-                  <div
-                    key={match.user_id}
-                    className="border border-border rounded-md p-4 flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-medium">
-                        {match.username.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">{match.username}</p>
-                        <p className="text-xs text-muted-foreground capitalize">
-                          {match.role}
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-xs px-2 py-1 rounded bg-[#22c55e]/10 text-[#22c55e]">
-                      Connected
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
         </div>
       </main>
     </div>

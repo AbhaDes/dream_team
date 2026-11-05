@@ -1,12 +1,4 @@
-import os  
-from dotenv import load_dotenv
-
-
 import numpy as np
-
-def return_role(data: list[dict], role: str):
-    names = [item["name"] for item in data if item["role"] == role]
-    print(names)
 
 
 def cosine_similarity(a, b):
@@ -16,4 +8,3 @@ def cosine_similarity(a, b):
     product = length_a * length_b
     similarity = dot_product / product
     return similarity
-

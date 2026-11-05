@@ -9,7 +9,7 @@ function getCompatibilityScore (user1, user2){
     //--BEST PAIRS AND MID PAIRS FOR ROLE MATCHING
     const compStrongPairs = [
         ["Frontend Developer", "Backend Developer"],  
-        ["UI/UX Design", "Full-stack Developer"], 
+        ["UI/UX Designer", "Full-stack Developer"], 
         ["Full-stack Developer", "Product Manager"], 
     ];
     const compMidPairs = [

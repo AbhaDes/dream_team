@@ -49,7 +49,7 @@ const skillSuggestions = [
 const experienceLevel = ["Beginner", "Intermediate", "Advanced"]
 
 export default function ProfilePage() {
-  const { user, isAuthenticated, updateProfile } = useApp()
+  const { user, isAuthenticated, isLoading, updateProfile, authFetch } = useApp()
   const router = useRouter()
   
   const [username, setName] = useState("")
@@ -64,13 +64,15 @@ export default function ProfilePage() {
   const [bio, setBio] = useState("")
   const [skillInput, setSkillInput] = useState("")
   const [saved, setSaved] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [experience, setExperience] = useState<"Beginner" | "Intermediate" | "Advanced">("Beginner")
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    //wait for the saved session to load, or a page refresh bounces to /login
+    if (!isLoading && !isAuthenticated) {
       router.push("/login")
     }
-  }, [isAuthenticated, router])
+  }, [isAuthenticated, isLoading, router])
 
   useEffect(() => {
     if (user) {
@@ -103,33 +105,41 @@ export default function ProfilePage() {
     const joinUrl = `/api/events/${CURRENT_EVENT_ID}/join`
     const updateUrl = `/api/events/${CURRENT_EVENT_ID}/participants/me`
     const body = JSON.stringify({role, experience, availability, skills, bio})
+    setSaveError(null)
+
+    if (!role) {
+      setSaveError("Pick a role before saving")
+      return
+    }
+
+    //the server's error message (e.g. "Bio must be 300 characters or fewer"), if any
+    const errorFrom = async (response: Response) => {
+      const result = await response.json().catch(() => ({}))
+      return result.error || `Save failed (status ${response.status})`
+    }
 
     try {
       // 1. Join first 
-      console.log("Joining event at:", joinUrl);
-      let joinResponse = await fetch(joinUrl, {
+      let joinResponse = await authFetch(joinUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body,
       })
 
       // 409 Conflict = already joined. Proceed anyway
       if (!joinResponse.ok && joinResponse.status !== 409) {
-        throw new Error(`Join failed: ${joinResponse.status}`);
+        setSaveError(await errorFrom(joinResponse))
+        return
       }
 
       // 2. Then update profile 
-      console.log("Updating profile at:", updateUrl);
-      let updateResponse = await fetch(updateUrl, {
+      let updateResponse = await authFetch(updateUrl, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
         body,
       })
 
       if (!updateResponse.ok) {
-        throw new Error(`Update failed: ${updateResponse.status}`);
+        setSaveError(await errorFrom(updateResponse))
+        return
       }
 
       // Success
@@ -147,6 +157,7 @@ export default function ProfilePage() {
 
     } catch(error) {
       console.log("Error:", error);
+      setSaveError("Could not reach the server. Please try again.")
     }
     setTimeout(() => setSaved(false), 2000)
   }
@@ -312,10 +323,12 @@ export default function ProfilePage() {
               <textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
+                maxLength={300}
                 rows={3}
                 placeholder="Tell potential teammates about yourself..."
                 className="w-full px-3 py-2 rounded-md bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring resize-none text-sm"
               />
+              <p className="text-xs text-muted-foreground mt-1 text-right">{bio.length}/300</p>
             </div>
 
             {/* Save */}
@@ -326,6 +339,9 @@ export default function ProfilePage() {
               >
                 Save profile
               </button>
+              {saveError && (
+                <span className="text-sm text-destructive">{saveError}</span>
+              )}
               {saved && (
                 <span className="text-sm text-muted-foreground">Saved!</span>
               )}

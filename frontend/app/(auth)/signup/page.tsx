@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useApp } from "@/lib/context"
+import { VerifyCodeStep } from "../verify-code"
 
 export default function SignupPage() {
   const router = useRouter()
@@ -13,6 +14,8 @@ export default function SignupPage() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  //after the account is created, the user enters the emailed code
+  const [verifying, setVerifying] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -20,11 +23,11 @@ export default function SignupPage() {
     setLoading(true)
 
     try {
-      const success = await signup(email, password, username)
-      if (success) {
-        router.push("/profile")
+      const result = await signup(email, password, username)
+      if (result.ok) {
+        setVerifying(true)
       } else {
-        setError("Could not create account")
+        setError(result.error || "Could not create account")
       }
     } catch {
       setError("Something went wrong")
@@ -45,85 +48,96 @@ export default function SignupPage() {
 
       <main className="flex-1 flex items-center justify-center px-6">
         <div className="w-full max-w-sm">
-          <h1 className="text-2xl font-semibold tracking-tight mb-2">
-            Create your account
-          </h1>
-          <p className="text-sm text-muted-foreground mb-8">
-            Get started finding your dream team
-          </p>
-
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
-            <p className="text-sm text-blue-900">
-              <span className="font-medium">Privacy Notice:</span> When you match with someone, your email will be shared with them. By creating an account, you agree to this.
+          {verifying ? (
+            <VerifyCodeStep
+              email={email}
+              password={password}
+              onVerified={() => router.push("/profile")}
+              onBack={() => setVerifying(false)}
+            />
+          ) : (
+          <>
+            <h1 className="text-2xl font-semibold tracking-tight mb-2">
+              Create your account
+            </h1>
+            <p className="text-sm text-muted-foreground mb-8">
+              Get started finding your dream team
             </p>
-          </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-2">
-                Name
-              </label>
-              <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full h-10 px-3 rounded-md bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="Your name"
-                required
-              />
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
+              <p className="text-sm text-blue-900">
+                <span className="font-medium">Privacy Notice:</span> When you match with someone, your email will be shared with them. By creating an account, you agree to this.
+              </p>
             </div>
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-2">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-10 px-3 rounded-md bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="you@example.com"
-                required
-              />
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium mb-2">
+                  Name
+                </label>
+                <input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full h-10 px-3 rounded-md bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder="Your name"
+                  required
+                />
+              </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-10 px-3 rounded-md bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="••••••••"
-                required
-                minLength={8}
-              />
-            </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium mb-2">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full h-10 px-3 rounded-md bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder="you@example.com"
+                  required
+                />
+              </div>
 
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium mb-2">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full h-10 px-3 rounded-md bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  placeholder="••••••••"
+                  required
+                  minLength={8}
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full h-10 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
-            >
-              {loading ? "Creating account..." : "Create account"}
-            </button>
-          </form>
+              {error && (
+                <p className="text-sm text-destructive">{error}</p>
+              )}
 
-          <p className="mt-6 text-sm text-muted-foreground text-center">
-            Already have an account?{" "}
-            <Link href="/login" className="text-foreground hover:underline">
-              Log in
-            </Link>
-          </p>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full h-10 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                {loading ? "Creating account..." : "Create account"}
+              </button>
+            </form>
+
+            <p className="mt-6 text-sm text-muted-foreground text-center">
+              Already have an account?{" "}
+              <Link href="/login" className="text-foreground hover:underline">
+                Log in
+              </Link>
+            </p>
+          </>
+          )}
         </div>
       </main>
     </div>
