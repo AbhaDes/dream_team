@@ -2,6 +2,9 @@ const pool = require('../config/database');
 const { getCompatibilityScore } = require('../utils/matchingAlgorithm');
 const { MAX_TEAMMATES } = require('../config/constants');
 
+//sent when the match row disappears mid-like (the other person hit undo)
+const MATCH_CHANGED = "This match changed. Refresh and try again.";
+
 //1. FUNCTION THAT RETURNS THE TOP 10 MATCHES IN THE SYSTEM
 
 const findMatch = async(req, res, next) => {
@@ -114,7 +117,9 @@ const createMatch = async(req, res, next) => {
     try{
         //1. Get user_ids
         const user_who_initiated = req.user.user_id;
-        const user_who_got_liked = req.body.participant_id;
+        //req.body is undefined when no JSON body was sent
+        const body = req.body ?? {};
+        const user_who_got_liked = body.participant_id;
         const eventId = req.params.eventId;
 
         if(!user_who_got_liked){
@@ -138,100 +143,139 @@ const createMatch = async(req, res, next) => {
                 error: "Participant not found. Please select another candidate."
             });
         }
-        //4. If exists, get the user_id of the participant 
+        //4. If exists, get the user_id of the participant
         const target_user_id = exists.rows[0].user_id;
         if(target_user_id === user_who_initiated){
             return res.status(400).json({
                 error: "You cannot like yourself"
             });
         }
-        
+
         //5. Normalize IDs
         const {user1, user2} = normalizeIds(user_who_initiated, target_user_id);
-        
-        //6. Check the teammate limit for this event
-        //409, not 401: the request is authenticated, it just conflicts with the
-        //team-size rule. A 401 here makes the frontend treat it as a dead session.
-        if(await countTeammates(user_who_initiated, eventId) >= MAX_TEAMMATES){
-            return res.status(409).json({
-                error: `You have already matched with ${MAX_TEAMMATES} teammates`
-            });
-        }
-        
-        //7. Check if match already exists for this event
-        const result = await pool.query('SELECT * FROM matches WHERE user1_id = $1 AND user2_id = $2 AND event_id = $3', [user1, user2, eventId]);
-        
-        //8. If match exists - UPDATE
-        if(result.rows.length > 0){
-            const match = result.rows[0];
-            if(match.initiated_by === user_who_initiated){
-                //409: the like exists already, nothing is missing
-                return res.status(409).json({
-                    error: "Cannot like the same participant twice"
-                });
+
+        //Steps 6-11 run in one transaction on a dedicated client so two likes
+        //can't both pass the teammate check and push someone past the limit
+        const client = await pool.connect();
+        //ends the transaction and sends an error response
+        const reject = async (status, error) => {
+            await client.query('ROLLBACK');
+            return res.status(status).json({ error });
+        };
+        try {
+            await client.query('BEGIN');
+
+            //6. Lock both users' participant rows for this event. Every like
+            //touching either user waits here, and locking in user_id order means
+            //A->B and B->A can't deadlock each other.
+            await client.query(
+                'SELECT participant_id FROM event_participants WHERE event_id = $1 AND user_id = ANY($2::uuid[]) ORDER BY user_id FOR UPDATE',
+                [eventId, [user1, user2]]
+            );
+
+            //7. Check if match already exists for this event
+            const result = await client.query('SELECT * FROM matches WHERE user1_id = $1 AND user2_id = $2 AND event_id = $3', [user1, user2, eventId]);
+            let match = result.rows[0];
+
+            //8. Duplicate like / already matched (checked before the limit so a
+            //full team re-liking gets the real reason)
+            if(match){
+                const duplicate = duplicateLikeError(match, user_who_initiated);
+                if(duplicate){
+                    return await reject(409, duplicate);
+                }
             }
-            if(match.user1_status === 'liked' && match.user2_status === 'liked'){
-                return res.status(409).json({
-                    error: "You are already matched with this candidate"
-                });
+
+            //9. Check the teammate limit for this event
+            //409, not 401: the request is authenticated, it just conflicts with the
+            //team-size rule. A 401 here makes the frontend treat it as a dead session.
+            if(await countTeammates(client, user_who_initiated, eventId) >= MAX_TEAMMATES){
+                return await reject(409, `You have already matched with ${MAX_TEAMMATES} teammates`);
             }
+
+            //10. If match doesn't exist - CREATE (the initiator's side starts as liked)
+            if(!match){
+                const [user1_status, user2_status] = user1 === user_who_initiated ? ['liked', 'pending'] : ['pending', 'liked'];
+                const new_match = await client.query(
+                    'INSERT INTO matches(user1_id, user2_id, event_id, initiated_by, user1_status, user2_status) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user1_id, user2_id, event_id) DO NOTHING RETURNING *',
+                    [user1, user2, eventId, user_who_initiated, user1_status, user2_status]
+                );
+                if(new_match.rows.length > 0){
+                    await client.query('COMMIT');
+                    const new_match_created = new_match.rows[0];
+                    return res.status(200).json({
+                        new_match: {
+                            match_id: new_match_created.match_id,
+                            initiated_by: new_match_created.initiated_by,
+                            user1_status: new_match_created.user1_status,
+                            user2_status: new_match_created.user2_status,
+                            created_at: new_match_created.created_at,
+                        }
+                    });
+                }
+                //the other person's first like landed first: treat this as a like-back
+                const reread = await client.query('SELECT * FROM matches WHERE user1_id = $1 AND user2_id = $2 AND event_id = $3', [user1, user2, eventId]);
+                match = reread.rows[0];
+                //the conflicting row was deleted (undo) before we could read it
+                if(!match){
+                    return await reject(409, MATCH_CHANGED);
+                }
+                const duplicate = duplicateLikeError(match, user_who_initiated);
+                if(duplicate){
+                    return await reject(409, duplicate);
+                }
+            }
+
+            //11. Match exists - UPDATE
             //liking back completes the match, so it fills a slot on THEIR team too
-            if(await countTeammates(target_user_id, eventId) >= MAX_TEAMMATES){
-                return res.status(409).json({
-                    error: "This participant's team is already full"
-                });
+            if(await countTeammates(client, target_user_id, eventId) >= MAX_TEAMMATES){
+                return await reject(409, "This participant's team is already full");
             }
             //which column is mine depends on the normalized order (never user input)
             const myStatusColumn = user_who_initiated === user1 ? 'user1_status' : 'user2_status';
-            const updated = await pool.query(
-                `UPDATE matches SET ${myStatusColumn} = $1, matched_at = CURRENT_TIMESTAMP WHERE match_id = $2 RETURNING *`, 
+            const updated = await client.query(
+                `UPDATE matches SET ${myStatusColumn} = $1, matched_at = CURRENT_TIMESTAMP WHERE match_id = $2 RETURNING *`,
                 ['liked', match.match_id]
             );
+            //the match was deleted (undo) between the read and the update
+            if(updated.rowCount === 0){
+                return await reject(409, MATCH_CHANGED);
+            }
+            await client.query('COMMIT');
             const matched = updated.rows[0];
             return res.status(200).json({
                 match: {
-                    match_id: matched.match_id, 
-                    user1_id: matched.user1_id, 
-                    user2_id: matched.user2_id, 
-                    event_id: matched.event_id,  
+                    match_id: matched.match_id,
+                    user1_id: matched.user1_id,
+                    user2_id: matched.user2_id,
+                    event_id: matched.event_id,
                     initiated_by: matched.initiated_by,
-                    user1_status: matched.user1_status, 
-                    user2_status: matched.user2_status, 
-                    created_at: matched.created_at, 
+                    user1_status: matched.user1_status,
+                    user2_status: matched.user2_status,
+                    created_at: matched.created_at,
                     matched_at: matched.matched_at
                 },
                 message: "You are now matched with this candidate"
             });
+        } catch(error){
+            await client.query('ROLLBACK').catch(() => {});
+            throw error;
+        } finally {
+            client.release();
         }
-        
-        //9. If match doesn't exist - CREATE (the initiator's side starts as liked)
-        const [user1_status, user2_status] = user1 === user_who_initiated ? ['liked', 'pending'] : ['pending', 'liked'];
-        const new_match = await pool.query(
-            'INSERT INTO matches(user1_id, user2_id, event_id, initiated_by, user1_status, user2_status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *', 
-            [user1, user2, eventId, user_who_initiated, user1_status, user2_status]
-        ); 
-        const new_match_created = new_match.rows[0];
-        return res.status(200).json({
-            new_match: {
-                match_id: new_match_created.match_id,
-                initiated_by: new_match_created.initiated_by,
-                user1_status: new_match_created.user1_status,
-                user2_status: new_match_created.user2_status,
-                created_at: new_match_created.created_at,
-            }
-        });
 
     } catch(error){
-        //23505 = unique violation: both people liked each other at the same moment
+        //23505 = unique violation. ON CONFLICT covers the like race, so this is
+        //only a safety net.
         if(error.code === '23505'){
             return res.status(409).json({
                 error: "This like was already recorded. Refresh to see your matches."
             });
         }
-        //22P02 = malformed UUID in participant_id
+        //22P02 = malformed UUID (participant_id or eventId)
         if(error.code === '22P02'){
             return res.status(400).json({
-                error: "Invalid participant_id"
+                error: "Invalid id in request"
             });
         }
         console.log('Liking Match error', error);
@@ -418,6 +462,12 @@ const deleteMatch = async(req, res) => {
         });
 
     } catch (error) {
+        //22P02 = malformed UUID in matchId or eventId
+        if (error.code === '22P02') {
+            return res.status(400).json({
+                error: "Invalid id in request"
+            });
+        }
         console.error('Delete match error:', error);
         return res.status(500).json({
             error: "Internal Server Error. Please try again later"
@@ -431,7 +481,9 @@ const reportMatch = async(req, res) => {
         const userId = req.user.user_id;
         const eventId = req.params.eventId;
         const matchId = req.params.matchId;
-        const { reason } = req.body;
+        //req.body is undefined when no JSON body was sent
+        const body = req.body ?? {};
+        const { reason } = body;
 
         if (typeof reason !== 'string' || reason.trim().length === 0) {
             return res.status(400).json({
@@ -439,9 +491,9 @@ const reportMatch = async(req, res) => {
             });
         }
 
-        // Get the match to verify ownership and get other user details
+        // Get the match to verify ownership
         const matchResult = await pool.query(
-            'SELECT m.*, u1.username as user1_username, u1.email as user1_email, u2.username as user2_username, u2.email as user2_email FROM matches m LEFT JOIN users u1 ON m.user1_id = u1.user_id LEFT JOIN users u2 ON m.user2_id = u2.user_id WHERE m.match_id = $1 AND m.event_id = $2',
+            'SELECT * FROM matches WHERE match_id = $1 AND event_id = $2',
             [matchId, eventId]
         );
 
@@ -460,17 +512,19 @@ const reportMatch = async(req, res) => {
             });
         }
 
-        // Get the reporter's info
-        const reporterResult = await pool.query(
-            'SELECT username, email FROM users WHERE user_id = $1',
-            [userId]
+        // One report per reporter per match
+        const existingReport = await pool.query(
+            'SELECT 1 FROM reports WHERE match_id = $1 AND reporter_id = $2',
+            [matchId, userId]
         );
-        const reporter = reporterResult.rows[0];
+        if (existingReport.rows.length > 0) {
+            return res.status(409).json({
+                error: "You have already reported this match"
+            });
+        }
 
         // Determine the reported user
         const reportedUserId = match.user1_id === userId ? match.user2_id : match.user1_id;
-        const reportedUserName = match.user1_id === userId ? match.user2_username : match.user1_username;
-        const reportedUserEmail = match.user1_id === userId ? match.user2_email : match.user1_email;
 
         // Save the report so it survives restarts and can be reviewed
         await pool.query(
@@ -478,15 +532,15 @@ const reportMatch = async(req, res) => {
             [matchId, eventId, userId, reportedUserId, reason.trim().slice(0, 1000)]
         );
 
-        // Also log it so it shows up in the server logs right away
+        // Also log it so it shows up in the server logs right away. IDs only:
+        // emails and the reason stay in the reports table, not in the logs.
         // TODO: email the admin too (SMTP or a service like SendGrid)
         console.log(`
             REPORT SUBMITTED
             ================
             Match ID: ${matchId}
-            Reported By: ${reporter.username} (${reporter.email})
-            Reported User: ${reportedUserName} (${reportedUserEmail})
-            Reason: ${reason}
+            Reported By: ${userId}
+            Reported User: ${reportedUserId}
             Timestamp: ${new Date().toISOString()}
         `);
 
@@ -495,6 +549,18 @@ const reportMatch = async(req, res) => {
         });
 
     } catch (error) {
+        //22P02 = malformed UUID in matchId or eventId
+        if (error.code === '22P02') {
+            return res.status(400).json({
+                error: "Invalid id in request"
+            });
+        }
+        //23505 = unique violation on (match_id, reporter_id): two reports raced
+        if (error.code === '23505') {
+            return res.status(409).json({
+                error: "You have already reported this match"
+            });
+        }
         console.error('Report match error:', error);
         return res.status(500).json({
             error: "Internal Server Error. Please try again later"
@@ -502,13 +568,25 @@ const reportMatch = async(req, res) => {
     }
 };
 
-//Number of mutual matches (teammates) a user has in one event
-async function countTeammates(userId, eventId){
-    const result = await pool.query(
+//Number of mutual matches (teammates) a user has in one event.
+//Takes the client so it runs inside the caller's transaction.
+async function countTeammates(db, userId, eventId){
+    const result = await db.query(
         "SELECT COUNT(*)::int AS count FROM matches WHERE (user1_id = $1 OR user2_id = $1) AND event_id = $2 AND user1_status = 'liked' AND user2_status = 'liked'",
         [userId, eventId]
     );
     return result.rows[0].count;
+}
+
+//Error message when this like can't be recorded because it already exists, else null
+function duplicateLikeError(match, userId){
+    if(match.user1_status === 'liked' && match.user2_status === 'liked'){
+        return "You are already matched with this candidate";
+    }
+    if(match.initiated_by === userId){
+        return "Cannot like the same participant twice";
+    }
+    return null;
 }
 
 function normalizeIds(val1, val2){
